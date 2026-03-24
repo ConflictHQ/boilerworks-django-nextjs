@@ -122,15 +122,6 @@ class ProfileType:
         return self.pin is not None and self.pin != ''
 
     @strawberry_django.field
-    def is_us_citizen(self, info: Info) -> Optional[bool]:
-        if info.context.check_permission(
-            f"Profile.p('is_us_citizen').view.by({info.context.user.id})",
-            lambda: Profile.p('is_us_citizen').view.by(info.context.user),
-        ):
-            return self.is_us_citizen
-        return None
-
-    @strawberry_django.field
     async def avatar(self, info: Info) -> Optional[UploadType]:
         if info.context.check_permission(
             f"Profile.p('avatar').view.by({info.context.user.id})",
