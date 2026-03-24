@@ -33,7 +33,12 @@ from graphene_file_upload.django import FileUploadGraphQLView
 from pushnotif.twilio import TwilioService
 
 from .schema import schema
+from .strawberry_schema import schema as strawberry_schema, schema_auth as strawberry_schema_auth
 from .views import app_root_view, metrics_view, root_view, test_open_telemetry
+from core.strawberry_schema.views import CoreStrawberryView
+
+strawberry_view = CoreStrawberryView.as_view(schema=strawberry_schema)
+strawberry_auth_view = CoreStrawberryView.as_view(schema=strawberry_schema_auth)
 
 
 def trigger_error(request):
@@ -68,6 +73,10 @@ urls = [
     path('gql/config/auth/', csrf_exempt(gql_logger(
         GraphQLView.as_view(graphiql=True, schema=schema_auth))
     )),
+    # Strawberry v2 endpoints (dual-mount alongside Graphene for testing)
+    path('gql/v2/config/', csrf_exempt(strawberry_view)),
+    path('gql/v2/config/auth/', csrf_exempt(strawberry_auth_view)),
+
     path('core/', include('core.urls')),
     path('pushnotif/', include('pushnotif.urls')),
     path('test/open_telemetry/', test_open_telemetry, name="test-open-telemetry"),
