@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useForm, type FieldValues } from "react-hook-form";
+import { useEffect, useMemo, useState } from "react";
+import { useForm, useWatch, type FieldValues } from "react-hook-form";
 import { Loader2Icon, SendIcon, CheckCircle2Icon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useFormDefinition, useSubmitForm } from "@/graphql/forms/forms.hooks";
 import { DynamicField } from "./field-registry";
+import { evaluateLogicRules, type LogicRule, type LogicState } from "./logic-engine";
 
 type DynamicFormProps = {
   slug: string;
@@ -26,6 +27,7 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
     control,
     handleSubmit,
     setError,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FieldValues>();
 
@@ -61,16 +63,38 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
     required?: string[];
   };
   const properties = schema.properties || {};
-  const required = new Set(schema.required || []);
+  const schemaRequired = new Set(schema.required || []);
   const fieldNames = Object.keys(properties);
 
+  // Logic rules from the form definition
+  const logicRules = ((formDef as Record<string, unknown>).logicRules ?? []) as LogicRule[];
+  const fieldConfig = ((formDef as Record<string, unknown>).fieldConfig ?? {}) as Record<string, Record<string, unknown>>;
+
+  // Watch all field values for logic evaluation
+  const watchedValues = useWatch({ control });
+  const logicState: LogicState = useMemo(
+    () => evaluateLogicRules(logicRules, fieldConfig, watchedValues ?? {}, fieldNames),
+    [watchedValues, logicRules, fieldConfig, fieldNames],
+  );
+
+  // Apply calculated values back to the form
+  useEffect(() => {
+    for (const [field, value] of Object.entries(logicState.calculated)) {
+      if (value !== undefined) {
+        setValue(field, value);
+      }
+    }
+  }, [logicState.calculated, setValue]);
+
   const onSubmit = async (data: FieldValues) => {
-    // Strip empty optional fields
+    // Strip empty optional fields and hidden fields
     const payload: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
+      // Skip hidden fields
+      if (logicState.visibility[key] === false) continue;
       if (value !== "" && value !== undefined && value !== null) {
         payload[key] = value;
-      } else if (required.has(key)) {
+      } else if (schemaRequired.has(key) || logicState.required[key]) {
         payload[key] = value;
       }
     }
@@ -108,16 +132,33 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
 
       <div className="grid gap-4">
         {fieldNames.map((fieldName) => {
+          // Skip hidden fields
+          if (logicState.visibility[fieldName] === false) return null;
+
           const fieldSchema = { ...properties[fieldName] };
-          if (required.has(fieldName)) {
+          const isRequired = schemaRequired.has(fieldName) || logicState.required[fieldName];
+          if (isRequired) {
             fieldSchema._required = true;
-            if (!fieldSchema.title) {
-              fieldSchema.title =
-                fieldName.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) + " *";
-            } else {
-              fieldSchema.title = (fieldSchema.title as string) + " *";
-            }
+            const title =
+              (fieldSchema.title as string) ||
+              fieldName.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+            fieldSchema.title = title + " *";
           }
+
+          // Show calculated value as read-only display
+          if (fieldName in logicState.calculated && logicState.calculated[fieldName] !== undefined) {
+            return (
+              <div key={fieldName} className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium">
+                  {(fieldSchema.title as string) || fieldName}
+                </label>
+                <div className="bg-muted rounded-md px-3 py-2 text-sm">
+                  {String(logicState.calculated[fieldName])}
+                </div>
+              </div>
+            );
+          }
+
           return (
             <DynamicField
               key={fieldName}
