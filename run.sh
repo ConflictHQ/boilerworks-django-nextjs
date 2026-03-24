@@ -232,9 +232,15 @@ PYEOF
         ;;
 
     scaffold)
-        banner "Scaffolding new app"
+        banner "Scaffolding"
         _require_running
         docker exec -it "$CONTAINER" python manage.py scaffold "$@"
+        ;;
+
+    export-schema|platform)
+        banner "Exporting platform schema"
+        _require_running
+        docker exec "$CONTAINER" python manage.py export_platform_schema --pretty
         ;;
 
     # ── Nuclear options ──────────────────────────────────────────────────────
