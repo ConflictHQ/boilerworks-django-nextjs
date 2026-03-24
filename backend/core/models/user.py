@@ -10,7 +10,6 @@ from typing import List, Optional, Tuple
 
 from config.roles_gen import P
 from constance import config
-from core.dataloaders import DataLoaderContext, dataloader
 from core.middleware.current_user import get_current_user
 from core.models import GlobalIDLink, RequiresApproveMixin, Tracking
 from core.models.address import Address
@@ -201,8 +200,8 @@ class SignRequestMixin:
 
 
 @DeepLink.register(
-    webapp="/competency-signoff-details/%(global_id)s",
-    mobile="boilerworks://app/competency-signoff-details/%(global_id)s",
+    webapp="/sign-request-details/%(global_id)s",
+    mobile="boilerworks://app/sign-request-details/%(global_id)s",
 )
 class SignRequest(Tracking):
     """
@@ -243,7 +242,7 @@ class SignRequest(Tracking):
 
     signed_by = models.ManyToManyField(
         'core.PinTransaction',
-        related_name='competency_logs',
+        related_name='signature_logs',
         blank=True,
         help_text='Pin transactions used to sign this log.'
     )
@@ -575,11 +574,6 @@ class Profile(RequiresApproveMixin, Tracking):
         related_name='profile'
     )
 
-    is_us_citizen = models.BooleanField(
-        help_text='True if the user is a US citizen, false otherwise.',
-        null=True
-    )
-
     switch_group = models.ForeignKey(
         UserSwitchGroup,
         null=True, blank=True,
@@ -640,10 +634,6 @@ class Profile(RequiresApproveMixin, Tracking):
 
     phone_number = PhoneNumberField(null=True, blank=True, unique=False)
 
-    emergency_phone_number = PhoneNumberField(null=True, blank=True, unique=False)
-    emergency_contact_name = models.CharField(max_length=100, null=True, blank=True)
-    emergency_contact_relationship = models.CharField(max_length=100, null=True, blank=True)
-
     preferred_contact = models.CharField(
         max_length=10,
         choices=PreferredContactOptions.choices,
@@ -654,6 +644,13 @@ class Profile(RequiresApproveMixin, Tracking):
         max_length=2,
         choices=settings.LANGUAGES,
         default=settings.LANGUAGE_CODE
+    )
+
+    timezone = models.CharField(
+        max_length=50,
+        blank=True,
+        default='',
+        help_text='IANA timezone (e.g. America/New_York). Falls back to SYSTEM_TIME_ZONE if blank.'
     )
 
     pin = models.CharField(
@@ -667,8 +664,6 @@ class Profile(RequiresApproveMixin, Tracking):
 
     search = models.TextField(null=True, blank=True, editable=False, db_index=True,
                               help_text='Search field for user profile')
-
-    show_weekends = models.BooleanField(default=True, blank=False, null=False)
 
     username = models.CharField(
         "username",
@@ -691,8 +686,6 @@ class Profile(RequiresApproveMixin, Tracking):
             ('view_last_name', 'Can view last_name field'),
             ('change_last_name', 'Can change last_name field'),
             # Profile fields
-            ('view_is_us_citizen', 'Can view is_us_citizen field'),
-            ('change_is_us_citizen', 'Can change is_us_citizen field'),
             ('view_avatar', 'Can view avatar field'),
             ('change_avatar', 'Can change avatar field'),
             ('view_signature', 'Can view signature field'),
@@ -713,12 +706,6 @@ class Profile(RequiresApproveMixin, Tracking):
             ('change_address', 'Can change address field'),
             ('view_phone_number', 'Can view phone_number field'),
             ('change_phone_number', 'Can change phone_number field'),
-            ('view_emergency_phone_number', 'Can view emergency_phone_number field'),
-            ('change_emergency_phone_number', 'Can change emergency_phone_number field'),
-            ('view_emergency_contact_name', 'Can view emergency_contact_name field'),
-            ('change_emergency_contact_name', 'Can change emergency_contact_name field'),
-            ('view_emergency_contact_relationship', 'Can view emergency_contact_relationship field'),
-            ('change_emergency_contact_relationship', 'Can change emergency_contact_relationship field'),
             ('view_preferred_contact', 'Can view preferred_contact field'),
             ('change_preferred_contact', 'Can change preferred_contact field'),
             ('change_reset_password_users', 'Can reset password of other users'),
@@ -887,32 +874,6 @@ class Profile(RequiresApproveMixin, Tracking):
             ).values_list('attribute', flat=True)
         )
 
-    @dataloader
-    @staticmethod
-    def load_profile_from_ids(_context: DataLoaderContext, profile_ids):
-        """
-        DataLoader for user profiles.
-        """
-        queryset: QuerySet[Profile] = (
-            Profile.objects.filter(gid__in=profile_ids)
-            .select_related('avatar', 'signature', 'active_organization')
-        )
-        for profile in queryset:
-            yield profile.gid, profile
-
-    @dataloader
-    @staticmethod
-    def load_profile_from_user_ids(_context: DataLoaderContext, user_ids):
-        """
-        DataLoader for user profiles.
-        """
-        queryset: QuerySet[Profile] = (
-            Profile.objects.filter(user_id__in=user_ids)
-            .select_related('avatar', 'signature', 'active_organization')
-        )
-        for profile in queryset:
-            yield profile.user_id, profile
-
     def register_in_auth0(self, reset_password=True):
         """
         Register the user profile in the Auth0
@@ -951,13 +912,9 @@ class Profile(RequiresApproveMixin, Tracking):
         profile.birth_date = None
         profile.gender = ""  # Blank since it's a choice field
         profile.phone_number = None
-        profile.emergency_phone_number = None
-        profile.emergency_contact_name = ""
-        profile.emergency_contact_relationship = ""
         profile.preferred_contact = ""
         profile.pin = None
         profile.search = ""
-        profile.is_us_citizen = None
 
         # Nullify related fields (foreign keys)
         if profile.address:
@@ -1058,9 +1015,8 @@ def create_profile_edit_timeline_entry(sender, instance, created, **kwargs):
             fields_to_check = [
                 'first_name', 'last_name', 'middle_name', 'display_name',
                 'name_suffix', 'nickname',
-                'phone_number', 'emergency_phone_number', 'emergency_contact_name',
-                'emergency_contact_relationship', 'preferred_contact',
-                'birth_date', 'gender', 'is_us_citizen', 'preferred_language',
+                'phone_number', 'preferred_contact',
+                'birth_date', 'gender', 'preferred_language',
             ]
 
             for field_name in fields_to_check:

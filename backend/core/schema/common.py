@@ -1,25 +1,175 @@
-import django_filters.filters
-import graphene
-from core.models import GlobalIDLink, Link
-from django.conf import settings
+from __future__ import annotations
+
+from typing import Generic, Optional, Sequence, TypeVar
+
+import django_filters
+import strawberry
+import strawberry.relay
+import strawberry_django
 from django.db.models import QuerySet
 from django_filters.constants import EMPTY_VALUES
-from graphene import ID, BaseGlobalIDType
-from graphene.types.resolver import dict_resolver
-from graphene_django import DjangoObjectType
-from graphene_django.filter import GlobalIDFilter
-from graphene_django.registry import get_global_registry
 from graphql import GraphQLError
-from graphql_relay import from_global_id, to_global_id
+from strawberry import relay
+from strawberry.types import Info
 
+T = TypeVar("T")
+
+
+# ---------------------------------------------------------------------------
+# Custom relay connection with total_count
+# ---------------------------------------------------------------------------
+
+@strawberry.type(description="A connection with total count support.")
+class CustomConnection(relay.ListConnection[T], Generic[T]):
+    """Relay connection that includes total_count for pagination."""
+
+    @strawberry.field(description="Total number of items in the connection.")
+    def total_count(self) -> int:
+        nodes = self.nodes
+        if isinstance(nodes, QuerySet):
+            return nodes.count()
+        if hasattr(nodes, '__len__'):
+            return len(nodes)
+        return 0
+
+
+# ---------------------------------------------------------------------------
+# Validation / mutation result types
+# ---------------------------------------------------------------------------
+
+@strawberry.type(description="A field-level validation error.")
+class ValidationError:
+    field: str
+    messages: list[str]
+
+
+@strawberry.type(description="Standard mutation result with ok flag and validation errors.")
+class MutationResult:
+    ok: bool
+    errors: list[ValidationError] = strawberry.field(default_factory=list)
+
+    @classmethod
+    def success(cls) -> MutationResult:
+        return cls(ok=True, errors=[])
+
+    @classmethod
+    def from_serializer_errors(cls, errors: dict) -> MutationResult:
+        """Convert DRF serializer errors dict to MutationResult."""
+        flat_errors = unpack_nested_errors(errors)
+        return cls(ok=False, errors=flat_errors)
+
+    @classmethod
+    def from_form_errors(cls, errors: dict) -> MutationResult:
+        """Convert Django form errors dict to MutationResult."""
+        flat_errors = [
+            ValidationError(field=field, messages=[str(m) for m in msgs])
+            for field, msgs in errors.items()
+        ]
+        return cls(ok=False, errors=flat_errors)
+
+
+def unpack_nested_errors(errors: dict, prefix: str | None = None) -> list[ValidationError]:
+    """Recursively flatten nested DRF validation errors."""
+    result = []
+    for key, value in errors.items():
+        field = f"{prefix}.{key}" if prefix else key
+        if isinstance(value, list):
+            result.append(ValidationError(field=field, messages=[str(m) for m in value]))
+        elif isinstance(value, dict):
+            result.extend(unpack_nested_errors(value, prefix=field))
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Global ID utilities
+# ---------------------------------------------------------------------------
+
+class GlobalIDUtils:
+    """Utility methods for working with relay Global IDs in Strawberry."""
+
+    @staticmethod
+    def to_global_id(type_name: str, pk) -> str:
+        """Encode a type name and PK into a relay global ID."""
+        return relay.to_base64(type_name, pk)
+
+    @staticmethod
+    def from_global_id(global_id: str) -> tuple[str, str]:
+        """Decode a relay global ID into (type_name, pk)."""
+        type_name, node_id = relay.from_base64(global_id)
+        return type_name, node_id
+
+    @staticmethod
+    def get_pk(global_id: str, expected_type: str | None = None, raise_on_mismatch: bool = True) -> str:
+        """Extract the PK from a global ID, optionally validating the type name."""
+        type_name, pk = GlobalIDUtils.from_global_id(global_id)
+        if expected_type and type_name != expected_type:
+            if raise_on_mismatch:
+                raise GraphQLError(
+                    f"Invalid GlobalID: expected {expected_type}, got {type_name} "
+                    f"(global_id: {global_id})"
+                )
+            return None
+        return pk
+
+    @staticmethod
+    def get_pk_flexible(global_id: str, expected_type: str | None = None) -> str | None:
+        """Extract PK from either a global ID or a raw integer string."""
+        if not global_id:
+            return None
+        if isinstance(global_id, int) or global_id.isdigit():
+            return str(global_id)
+        return GlobalIDUtils.get_pk(global_id, expected_type=expected_type, raise_on_mismatch=False)
+
+    @staticmethod
+    def find_object_by_global_id(global_id: str, raise_not_found: bool = True):
+        """Find any object by its global ID using the Graphene registry.
+
+        Falls back to Django's ContentType framework to resolve the model.
+        """
+        from django.apps import apps
+        type_name, pk = GlobalIDUtils.from_global_id(global_id)
+
+        # Try to find the model by iterating registered models
+        for model in apps.get_models():
+            if model.__name__ == type_name or f'{model.__name__}Type' == type_name:
+                instance = model.objects.filter(pk=pk).first()
+                if instance:
+                    return instance
+
+        if raise_not_found:
+            raise GraphQLError(f'Object {global_id} not found')
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Permission-filtered queryset helper
+# ---------------------------------------------------------------------------
+
+def permission_filtered_queryset(queryset: QuerySet, info: Info) -> QuerySet:
+    """Apply the model's permission-based queryset filtering.
+
+    Expects the model to implement:
+        @classmethod
+        def get_queryset(cls, queryset, user) -> QuerySet
+    """
+    model = queryset.model
+    if hasattr(model, 'get_queryset'):
+        return model.get_queryset(queryset, info.context.user)
+    return queryset
+
+
+# ---------------------------------------------------------------------------
+# Case-insensitive ordering filter (for django-filter integration)
+# ---------------------------------------------------------------------------
 
 class CaseInsensitiveOrderingFilter(django_filters.OrderingFilter):
+    """Ordering filter that sorts case-insensitively."""
 
     def filter(self, qs, value):
         if value in EMPTY_VALUES:
             return qs
+        from django.db.models.functions import Lower
         for param in value:
-            from django.db.models.functions import Lower
             if param.startswith('-'):
                 qs = qs.order_by(Lower(param[1:])).reverse()
             else:
@@ -27,171 +177,18 @@ class CaseInsensitiveOrderingFilter(django_filters.OrderingFilter):
         return qs
 
 
-class GlobalIDFilterSet(django_filters.FilterSet):
-    id = GlobalIDFilter(method='_filter_by_id')
+# ---------------------------------------------------------------------------
+# Simple standalone types (no Django model backing)
+# ---------------------------------------------------------------------------
 
-    def _filter_by_id(self, queryset, name, value):
-        if value is not None:
-            _, _id = from_global_id(value)
-            if _id is not None:
-                return queryset.filter(id=_id)
-        return queryset
-
-
-class CustomConnection(graphene.relay.Connection):
-    """
-    `link total_count <https://github.com/graphql-python/graphene/issues/307>` _
-    """
-
-    class Meta:
-        abstract = True
-
-    total_count = graphene.Int()
-
-    @staticmethod
-    def resolve_total_count(root, info):
-        return root.length
+@strawberry.type(description="A named counter.")
+class CounterType:
+    id: str
+    name: str
+    count: int
 
 
-class SlugGlobalIDType(BaseGlobalIDType):
-    graphene_type = ID
-
-    @classmethod
-    def resolve_global_id(cls, info, global_id):
-        _type = info.return_type.graphene_type._meta.name
-        return _type, global_id
-
-    @classmethod
-    def to_global_id(cls, _type, _id):
-        return _id
-
-
-class MetaNode:
-    interfaces = graphene.relay.Node,
-    connection_class = CustomConnection
-
-
-class DjangoPermissionFilterMixin:
-
-    @classmethod
-    def get_queryset(cls, queryset: QuerySet, info) -> QuerySet:
-        return queryset.model.get_queryset(queryset, info.context.user)
-
-
-class DjangoObjectTypeUtils:
-
-    def get_model(self):
-        return self.graphene_type._meta.model
-
-    @classmethod
-    def to_global_id(cls, record):
-        try:
-            return to_global_id(str(cls), record.pk)
-        except Exception as e:
-            return str(e)
-
-    @classmethod
-    def get_model_pk(cls, model, global_id: graphene.ID(), raise_invalid_id: bool = True):
-        registry = get_global_registry()
-        return registry.get_type_for_model(model).get_pk(global_id, raise_invalid_id)
-
-    @classmethod
-    def get_pk(cls, global_id: graphene.ID(), raise_invalid_id: bool = True, check_model_name=True):
-        model_name, pk = from_global_id(global_id)
-        if check_model_name and not str(cls) == model_name:
-            if raise_invalid_id:
-                if model_name == '':
-                    model_name = 'Invalid Format'
-                raise GraphQLError(f'Invalid GlobalID expected {str(cls)} received {model_name} with global_id: {global_id}')
-            else:
-                return None
-        return pk
-
-    @classmethod
-    def get_object(cls, info, global_id: graphene.ID(), raise_invalid_id: bool = True, raise_not_found=False):
-        # TODO replace this with Node.get_node_from_global_id
-        if not global_id and not raise_not_found:
-            return None
-
-        pk = global_id
-        if isinstance(pk, str) and not global_id.isdigit():
-            pk = cls.get_pk(global_id, raise_invalid_id)
-
-        obj = cls.get_node(info, pk)
-
-        if raise_not_found and not obj:
-            if settings.DEBUG:
-                raise GraphQLError(f'Object id {str(cls)}:{global_id} with pk: {pk} not found. '
-                                   f'This can be related to permissions problem or wrong organization')
-            raise GraphQLError(f'Object id {str(cls)}:{global_id} not found')
-
-        return obj
-
-    @classmethod
-    def find_object(cls, global_id, app_label=None, raise_not_found=False):
-        """
-        Finds an object by its global id.
-        """
-        model_name_type, pk = from_global_id(global_id)
-        model = cls.get_model_from_type(model_name_type, raise_not_found=True)
-        instance = model.objects.filter(pk=pk).first()
-
-        if not instance and raise_not_found:
-            raise GraphQLError(f'Object {global_id} -> {model}:{pk} not found')
-
-        return instance
-
-    @classmethod
-    def get_instance_from_id(cls, info, id, raise_not_found=False):
-        type_name, pk = from_global_id(id)
-        model = cls.get_model_from_type(type_name, raise_not_found)
-        instance = model.objects.filter(pk=pk).first()
-        if not instance and raise_not_found:
-            raise GraphQLError('Record not found')
-        return instance
-
-    @classmethod
-    def get_model_from_type(cls, type_name, raise_not_found=False):
-        from graphene_django.registry import get_global_registry
-        registry = get_global_registry()
-        for model, value in registry._registry.items():
-            if str(value) == type_name:
-                return model
-
-        if raise_not_found:
-            raise GraphQLError('Model not found')
-        return None
-
-
-class CounterType(graphene.ObjectType, default_resolver=dict_resolver):
-    id = graphene.String()
-    name = graphene.String()
-    count = graphene.Int()
-
-
-class GlobalIDLinkType(DjangoObjectType, DjangoObjectTypeUtils):
-
-    type_name = graphene.String()
-
-    class Meta(MetaNode):
-        model = GlobalIDLink
-
-
-class LinkType(DjangoObjectType, DjangoObjectTypeUtils):
-
-    class Meta(MetaNode):
-        model = Link
-        fields = 'id', 'title', 'url', 'description', 'created_at', 'updated_at'
-
-
-class MoneyType(graphene.ObjectType):
-    currency = graphene.String()
-    amount = graphene.String()
-
-    @staticmethod
-    def resolve_amount(parent, info):
-        return str(parent.amount)
-
-    @staticmethod
-    def resolve_currency(parent, info):
-        return parent.currency
+@strawberry.type(description="A monetary amount with currency.")
+class MoneyType:
+    currency: str
+    amount: str

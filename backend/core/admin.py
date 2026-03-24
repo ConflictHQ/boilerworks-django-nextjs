@@ -384,9 +384,9 @@ class UploadAdmin(admin.ModelAdmin, AdminGrapheneUtils):
 
     @staticmethod
     def _owner_entity(obj: Upload):
-        from graphql_relay import from_global_id
+        from strawberry.relay import from_base64
         if obj.target_global_id:
-            obj_type, obj_id = from_global_id(obj.target_global_id)
+            obj_type, obj_id = from_base64(obj.target_global_id)
             return f'{obj_type} ({obj.target_global_id})'
         return 'General Purpose File'
 

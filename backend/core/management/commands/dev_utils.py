@@ -17,7 +17,6 @@ from django.db.migrations.loader import MigrationLoader
 from django.db.migrations.recorder import MigrationRecorder
 from django.db.migrations.state import ProjectState
 from django.db.migrations.writer import MigrationWriter
-from graphene_django.management.commands.graphql_schema import Command as CommandGraphqlSchema
 
 logger = logging.getLogger(__name__)
 settings.INSTALLED_APPS += ('testdata', )
@@ -85,10 +84,12 @@ class Command(BaseCommand):
 
         if options['generate_schema']:
             out = 'static/gql/schema.graphql'
-            CommandGraphqlSchema.requires_system_checks = ALL_CHECKS
-            management.call_command("graphql_schema",
-                                    schema='config.schema.schema',
-                                    out=out, )
+            from config.schema import schema
+            sdl = schema.as_str()
+            os.makedirs(os.path.dirname(out), exist_ok=True)
+            with open(out, 'w') as f:
+                f.write(sdl)
+            logger.info(f'Schema written to {out}')
             try:
                 import shutil
                 shutil.copy(out, '../frontend/src/utils/schema.graphql')

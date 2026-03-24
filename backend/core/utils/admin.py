@@ -2,17 +2,18 @@ from django.contrib import admin, messages
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from graphene_django.registry import get_global_registry
 from import_export.admin import ImportExportMixin
+from strawberry.relay import to_base64
 
 
 class AdminGrapheneUtils:
 
     @classmethod
     def global_id(cls, obj):
-        registry = get_global_registry()
-        schema_type = registry.get_type_for_model(type(obj))
-        return schema_type and registry.get_type_for_model(type(obj)).to_global_id(obj) or 'Not Defined'
+        if obj and obj.pk:
+            type_name = f'{type(obj).__name__}Type'
+            return to_base64(type_name, obj.pk)
+        return 'Not Defined'
 
 
 class BaseCoreMixing:

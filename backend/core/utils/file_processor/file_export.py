@@ -85,7 +85,7 @@ class ChatHistory(FileExport, FileExportMixin):
             # Parse ISO format and assign UTC timezone
             utc_dt = datetime.fromisoformat(timestamp.replace('Z', '')).replace(tzinfo=pytz.UTC)
             # Convert to Mountain Time
-            mt_dt = utc_dt.astimezone(pytz.timezone(settings.COMPANY_TIME_ZONE))
+            mt_dt = utc_dt.astimezone(pytz.timezone(settings.SYSTEM_TIME_ZONE))
             return mt_dt.strftime('%Y-%m-%d %H:%M:%S')
         except ValueError:
             return timestamp

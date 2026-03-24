@@ -1,26 +1,49 @@
-import graphene
-from core.serializers.notification import NotificationSerializer
+"""Notification mutations migrated from Graphene to Strawberry."""
+from __future__ import annotations
+
+import logging
+
+import strawberry
 from django.utils import timezone
-from graphene_django.rest_framework.mutation import SerializerMutation
+from graphql import GraphQLError
+from strawberry.types import Info
+
+from core.schema.common import GlobalIDUtils, MutationResult
+
+logger = logging.getLogger(__name__)
 
 
-class NotificationMutation(SerializerMutation):
+@strawberry.type
+class NotificationMutations:
 
-    class Meta:
-        serializer_class = NotificationSerializer
-        lookup_field = 'guid'
-        fields = "__all__"
+    @strawberry.mutation(description="Create or update a notification via NotificationSerializer.")
+    def notification(self, info: Info, input: strawberry.scalars.JSON) -> MutationResult:
+        from core.serializers.notification import NotificationSerializer
 
+        kwargs = {
+            'data': input,
+            'partial': True,
+            'context': {'request': info.context.request},
+        }
 
-class NotificationReadMutation(graphene.Mutation):
-    ok = graphene.Boolean()
+        # Handle lookup by guid for updates
+        guid = input.get('guid')
+        if guid:
+            from core.models import Notification
+            instance = Notification.objects.filter(guid=guid).first()
+            if instance:
+                kwargs['instance'] = instance
 
-    class Arguments:
-        gid = graphene.ID(description='Notification Global ID')
+        serializer = NotificationSerializer(**kwargs)
+        if serializer.is_valid():
+            serializer.save()
+            return MutationResult.success()
+        else:
+            return MutationResult.from_serializer_errors(serializer.errors)
 
-    @classmethod
-    def mutate(cls, root, info, gid):
-        from core.models import NotificationStatus
+    @strawberry.mutation(description="Mark a notification as read.")
+    def notification_read(self, info: Info, gid: strawberry.ID) -> bool:
+        from core.models import Notification, NotificationStatus
         from core.schema import NotificationType
 
         notification = NotificationType.get_object(info, gid, raise_not_found=True)
@@ -31,4 +54,4 @@ class NotificationReadMutation(graphene.Mutation):
         notification.status_date = timezone.now()
         notification.save()
 
-        return cls(ok=True)
+        return True

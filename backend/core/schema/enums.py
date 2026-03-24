@@ -1,10 +1,16 @@
-import graphene
+import strawberry
+
 from core.models import NotificationStatus, Profile
 
-CoreProfileDocumentOptionChoices = graphene.Enum('CoreProfileDocumentOptionChoices', [
-    (e.name, e.value) for e in list(Profile.DocumentOptions)
-])
 
-EnumNotificationStatus = graphene.Enum('EnumNotificationStatus', [
-    (e.name, e.value) for e in list(NotificationStatus)
-])()
+CoreProfileDocumentOptionChoices = strawberry.enum(
+    Profile.DocumentOptions,
+    name="CoreProfileDocumentOptionChoices",
+    description="Profile document option choices.",
+)
+
+EnumNotificationStatus = strawberry.enum(
+    NotificationStatus,
+    name="EnumNotificationStatus",
+    description="Notification status values.",
+)
