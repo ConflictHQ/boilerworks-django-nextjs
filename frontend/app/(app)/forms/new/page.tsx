@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Loader2Icon, PlusIcon, CodeIcon, LayoutIcon, EyeIcon, EyeOffIcon, GripVerticalIcon } from "lucide-react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";

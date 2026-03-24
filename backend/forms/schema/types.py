@@ -25,7 +25,7 @@ class FormDefinitionType:
     """A versioned form definition with JSON Schema."""
     name: str
     slug: str
-    description: str
+    description: Optional[str]
     status: str
     version: int
     schema: strawberry.scalars.JSON
