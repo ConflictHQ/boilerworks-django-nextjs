@@ -172,13 +172,11 @@ class UserMutations:
     @strawberry.mutation(description="Update user profile via ProfileSerializer (restricted).")
     def profile(self, info: Info, input: strawberry.scalars.JSON) -> MutationResult:
         from core.serializers.profile import ProfileSerializer
-        from graphql_relay import from_global_id as relay_from_global_id
-
         fields_provided = input.keys()
         user_id = info.context.user.id
 
         if 'user' in fields_provided and 'id' in input['user']:
-            user_id = relay_from_global_id(input['user']['id']).id
+            _, user_id = GlobalIDUtils.from_global_id(input['user']['id'])
             input['user']['id'] = user_id
 
         instance = Profile.objects.filter(user_id=user_id).first()

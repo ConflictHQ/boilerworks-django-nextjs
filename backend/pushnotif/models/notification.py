@@ -144,10 +144,9 @@ class PushNotification(DfaInstance):
 
     @property
     def global_id(self):
-        from graphene_django.registry import get_global_registry
-
-        registry = get_global_registry()
-        return registry.get_type_for_model(type(self)).to_global_id(self)
+        from strawberry.relay import to_base64
+        type_name = f'{type(self).__name__}Type'
+        return to_base64(type_name, self.pk)
 
 
 class SMSNotification(Tracking):

@@ -1,5 +1,5 @@
 from core.tests.utils.base_test import BaseTest
-from graphql_relay import to_global_id
+from strawberry.relay import to_base64 as to_global_id
 
 
 class UserTest(BaseTest):

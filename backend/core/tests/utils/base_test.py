@@ -8,7 +8,6 @@ from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory
-from graphene.test import Client
 from organization.models import Organization, OrganizationMember
 from snapshottest.django import TestCase
 

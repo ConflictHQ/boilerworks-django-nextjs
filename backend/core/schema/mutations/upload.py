@@ -14,7 +14,6 @@ from uuid import UUID, uuid4
 import strawberry
 from django.contrib.contenttypes.models import ContentType
 from graphql import GraphQLError
-from graphql_relay import from_global_id
 from strawberry.types import Info
 
 from core.models import Profile, SharedDirectory, SharedFile
@@ -23,7 +22,7 @@ from core.models.upload import FileUpload, Upload
 from core.schema.common import GlobalIDUtils
 from core.schema.types.upload import UploadType as StrawberryUploadType
 from core.systems import AwsProcessSystem
-from graphene_django.registry import get_global_registry
+from strawberry.relay import from_base64
 
 # Optional import - Domain-specific functionality
 try:
@@ -95,13 +94,9 @@ class ProfileImageFieldUploadResult:
 
 def _exists_global_id_guard(info, global_id: str):
     """Ensure the entity referenced by global_id exists."""
-    model_name, pk = from_global_id(global_id)
-    r = get_global_registry()
-    for model, g_type in r._registry.items():
-        if str(g_type) == model_name:
-            g_type.get_object(info, global_id, raise_not_found=True)
-            break
-    return model_name, pk
+    type_name, pk = GlobalIDUtils.from_global_id(global_id)
+    obj = GlobalIDUtils.find_object_by_global_id(global_id, raise_not_found=True)
+    return type_name, pk
 
 
 def create_upload(
@@ -190,7 +185,7 @@ class UploadMutations:
             name=name,
         )
 
-        model_name, pk = from_global_id(global_id)
+        model_name, pk = GlobalIDUtils.from_global_id(global_id)
         model_name_lower: str = model_name.replace('Type', '').lower()
 
         ct = ContentType.objects.get(model=model_name_lower)
@@ -413,7 +408,7 @@ class UploadMutations:
 
         from config.roles_gen import P
 
-        model_name, pk = from_global_id(global_id)
+        model_name, pk = GlobalIDUtils.from_global_id(global_id)
         assert model_name != Profile._meta.model_name
         profile_original: Profile = Profile.objects.get(pk=pk)
         whitelist: List[str] = Profile.whitelist_fields()

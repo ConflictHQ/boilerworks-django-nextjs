@@ -10,7 +10,7 @@ from core.schema import schema as core_schema
 from dateutil.parser import parse as date_parse
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from graphene import Schema
+from strawberry import Schema
 from graphql import DocumentNode
 from jsonpath_ng import DatumInContext, parse
 from promise import Promise, is_thenable

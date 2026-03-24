@@ -252,7 +252,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
-    'graphene_django',
+    'strawberry_django',
     'phonenumber_field',
     'core',
     'rolepermissions',
@@ -464,10 +464,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-GRAPHENE = {
-
-}
 
 REST_FRAMEWORK = {
     "DATE_INPUT_FORMATS": [

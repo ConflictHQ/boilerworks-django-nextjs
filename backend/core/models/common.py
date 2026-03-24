@@ -14,8 +14,7 @@ from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.text import slugify
-from graphene_django.registry import get_global_registry
-from graphql_relay import from_global_id
+from strawberry.relay import from_base64, to_base64
 from simple_history.models import HistoricalRecords
 
 
@@ -69,10 +68,8 @@ class ModelPermissionsMixin:
 
     @property
     def global_id(self):
-        from graphene_django.registry import get_global_registry
-
-        registry = get_global_registry()
-        return registry.get_type_for_model(type(self)).to_global_id(self)
+        type_name = f'{type(self).__name__}Type'
+        return to_base64(type_name, self.pk)
 
     def delete_check(self, info, *args, **kwargs):
         """
@@ -126,10 +123,8 @@ class Tracking(ModelPermissionsMixin, models.Model):
 
     @property
     def global_id(self):
-        from graphene_django.registry import get_global_registry
-
-        registry = get_global_registry()
-        return registry.get_type_for_model(type(self)).to_global_id(self)
+        type_name = f'{type(self).__name__}Type'
+        return to_base64(type_name, self.pk)
 
 
 class ResourceFile(Tracking):
