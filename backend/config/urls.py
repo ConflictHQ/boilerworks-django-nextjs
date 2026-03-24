@@ -10,6 +10,7 @@ from core import views
 from core.schema.views import CoreStrawberryView
 from core.utils.debug import autologin
 from core.utils.logger_helper import gql_logger
+from django_ratelimit.decorators import ratelimit
 from django.conf import settings
 from django.conf.urls import include
 from django.contrib import admin
@@ -44,9 +45,9 @@ urls = [
     path('sentry-debug/', trigger_error),
     path('export/', views.download_file),
 
-    # GraphQL endpoints (Strawberry)
-    path('gql/config/', csrf_exempt(autologin(gql_logger(strawberry_view)))),
-    path('gql/config/auth/', csrf_exempt(gql_logger(strawberry_auth_view))),
+    # GraphQL endpoints (Strawberry) — rate limited
+    path('gql/config/', csrf_exempt(autologin(gql_logger(ratelimit(key='user_or_ip', rate='100/m', block=True)(strawberry_view))))),
+    path('gql/config/auth/', csrf_exempt(gql_logger(ratelimit(key='ip', rate='30/m', block=True)(strawberry_auth_view)))),
 
     path('core/', include('core.urls')),
     path('pushnotif/', include('pushnotif.urls')),
