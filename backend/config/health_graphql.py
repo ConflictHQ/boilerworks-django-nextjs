@@ -1,9 +1,9 @@
 """Health check for the Strawberry GraphQL endpoint."""
-from health_check.backends import BaseHealthCheckBackend
-from health_check.exceptions import HealthCheckException
+from health_check.backends import BaseHealthCheck
+from health_check.exceptions import ServiceUnavailable
 
 
-class GraphQLHealthCheck(BaseHealthCheckBackend):
+class GraphQLHealthCheck(BaseHealthCheck):
     critical_service = True
 
     def check_status(self):
@@ -11,11 +11,11 @@ class GraphQLHealthCheck(BaseHealthCheckBackend):
             from config.schema import schema
             result = schema.execute_sync('{ __typename }')
             if result.errors:
-                raise HealthCheckException(f'GraphQL errors: {result.errors}')
-            if result.data.get('__typename') != 'Query':
-                raise HealthCheckException('GraphQL returned unexpected __typename')
+                self.add_error(ServiceUnavailable(f'GraphQL errors: {result.errors}'))
+            elif result.data.get('__typename') != 'Query':
+                self.add_error(ServiceUnavailable('Unexpected __typename'))
         except Exception as e:
-            raise HealthCheckException(f'GraphQL unavailable: {e}')
+            self.add_error(ServiceUnavailable(f'GraphQL unavailable: {e}'))
 
     def identifier(self):
         return 'GraphQL (Strawberry)'

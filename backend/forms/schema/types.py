@@ -10,6 +10,16 @@ from strawberry.types import Info
 from forms.models import FormDefinition, FormSubmission
 
 
+@strawberry.type
+class FormAnalyticsType:
+    """Aggregated analytics for a form identified by slug."""
+    total_submissions: int
+    submissions_today: int
+    avg_submissions_per_day: float
+    completion_rate: float
+    status_breakdown: strawberry.scalars.JSON
+
+
 @strawberry_django.type(FormDefinition)
 class FormDefinitionType:
     """A versioned form definition with JSON Schema."""
