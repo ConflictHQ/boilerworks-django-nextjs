@@ -19,6 +19,8 @@ class FormDefinitionType:
     status: str
     version: int
     schema: strawberry.scalars.JSON
+    form_type: str
+    is_public: bool
     published_at: Optional[datetime]
     created_at: datetime
     updated_at: datetime
