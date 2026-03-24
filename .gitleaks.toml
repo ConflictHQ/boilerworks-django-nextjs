@@ -1,0 +1,25 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Ignore UUID patterns (false positives from generic-api-key rule)"
+regexTarget = "secret"
+regexes = [
+    # Standard UUID format
+    '''^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$''',
+]
+
+[[allowlists]]
+description = "Ignore third-party Mapbox demo token from UI template vendor"
+regexTarget = "secret"
+regexes = [
+    '''^pk\.eyJ1IjoicGxheW1hcGJveCJ8IjoiY2wxeG1hd24''',
+    '''^pk\.eyJ1Ijoic2ltbW1wbGUi''',
+]
+
+[[allowlists]]
+description = "Ignore fake placeholder AWS credentials in test files"
+regexTarget = "secret"
+regexes = [
+    '''^0123456789ABCDEFG''',
+]

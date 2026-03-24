@@ -1,0 +1,76 @@
+[
+  {
+    "model": "pushnotif.deliverymethod",
+    "fields": {
+      "name": "ANDROID",
+      "display_name": "Android"
+    }
+  },
+  {
+    "model": "pushnotif.deliverymethod",
+    "fields": {
+      "name": "IOS",
+      "display_name": "IOS"
+    }
+  },
+  {
+    "model": "pushnotif.deliverymethodnotificationtemplate",
+    "fields": {
+      "version": 1,
+      "created_at": "2025-05-20T00:45:59.359Z",
+      "updated_at": "2025-05-20T00:45:59.359Z",
+      "notification_template": "message/received",
+      "delivery_method": "ANDROID",
+      "always_send_notification": false,
+      "never_send_notification": false,
+      "header_template": "TEST_MESSAGE_RECEIVED_ANDROID_HEADER_HTML",
+      "body_template": "TEST_MESSAGE_RECEIVED_ANDROID_BODY_HTML"
+    }
+  },
+  {
+    "model": "pushnotif.deliverymethodnotificationtemplate",
+    "fields": {
+      "version": 1,
+      "created_at": "2025-05-20T00:45:59.359Z",
+      "updated_at": "2025-05-20T00:45:59.359Z",
+      "notification_template": "message/received",
+      "delivery_method": "IOS",
+      "always_send_notification": false,
+      "never_send_notification": false,
+      "header_template": "TEST_MESSAGE_RECEIVED_IOS_HEADER_HTML",
+      "body_template": "TEST_MESSAGE_RECEIVED_IOS_BODY_HTML"
+    }
+  },
+  {
+    "model": "pushnotif.devicetoken",
+    "fields": {
+      "version": 1,
+      "created_at": "2023-11-28T02:26:27.854Z",
+      "updated_at": "2023-11-28T02:26:27.854Z",
+      "recipient": [
+        "test_superuser"
+      ],
+      "device_token": "my_device_token",
+      "name": "my_device_token_name",
+      "delivery_method": "ANDROID"
+    }
+  },
+  {
+    "model": "pushnotif.notificationtemplate",
+    "pk": "message/received",
+    "fields": {
+      "version": 1,
+      "created_at": "2024-08-01T01:43:29.152Z",
+      "created_by": null,
+      "updated_at": "2024-08-01T01:43:29.152Z",
+      "updated_by": null,
+      "deleted_at": null,
+      "deleted_by": null,
+      "display_name": "Test Message received",
+      "app_label": "core",
+      "classname": "Notifications",
+      "member": "MESSAGE_RECEIVED",
+      "parameters": "TestParameters"
+    }
+  }
+]

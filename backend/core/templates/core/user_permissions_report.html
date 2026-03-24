@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Permissions Tree</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+</head>
+<body>
+    <h1>User Permissions Tree</h1>
+
+    <div>
+        <button id="expand-all">Expand All</button>
+        <button id="collapse-all">Collapse All</button>
+        <input type="text" id="tree-search" placeholder="Filter nodes..." />
+    </div>
+
+    <div id="permissions-tree"></div>
+
+    <script>
+        $(function() {
+            // Initialize the jsTree
+              function getQueryParams() {
+                const params = new URLSearchParams(window.location.search);
+                const ids = params.getAll('ids'); // Get all 'ids' parameters as an array
+                return ids.length > 0 ? `?${params.toString()}` : ''; // Return the query string if IDs exist
+            }
+
+            const $tree = $('#permissions-tree').jstree({
+                'core': {
+                    'data': {
+                        'url': `/app/core/core/user-permissions-report/${getQueryParams()}`,  // The endpoint for the JSON data
+                        'dataType': 'json'
+                    }
+                },
+                'plugins': ['search']  // Enable the search plugin
+            });
+
+            // Button to expand all nodes
+            $('#expand-all').on('click', function() {
+                $tree.jstree('open_all');
+            });
+
+            // Button to collapse all nodes
+            $('#collapse-all').on('click', function() {
+                $tree.jstree('close_all');
+            });
+
+            // Search/Filter functionality
+            let searchTimeout = null;
+            $('#tree-search').on('keyup', function() {
+                const query = $(this).val();
+
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+
+                searchTimeout = setTimeout(function() {
+                  if (query.length > 3) {
+                    $tree.jstree('search', query);
+                  }
+                }, 250); // Debounce search for performance
+            });
+        });
+    </script>
+</body>
+</html>

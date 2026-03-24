@@ -1,0 +1,16 @@
+[
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "core_ui",
+      "model": "component"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "core_ui",
+      "model": "componentrelationship"
+    }
+  }
+]

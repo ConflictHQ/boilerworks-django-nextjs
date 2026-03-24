@@ -1,0 +1,274 @@
+[
+  {
+    "model": "auth.group",
+    "fields": {
+      "name": "administrator",
+      "permissions": [
+        [
+          "add_component",
+          "core_ui",
+          "component"
+        ],
+        [
+          "add_dashboard",
+          "core_ui",
+          "component"
+        ],
+        [
+          "add_navigation",
+          "core_ui",
+          "component"
+        ],
+        [
+          "view_navigation",
+          "core_ui",
+          "component"
+        ],
+        [
+          "view_dashboard",
+          "core_ui",
+          "component"
+        ],
+        [
+          "view_component",
+          "core_ui",
+          "component"
+        ],
+        [
+          "change_navigation",
+          "core_ui",
+          "component"
+        ],
+        [
+          "change_dashboard",
+          "core_ui",
+          "component"
+        ],
+        [
+          "change_component",
+          "core_ui",
+          "component"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "auth.group",
+    "fields": {
+      "name": "editor",
+      "permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "is_superuser": true,
+      "username": "test_superuser",
+      "first_name": "test",
+      "last_name": "superuser",
+      "email": "superuser@boilerworks.dev",
+      "is_staff": true,
+      "is_active": true,
+      "groups": [
+        [
+          "administrator"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 3,
+    "fields": {
+      "is_superuser": true,
+      "username": "test_second_superuser",
+      "first_name": "test",
+      "last_name": "second_superuser",
+      "email": "secondsuperuser@boilerworks.dev",
+      "is_staff": true,
+      "is_active": true,
+      "groups": [
+        [
+          "administrator"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view \"navigation\"",
+      "content_type": [
+        "core_ui",
+        "component"
+      ],
+      "codename": "view_navigation"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add \"navigation\"",
+      "content_type": [
+        "core_ui",
+        "component"
+      ],
+      "codename": "add_navigation"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change \"navigation\"",
+      "content_type": [
+        "core_ui",
+        "component"
+      ],
+      "codename": "change_navigation"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete \"navigation\"",
+      "content_type": [
+        "core_ui",
+        "component"
+      ],
+      "codename": "delete_navigation"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view \"dashboard\"",
+      "content_type": [
+        "core_ui",
+        "component"
+      ],
+      "codename": "view_dashboard"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add \"dashboard\"",
+      "content_type": [
+        "core_ui",
+        "component"
+      ],
+      "codename": "add_dashboard"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change \"dashboard\"",
+      "content_type": [
+        "core_ui",
+        "component"
+      ],
+      "codename": "change_dashboard"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete \"dashboard\"",
+      "content_type": [
+        "core_ui",
+        "component"
+      ],
+      "codename": "delete_dashboard"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add component",
+      "content_type": [
+        "core_ui",
+        "component"
+      ],
+      "codename": "add_component"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change component",
+      "content_type": [
+        "core_ui",
+        "component"
+      ],
+      "codename": "change_component"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete component",
+      "content_type": [
+        "core_ui",
+        "component"
+      ],
+      "codename": "delete_component"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view component",
+      "content_type": [
+        "core_ui",
+        "component"
+      ],
+      "codename": "view_component"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add component relationship",
+      "content_type": [
+        "core_ui",
+        "componentrelationship"
+      ],
+      "codename": "add_componentrelationship"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change component relationship",
+      "content_type": [
+        "core_ui",
+        "componentrelationship"
+      ],
+      "codename": "change_componentrelationship"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete component relationship",
+      "content_type": [
+        "core_ui",
+        "componentrelationship"
+      ],
+      "codename": "delete_componentrelationship"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view component relationship",
+      "content_type": [
+        "core_ui",
+        "componentrelationship"
+      ],
+      "codename": "view_componentrelationship"
+    }
+  }
+]

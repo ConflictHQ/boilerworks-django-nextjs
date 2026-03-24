@@ -1,0 +1,17 @@
+{% extends "admin/change_list.html" %}
+
+{% block result_list %}
+    <table>
+    <tbody>
+    <tr>
+        <td><label for="to-email">To: </label></td>
+        <td><input id="to-email" name="to-email" placeholder="to@email.com"/></td>
+        <td><label for="cc-email">CC: </label></td>
+        <td><input id="cc-email" name="cc-email" placeholder="cc@email.com"/></td>
+        <td><label for="bcc-email">BCC: </label></td>
+        <td><input id="bcc-email" name="bcc-email" placeholder="bcc@email.com"/></td>
+    </tr>
+    </tbody>
+    </table>
+    {{ block.super }}
+{% endblock %}

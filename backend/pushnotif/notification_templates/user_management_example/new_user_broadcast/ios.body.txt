@@ -1,0 +1,2 @@
+Hi {{ recipient }}!
+User {{sender}} has added {{ receiver}} to the organization!

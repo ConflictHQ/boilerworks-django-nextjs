@@ -1,0 +1,78 @@
+import logging
+
+from unittest.mock import patch
+from uuid import UUID
+from django.contrib.auth import get_user_model
+from config.backend import MagicBackend
+from core.models import Profile
+from core.tests import TestBaseCase
+from core.tests.helper import CoreGQLTestHelper
+from unittest import mock
+
+logger = logging.getLogger(__name__)
+
+
+class CoreDataTest(TestBaseCase):
+    """
+    todo: consider change this to use GraphQLTestCase
+    https://docs.graphene-python.org/projects/django/en/latest/testing/
+    """
+    fixtures = [
+        'auth', 'core'
+    ]
+
+    @classmethod
+    def setUpClass(cls):
+        MagicBackend._magic = mock.MagicMock()
+        super().setUpClass()
+
+    @patch('core.schema.mutations.user.uuid.uuid4')
+    @patch('config.backend.MagicBackend._magic.Token.get_issuer')
+    @patch('config.backend.MagicBackend._magic.User.get_metadata_by_issuer')
+    @patch('core.schema.user.login')
+    def test_login_new_user(self, mock_login, mock_get_metadata_by_issuer, mock_get_issuer, uuid4):
+        mock_login.return_value = True
+        mock_get_metadata_by_issuer.return_value = mock.MagicMock(data={'email': 'email@email.com'},)
+        mock_get_issuer.return_value = ()
+        uuid4.return_value = UUID('00000000-0000-0000-0000-000000000000')
+
+        generator = CoreGQLTestHelper()
+        result = generator.core_gql.login(didToken='didToken')
+        self.assertMatchSnapshot(result.snapshot)
+
+    @patch('config.backend.MagicBackend._magic.Token.get_issuer')
+    @patch('config.backend.MagicBackend._magic.User.get_metadata_by_issuer')
+    @patch('core.schema.user.login')
+    def test_login_existing_user(self, mock_login, mock_get_metadata_by_issuer, mock_get_issuer):
+        mock_login.return_value = True
+        mock_get_metadata_by_issuer.return_value = mock.MagicMock(data={'email': 'email@email.com'},)
+        mock_get_issuer.return_value = ()
+
+        user, _ = get_user_model().objects.get_or_create(username='exists', email='email@email.com')
+        user.profile = Profile.objects.create(user=user)
+        user.save()
+
+        generator = CoreGQLTestHelper()
+        result = generator.core_gql.login(didToken='didToken')
+        self.assertMatchSnapshot(result.snapshot)
+
+    def test_logged_in_user(self):
+        generator = CoreGQLTestHelper()
+        result = generator.core_gql.loggedInUser()
+        self.assertMatchSnapshot(result.snapshot)
+
+    def test_create_user(self):
+        generator = CoreGQLTestHelper()
+        result = generator.create_random_user()
+
+        self.assertMatchSnapshot(result.snapshot)
+
+    def _test_update_user(self):
+        generator = CoreGQLTestHelper()
+        result = generator.create_index_user(0)
+        result = generator.core_gql.upsertUser(
+            username=result.username,
+            firstName='NewFirstName'
+        )
+
+        self.assertMatchSnapshot(result.snapshot)

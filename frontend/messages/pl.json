@@ -1,0 +1,144 @@
+{
+  "nav": {
+    "section": "Platforma",
+    "playground": "Plac zabaw",
+    "models": "Modele",
+    "documentation": "Dokumentacja",
+    "settings": "Ustawienia",
+    "table": "Tabela",
+    "form": "Formularz",
+    "history": "Historia",
+    "starred": "Ulubione",
+    "genesis": "Genesis",
+    "explorer": "Eksplorator",
+    "quantum": "Quantum",
+    "introduction": "Wprowadzenie",
+    "getStarted": "Pierwsze kroki",
+    "tutorials": "Samouczki",
+    "changelog": "Dziennik zmian",
+    "general": "Ogólne",
+    "team": "Zespół",
+    "billing": "Rozliczenia",
+    "limits": "Limity",
+    "hooks": "Hooki",
+    "secured": "Zabezpieczona strona"
+  },
+  "user": {
+    "account": "Konto",
+    "notifications": "Powiadomienia",
+    "logout": "Wyloguj się"
+  },
+  "language": {
+    "label": "Język",
+    "en": "Angielski",
+    "pl": "Polski",
+    "es": "Hiszpański",
+    "fr": "Francuski",
+    "de": "Niemiecki",
+    "it": "Włoski",
+    "pt": "Portugalski"
+  },
+  "dashboard": {
+    "stats": {
+      "revenue": "Przychód całkowity",
+      "orders": "Zamówienia",
+      "customers": "Klienci",
+      "products": "Produkty",
+      "fromLastMonth": "w porównaniu z poprzednim miesiącem"
+    },
+    "revenue": {
+      "title": "Przychód",
+      "description": "Miesięczny przychód z ostatnich 12 miesięcy",
+      "label": "Przychód"
+    },
+    "channels": {
+      "title": "Kanały",
+      "description": "Sprzedaż według kanału pozyskania",
+      "organic": "Organiczny",
+      "direct": "Bezpośredni",
+      "referral": "Polecenia",
+      "paid": "Płatny"
+    },
+    "sales": {
+      "title": "Sprzedaż według kategorii",
+      "description": "Sprzedane jednostki według kategorii produktów w tym kwartale",
+      "label": "Sprzedane jednostki",
+      "electronics": "Elektronika",
+      "clothing": "Odzież",
+      "accessories": "Akcesoria",
+      "footwear": "Obuwie",
+      "sports": "Sport"
+    }
+  },
+  "dataTable": {
+    "search": "Szukaj…",
+    "filters": "Filtry",
+    "clearAll": "Wyczyść wszystko",
+    "noResults": "Brak wyników.",
+    "panel": {
+      "title": "Filtry",
+      "clearAll": "Wyczyść wszystko",
+      "all": "Wszystkie",
+      "cancel": "Anuluj",
+      "apply": "Zastosuj",
+      "placeholder": "Filtruj według {label}…"
+    },
+    "pagination": {
+      "rowsPerPage": "Wierszy na stronę",
+      "page": "Strona {current} z {total}",
+      "results": "{count, plural, one {# wynik} few {# wyniki} other {# wyników}}"
+    }
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "description": "Zarządzaj preferencjami aplikacji.",
+    "language": {
+      "title": "Język",
+      "description": "Wybierz język używany w całym interfejsie."
+    },
+    "theme": {
+      "title": "Wygląd",
+      "description": "Wybierz preferowany schemat kolorów.",
+      "light": "Jasny",
+      "dark": "Ciemny",
+      "system": "Systemowy"
+    }
+  },
+  "hooks": {
+    "title": "Hooki",
+    "description": "Interaktywne demo wbudowanych hooków narzędziowych.",
+    "debounce": {
+      "title": "useDebounce",
+      "description": "Wartość aktualizuje się dopiero po zatrzymaniu pisania przez 300 ms.",
+      "label": "Pole wyszukiwania",
+      "placeholder": "Wpisz coś…",
+      "raw": "Wartość bieżąca",
+      "debounced": "Wartość po debounce"
+    },
+    "localStorage": {
+      "title": "useLocalStorage",
+      "description": "Licznik zapisywany w localStorage — przeżywa odświeżenie strony.",
+      "label": "Licznik",
+      "increment": "Zwiększ",
+      "reset": "Resetuj"
+    },
+    "clipboard": {
+      "title": "useCopyToClipboard",
+      "description": "Kopiuje tekst do schowka; przycisk resetuje się po 2 sekundach.",
+      "label": "Tekst do skopiowania",
+      "copy": "Kopiuj",
+      "copied": "Skopiowano!"
+    },
+    "confirm": {
+      "title": "useConfirm",
+      "description": "Oczekuje na Promise z AlertDialog — bez lokalnego stanu dialogu.",
+      "trigger": "Usuń element",
+      "dialogTitle": "Usunąć ten element?",
+      "dialogDescription": "Tej operacji nie można cofnąć.",
+      "confirmLabel": "Usuń",
+      "cancelLabel": "Anuluj",
+      "resultConfirmed": "Potwierdzono — element usunięty.",
+      "resultCancelled": "Anulowano."
+    }
+  }
+}

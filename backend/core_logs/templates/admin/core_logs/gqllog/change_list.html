@@ -1,0 +1,85 @@
+{% extends "admin/change_list.html" %}
+{% load i18n  admin_list %}
+{% load admin_urls %}
+
+
+{% block filters %}
+
+{% if cl.has_filters %}
+  <div id="changelist-filter">
+    <h2>{% trans 'Filter' %} </h2>
+
+<h3>Search fields</h3>
+
+<script>
+
+function applyFilter() {
+    const search_in_users=document.getElementById('search_in_users').value;
+    const search_in_operation_name=document.getElementById('search_in_operation_name').value;
+    const search_in_query=document.getElementById('search_in_query').value;
+    const search_in_variables=document.getElementById('search_in_variables').value;
+    const search_in_response=document.getElementById('search_in_response').value;
+    let search_params = [];
+    if(search_in_users){
+        search_params.push('user__username__istartswith='+search_in_users);
+    }
+    if (search_in_operation_name) {
+        search_params.push('operation_name__istartswith=' + search_in_operation_name);
+    }
+    if (search_in_query) {
+        search_params.push('query__icontains=' + search_in_query);
+    }
+    if (search_in_variables) {
+        search_params.push('variables__icontains=' + search_in_variables);
+    }
+    if (search_in_response) {
+        search_params.push('response__icontains=' + search_in_response);
+    }
+    if (search_params) {
+        qs = location.search;
+
+        if (qs.charAt(0) === '?') qs = qs.substring(1);
+
+        const qsComponents = qs.split(/[&;]/g);
+        let new_qs = [];
+        for (let index = 0; index < qsComponents.length; index++) {
+
+            const keyValuePair = qsComponents[index].split('=');
+            const key = keyValuePair[0];
+            const value = keyValuePair[1];
+            if (key) {
+                if (key.endsWith('__icontains') || key.endsWith("__istartswith")) {
+                    // Cleans old params
+                    continue;
+                } else {
+                    new_qs.push(key + '=' + value);
+                }
+            }
+        }
+        new_qs = new_qs.concat(search_params)
+        window.location = '?' + new_qs.join("&");
+    }
+}
+</script>
+
+<p>
+    <label for="search_in_users">Username:</label><br>
+    <input type="text" id="search_in_users" value="{{ request.GET.user__username__istartswith }}"/><br>
+    <label for="search_in_operation_name">Operation:</label><br>
+    <input type="text" id="search_in_operation_name" value="{{ request.GET.operation_name__istartswith }}"/><br>
+    <label for="search_in_query">Query:</label><br>
+    <input type="text" id="search_in_query" value="{{ request.GET.query__icontains }}"/><br>
+    <label for="search_in_variables">Variables:</label><br>
+    <input type="text" id="search_in_variables" value="{{ request.GET.variables__icontains }}"/><br>
+    <label for="search_in_response">Response:</label><br>
+    <input type="text" id="search_in_response" value="{{ request.GET.response__icontains }}"/><br>
+</p>
+
+<ul>
+    <li><a href="#" onclick="javascript:applyFilter();">Apply Search</a></li>
+</ul>
+
+    {% for spec in cl.filter_specs %}{% admin_list_filter cl spec %}{% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

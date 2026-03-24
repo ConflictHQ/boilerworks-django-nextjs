@@ -1,0 +1,39 @@
+{% if users %}
+    {% for user in users %}
+    <div class="user-item">
+        <label>
+            {% if request.GET.type == "base" %}
+                <input
+                    type="radio"
+                    name="base_user_id"
+                    value="{{ user.id }}"
+                >
+            {% else %}
+                <input
+                    type="checkbox"
+                    name="compared_user_ids"
+                    value="{{ user.id }}"
+                >
+            {% endif %}
+            <div class="user-info">
+                <div class="user-name">{{ user.username }}</div>
+                <div class="user-details">
+                    {% if user.first_name or user.last_name %}
+                        {{ user.first_name }} {{ user.last_name }}
+                        {% if user.email %} • {% endif %}
+                    {% endif %}
+                    {{ user.email }}
+                </div>
+            </div>
+        </label>
+    </div>
+    {% endfor %}
+{% elif search_query %}
+    <div class="empty-state">
+        No users found matching "{{ search_query }}"
+    </div>
+{% else %}
+    <div class="empty-state">
+        Type to search for users...
+    </div>
+{% endif %}

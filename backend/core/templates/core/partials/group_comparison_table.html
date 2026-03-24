@@ -1,0 +1,256 @@
+<style>
+    .group-comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    .group-comparison-table th,
+    .group-comparison-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .group-comparison-table th {
+        background: #f5f5f5;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    .group-comparison-table tbody tr:hover {
+        background: #f9f9f9;
+    }
+    .permission-name-cell {
+        font-weight: 500;
+        min-width: 300px;
+    }
+    .permission-codename {
+        font-size: 11px;
+        color: #999;
+        display: block;
+        margin-top: 2px;
+    }
+    .permission-model {
+        font-size: 11px;
+        color: #1976d2;
+        display: block;
+        margin-bottom: 4px;
+    }
+</style>
+
+<div class="summary">
+    <div class="summary-item">
+        <strong>Base Group:</strong>
+        {{ base_group.name }}
+    </div>
+    <div class="summary-item">
+        <strong>Comparing Against:</strong>
+        {{ compared_groups|length }} group{{ compared_groups|length|pluralize }}
+    </div>
+    <div class="summary-item">
+        <strong>Total Permissions:</strong>
+        {{ permission_comparisons|length }}
+    </div>
+</div>
+
+<div class="show-diff-toggle">
+    <label>
+        <input type="checkbox" id="show-only-group-diff" onchange="toggleGroupDiffView(this.checked)">
+        Show only permissions with differences
+    </label>
+</div>
+
+<input
+    type="text"
+    id="permission-filter"
+    class="filter-input"
+    placeholder="Filter permissions by name or model..."
+>
+
+<div style="overflow-x: auto;">
+    <table class="group-comparison-table">
+        <thead>
+            <tr>
+                <th style="min-width: 300px;">Permission</th>
+                <th style="text-align: center; min-width: 120px;">
+                    Base Group<br>
+                    <small style="font-weight: normal;">{{ base_group.name }}</small>
+                </th>
+                {% for group in compared_groups %}
+                <th style="text-align: center; min-width: 120px;">
+                    Compared Group<br>
+                    <small style="font-weight: normal;">{{ group.name }}</small>
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for comparison in permission_comparisons %}
+            {% comment %}Check if row has differences - any compared group has DIFFERENT status than base group{% endcomment %}
+                <tr class="{% for status in comparison.compared_groups_status %}{% if status.has_permission != comparison.in_base_group %}row-has-diff has-difference{% endif %}{% endfor %}"
+                    data-permission-name="{{ comparison.permission.name|lower }}"
+                    data-permission-model="{{ comparison.permission.content_type.app_label }}.{{ comparison.permission.content_type.model }}">
+                    <td class="permission-name-cell">
+                        <span class="permission-model">
+                            {{ comparison.permission.content_type.app_label }}.{{ comparison.permission.content_type.model }}
+                        </span>
+                        {{ comparison.permission.name }}
+                        <span class="permission-codename">{{ comparison.permission.codename }}</span>
+                    </td>
+                    <td class="status-cell">
+                        <input
+                            type="checkbox"
+                            class="group-checkbox"
+                            data-group-id="{{ base_group.id }}"
+                            data-permission-id="{{ comparison.permission.id }}"
+                            {% if comparison.in_base_group %}checked{% endif %}
+                            onchange="togglePermissionInGroup(this)"
+                            title="{% if comparison.in_base_group %}Remove permission from group{% else %}Add permission to group{% endif %}"
+                        >
+                    </td>
+                    {% for status in comparison.compared_groups_status %}
+                    <td class="status-cell">
+                        <input
+                            type="checkbox"
+                            class="group-checkbox"
+                            data-group-id="{{ status.group.id }}"
+                            data-permission-id="{{ comparison.permission.id }}"
+                            {% if status.has_permission %}checked{% endif %}
+                            onchange="togglePermissionInGroup(this)"
+                            title="{% if status.has_permission %}Remove permission from group{% else %}Add permission to group{% endif %}"
+                        >
+                    </td>
+                    {% endfor %}
+                </tr>
+            {% empty %}
+            <tr>
+                <td colspan="{{ compared_groups|length|add:2 }}" style="text-align: center; padding: 40px; color: #999;">
+                    No permissions found.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 6px;">
+    <h3 style="margin-top: 0;">Legend:</h3>
+    <div style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" checked disabled style="width: 18px; height: 18px;">
+            <span>Group has this permission</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" disabled style="width: 18px; height: 18px;">
+            <span>Group does not have this permission</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 20px; height: 20px; background: #fff3e0; border: 1px solid #f57c00; border-radius: 3px;"></div>
+            <span>Row with differences</span>
+        </div>
+    </div>
+</div>
+
+<div style="margin-top: 30px;">
+    <h3>Instructions:</h3>
+    <p style="color: #666;">
+        Click the checkboxes to add or remove permissions from groups. Changes are saved immediately.
+        Permissions are grouped by their content type (app.model) for easier navigation.
+    </p>
+</div>
+
+<script>
+    // Filter functionality
+    document.getElementById('permission-filter').addEventListener('input', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('.group-comparison-table tbody tr');
+
+        rows.forEach(row => {
+            const permissionName = row.getAttribute('data-permission-name');
+            const permissionModel = row.getAttribute('data-permission-model');
+            if ((permissionName && permissionName.includes(filter)) || (permissionModel && permissionModel.includes(filter))) {
+                row.style.display = '';
+            } else if (permissionName || permissionModel) {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Toggle diff view
+    function toggleGroupDiffView(showOnlyDiff) {
+        const rows = document.querySelectorAll('.group-comparison-table tbody tr');
+
+        rows.forEach(row => {
+            if (showOnlyDiff) {
+                if (row.classList.contains('has-difference')) {
+                    row.style.display = '';
+                } else if (row.getAttribute('data-permission-name')) {
+                    row.style.display = 'none';
+                }
+            } else {
+                // Reset to show all (unless filtered)
+                if (row.getAttribute('data-permission-name')) {
+                    row.style.display = '';
+                }
+            }
+        });
+
+        // Re-apply search filter if active
+        const filterInput = document.getElementById('permission-filter');
+        if (filterInput.value) {
+            filterInput.dispatchEvent(new Event('input'));
+        }
+    }
+
+    // Toggle permission in group
+    function togglePermissionInGroup(checkbox) {
+        const groupId = checkbox.getAttribute('data-group-id');
+        const permissionId = checkbox.getAttribute('data-permission-id');
+        const isChecked = checkbox.checked;
+
+        // Disable checkbox while processing
+        checkbox.disabled = true;
+
+        // Get CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Send request to backend
+        fetch('/app/core/core/toggle-permission-in-group/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken
+            },
+            body: `group_id=${groupId}&permission_id=${permissionId}&add=${isChecked}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update title
+                checkbox.title = isChecked ? 'Remove permission from group' : 'Add permission to group';
+
+                // Show success message briefly
+                const row = checkbox.closest('tr');
+                const originalBg = row.style.backgroundColor;
+                row.style.backgroundColor = '#c8e6c9';
+                setTimeout(() => {
+                    row.style.backgroundColor = originalBg;
+                }, 500);
+            } else {
+                // Revert checkbox on error
+                checkbox.checked = !isChecked;
+                alert('Error: ' + (data.error || 'Failed to update permission'));
+            }
+        })
+        .catch(error => {
+            // Revert checkbox on error
+            checkbox.checked = !isChecked;
+            alert('Error: Failed to update permission');
+            console.error('Error:', error);
+        })
+        .finally(() => {
+            // Re-enable checkbox
+            checkbox.disabled = false;
+        });
+    }
+</script>

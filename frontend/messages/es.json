@@ -1,0 +1,144 @@
+{
+  "nav": {
+    "section": "Plataforma",
+    "playground": "Playground",
+    "models": "Modelos",
+    "documentation": "Documentación",
+    "settings": "Configuración",
+    "table": "Tabla",
+    "form": "Formulario",
+    "history": "Historial",
+    "starred": "Favoritos",
+    "genesis": "Genesis",
+    "explorer": "Explorador",
+    "quantum": "Quantum",
+    "introduction": "Introducción",
+    "getStarted": "Empezar",
+    "tutorials": "Tutoriales",
+    "changelog": "Registro de cambios",
+    "general": "General",
+    "team": "Equipo",
+    "billing": "Facturación",
+    "limits": "Límites",
+    "hooks": "Hooks",
+    "secured": "Página segura"
+  },
+  "user": {
+    "account": "Cuenta",
+    "notifications": "Notificaciones",
+    "logout": "Cerrar sesión"
+  },
+  "language": {
+    "label": "Idioma",
+    "en": "Inglés",
+    "pl": "Polaco",
+    "es": "Español",
+    "fr": "Francés",
+    "de": "Alemán",
+    "it": "Italiano",
+    "pt": "Portugués"
+  },
+  "dashboard": {
+    "stats": {
+      "revenue": "Ingresos totales",
+      "orders": "Pedidos",
+      "customers": "Clientes",
+      "products": "Productos",
+      "fromLastMonth": "respecto al mes anterior"
+    },
+    "revenue": {
+      "title": "Ingresos",
+      "description": "Ingresos mensuales de los últimos 12 meses",
+      "label": "Ingresos"
+    },
+    "channels": {
+      "title": "Canales",
+      "description": "Ventas por canal de adquisición",
+      "organic": "Orgánico",
+      "direct": "Directo",
+      "referral": "Referidos",
+      "paid": "De pago"
+    },
+    "sales": {
+      "title": "Ventas por categoría",
+      "description": "Unidades vendidas por categoría de producto este trimestre",
+      "label": "Unidades vendidas",
+      "electronics": "Electrónica",
+      "clothing": "Ropa",
+      "accessories": "Accesorios",
+      "footwear": "Calzado",
+      "sports": "Deportes"
+    }
+  },
+  "dataTable": {
+    "search": "Buscar…",
+    "filters": "Filtros",
+    "clearAll": "Limpiar todo",
+    "noResults": "Sin resultados.",
+    "panel": {
+      "title": "Filtros",
+      "clearAll": "Limpiar todo",
+      "all": "Todos",
+      "cancel": "Cancelar",
+      "apply": "Aplicar",
+      "placeholder": "Filtrar por {label}…"
+    },
+    "pagination": {
+      "rowsPerPage": "Filas por página",
+      "page": "Página {current} de {total}",
+      "results": "{count, plural, one {# resultado} other {# resultados}}"
+    }
+  },
+  "settings": {
+    "title": "Configuración",
+    "description": "Gestiona las preferencias de tu aplicación.",
+    "language": {
+      "title": "Idioma",
+      "description": "Elige el idioma que se usará en toda la interfaz."
+    },
+    "theme": {
+      "title": "Apariencia",
+      "description": "Elige tu esquema de colores preferido.",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
+    }
+  },
+  "hooks": {
+    "title": "Hooks",
+    "description": "Demos interactivos de los hooks de utilidad integrados.",
+    "debounce": {
+      "title": "useDebounce",
+      "description": "El valor se actualiza solo después de que se deja de escribir durante 300 ms.",
+      "label": "Campo de búsqueda",
+      "placeholder": "Escribe algo…",
+      "raw": "Valor actual",
+      "debounced": "Valor con debounce"
+    },
+    "localStorage": {
+      "title": "useLocalStorage",
+      "description": "Contador persistido en localStorage — sobrevive al refresco de página.",
+      "label": "Contador",
+      "increment": "Incrementar",
+      "reset": "Restablecer"
+    },
+    "clipboard": {
+      "title": "useCopyToClipboard",
+      "description": "Copia texto al portapapeles; el botón se restablece después de 2 segundos.",
+      "label": "Texto a copiar",
+      "copy": "Copiar",
+      "copied": "¡Copiado!"
+    },
+    "confirm": {
+      "title": "useConfirm",
+      "description": "Espera una Promise de un AlertDialog — sin estado local de diálogo.",
+      "trigger": "Eliminar elemento",
+      "dialogTitle": "¿Eliminar este elemento?",
+      "dialogDescription": "Esta acción no se puede deshacer.",
+      "confirmLabel": "Eliminar",
+      "cancelLabel": "Cancelar",
+      "resultConfirmed": "Confirmado — elemento eliminado.",
+      "resultCancelled": "Cancelado."
+    }
+  }
+}

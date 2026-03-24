@@ -1,0 +1,232 @@
+services:
+
+  boilerworks-local:
+    build: ../backend
+    container_name: boilerworks-local
+    image: boilerworks-local
+    ports:
+      - '8000:8000'
+    env_file:
+      - ../backend/config/local.env
+    environment:
+      - COMPOSE_DOCKER_CLI_BUILD=0
+      - DOCKER_BUILDKIT=0
+      - DJANGO_CONFIGURATION=Local
+      - POSTGRES_ENGINE=django.db.backends.postgresql
+      - POSTGRES_DB=boilerworks
+      - POSTGRES_USER=dbadmin
+      - POSTGRES_PASSWORD=Password123
+      - POSTGRES_HOST=postgres-local
+      - POSTGRES_PORT=5432
+      - DJANGO_CACHE_URL=redis://redis-local:6379/1
+      - CELERY_BROKER=redis://redis-local:6379/0
+      - CELERY_BACKEND=redis://redis-local:6379/2
+      - OPENSEARCH_URL=http://opensearch-local:9200
+      - DJANGO_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+      - EMAIL_HOST=mailpit-local
+      - EMAIL_PORT=1025
+    volumes:
+      - ../backend:/boilerworks
+    depends_on:
+      postgres-local:
+        condition: service_healthy
+      redis-local:
+        condition: service_healthy
+
+  celery-worker:
+    build: ../backend
+    container_name: celery-worker
+    image: boilerworks-local
+    command: celery -A config.celery worker -l info -Q celery
+    env_file:
+      - ../backend/config/local.env
+    environment:
+      - DJANGO_CONFIGURATION=Local
+      - POSTGRES_ENGINE=django.db.backends.postgresql
+      - POSTGRES_DB=boilerworks
+      - POSTGRES_USER=dbadmin
+      - POSTGRES_PASSWORD=Password123
+      - POSTGRES_HOST=postgres-local
+      - POSTGRES_PORT=5432
+      - DJANGO_CACHE_URL=redis://redis-local:6379/1
+      - CELERY_BROKER=redis://redis-local:6379/0
+      - CELERY_BACKEND=redis://redis-local:6379/2
+      - OPENSEARCH_URL=http://opensearch-local:9200
+      - DJANGO_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+      - EMAIL_HOST=mailpit-local
+      - EMAIL_PORT=1025
+    volumes:
+      - ../backend:/boilerworks
+    depends_on:
+      postgres-local:
+        condition: service_healthy
+      redis-local:
+        condition: service_healthy
+
+  celery-beat:
+    build: ../backend
+    container_name: celery-beat
+    image: boilerworks-local
+    command: celery -A config.celery beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    env_file:
+      - ../backend/config/local.env
+    environment:
+      - DJANGO_CONFIGURATION=Local
+      - POSTGRES_ENGINE=django.db.backends.postgresql
+      - POSTGRES_DB=boilerworks
+      - POSTGRES_USER=dbadmin
+      - POSTGRES_PASSWORD=Password123
+      - POSTGRES_HOST=postgres-local
+      - POSTGRES_PORT=5432
+      - DJANGO_CACHE_URL=redis://redis-local:6379/1
+      - CELERY_BROKER=redis://redis-local:6379/0
+      - CELERY_BACKEND=redis://redis-local:6379/2
+    volumes:
+      - ../backend:/boilerworks
+    depends_on:
+      postgres-local:
+        condition: service_healthy
+      redis-local:
+        condition: service_healthy
+#    networks:
+#      - boilerworks
+
+  postgres-local:
+    image: postgres:17
+    container_name: postgres-local
+    volumes:
+      - ../docker/runtime/postgres-local/postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ../backend/config/local.env
+    environment:
+      - PGUSER=dbadmin
+      - POSTGRES_DB=boilerworks
+      - POSTGRES_HOST=postgres
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_PASSWORD=Password123
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=dbadmin
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-p", "${POSTGRES_PORT}", "-U", "${POSTGRES_USER}" ]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+#    networks:
+#      - boilerworks
+
+  redis-local:
+    container_name: redis-local
+    image: 'redis:7-alpine'
+    ports:
+      - '6379:6379'
+    volumes:
+      - 'boilerworks-redis:/data'
+#    networks:
+#      - boilerworks
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      retries: 3
+      timeout: 5s
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter
+    ports:
+      - '9187:9187'
+    environment:
+      - DATA_SOURCE_NAME=postgresql://dbadmin:Password123@postgres-local:5432/boilerworks?sslmode=disable
+    depends_on:
+      postgres-local:
+        condition: service_healthy
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis-exporter
+    ports:
+      - '9121:9121'
+    environment:
+      - REDIS_ADDR=redis://redis-local:6379
+    depends_on:
+      redis-local:
+        condition: service_healthy
+
+  opensearch-local:
+    image: opensearchproject/opensearch:2
+    container_name: opensearch-local
+    environment:
+      - discovery.type=single-node
+      - DISABLE_SECURITY_PLUGIN=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - '9200:9200'
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mailpit-local:
+    image: axllent/mailpit:latest
+    container_name: mailpit-local
+    ports:
+      - '8025:8025'   # web UI
+      - '1025:1025'   # SMTP
+
+  ui:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.dev
+    container_name: ui
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    env_file:
+      - path: ../frontend/local.env
+        required: false
+      - path: ../frontend/.env.local
+        required: false
+    environment:
+      - NEXT_PUBLIC_API_ROOT=http://localhost:8000
+    depends_on:
+      - boilerworks-local
+
+#  nginx:
+#    image: nginx
+#    volumes:
+#      - ../docker/config/nginx:/etc/nginx/conf.d
+#      - ../docker/runtime/static:/static
+#      - ../docker/runtime/media:/media
+#    ports:
+#      - "8080:80"
+#    depends_on:
+#      - ui
+
+#  nginx-exporter:
+#    image: nginx/nginx-prometheus-exporter:latest
+#    container_name: nginx-exporter
+#    ports:
+#      - '9113:9113'
+#    command:
+#      - --nginx.scrape-uri=http://nginx:8080/stub_status
+#    depends_on:
+#      - nginx
+#    # nginx.conf must have: location /stub_status { stub_status; allow 127.0.0.1; deny all; }
+
+
+#networks:
+#  boilerworks:
+#    driver: bridge
+
+volumes:
+  boilerworks-redis:
+    driver: local
+  postgres_data:
+  static_volume:
+  media_volume:
+  opensearch-data:

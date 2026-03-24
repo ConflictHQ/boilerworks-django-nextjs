@@ -1,0 +1,75 @@
+import logging
+
+import graphene
+
+from django.contrib.auth import get_user_model  # type: ignore
+from graphene.types.resolver import dict_resolver
+from core.tests import TestBaseCase
+from core.tests.utils.gql_helper import Queries
+
+logger = logging.getLogger(__name__)
+
+
+class Tet(graphene.ObjectType, default_resolver=dict_resolver):
+    f = graphene.String(deprecation_reason='o no')
+    a = graphene.String()
+
+    @staticmethod
+    def resolve_f(root, info):
+        return 'this is f'
+
+
+class TestQueries(object):
+    test = graphene.Field(Tet)
+
+    @staticmethod
+    def resolve_test(root, info):
+        return {'a', 32}
+
+
+class Query(
+    TestQueries,
+    graphene.ObjectType,
+):
+    pass
+
+
+class LabTest(TestBaseCase):
+    fixtures = [
+        'auth', 'core'
+    ]
+
+    def test_schema(self):
+        queries = Queries().add_document('''
+            query a {
+                test {
+                   a
+                }
+            }
+        ''')
+
+        schema = graphene.Schema(query=Query)
+        # client = Client(schema, queries)
+        # code_ast = ast_to_code(queries.get_document('a'))
+        # tInfo = TypeInfo(schema)
+        # # self.assertMatchSnapshot(code_ast)
+        # result = JObject(client.execute('a'))
+        # self.assertMatchSnapshot(result.snapshot)
+
+    # def test_ast_to_code_using_kitchen_sink(self):
+    #     ast = parse('''
+    #     schema {
+    #         query: QueryType
+    #         mutations: MutationType
+    #     }
+    #     type MyType {
+    #       id: ID!
+    #       oldField: String @deprecated(reason: "oldField is deprecated. Use newField instead.")
+    #       newField: String
+    #       deprecatedField: String @deprecated
+    #     }
+    #     ''')
+    #     printed = print_ast(ast)
+    #     code = ast_to_code(ast)
+    #     self.assertMatchSnapshot(printed)
+    #     self.assertMatchSnapshot(code)
