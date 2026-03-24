@@ -42,6 +42,11 @@ class StrawberryContext:
             or self.request.headers.get('Accept-Language', settings.LANGUAGE_CODE)[:2]
         )
 
+    @cached_property
+    def request_timezone(self) -> str:
+        """Timezone of the request. Prefers user profile setting, then SYSTEM_TIME_ZONE."""
+        return self.user.profile.timezone or settings.SYSTEM_TIME_ZONE
+
     def check_permission(self, permission_name: str, callback: Callable[[], bool]) -> bool:
         """Check a permission with per-request caching."""
         if permission_name not in self.cached_permissions:

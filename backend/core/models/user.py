@@ -646,6 +646,13 @@ class Profile(RequiresApproveMixin, Tracking):
         default=settings.LANGUAGE_CODE
     )
 
+    timezone = models.CharField(
+        max_length=50,
+        blank=True,
+        default='',
+        help_text='IANA timezone (e.g. America/New_York). Falls back to SYSTEM_TIME_ZONE if blank.'
+    )
+
     pin = models.CharField(
         max_length=128,
         null=True,

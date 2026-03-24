@@ -87,6 +87,7 @@ class ProfileType:
     nickname: Optional[str]
     birth_date: Optional[datetime]
     preferred_language: Optional[str]
+    timezone: Optional[str]
     is_active: bool
 
     @strawberry_django.field(description="Direct reference to User.email.")
