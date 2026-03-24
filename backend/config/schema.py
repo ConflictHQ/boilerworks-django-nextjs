@@ -39,6 +39,11 @@ if is_enabled(Feature.PUSH_NOTIFICATIONS):
     _query_bases.append(PushNotificationSchema.Query)
     _mutation_bases.append(PushNotificationSchema.Mutation)
 
+if is_enabled(Feature.WORKFLOWS):
+    import workflows.schema as WorkflowsSchema
+    _query_bases.append(WorkflowsSchema.Query)
+    _mutation_bases.append(WorkflowsSchema.Mutation)
+
 
 # ---------------------------------------------------------------------------
 # Root Query
