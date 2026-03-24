@@ -92,6 +92,14 @@ export function AppSidebar({ ssrUser, ...props }: AppSidebarProps) {
       icon: <ClipboardListIcon />,
     },
     {
+      title: "Form Engine",
+      url: "/forms",
+      icon: <ClipboardListIcon />,
+      items: [
+        { title: "All Forms", url: "/forms" },
+      ],
+    },
+    {
       title: t("hooks"),
       url: "/hooks",
       icon: <ZapIcon />,
