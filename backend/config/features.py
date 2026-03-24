@@ -47,7 +47,7 @@ class Feature(str, Enum):
 # Feature → environment variable → default
 FEATURE_DEFAULTS = {
     Feature.FORMS: ('FEATURE_FORMS', True),
-    Feature.WORKFLOWS: ('FEATURE_WORKFLOWS', False),
+    Feature.WORKFLOWS: ('FEATURE_WORKFLOWS', True),
     Feature.CELERY: ('FEATURE_CELERY', True),
     Feature.TEMPORAL: ('FEATURE_TEMPORAL', False),
     Feature.OPENSEARCH: ('FEATURE_OPENSEARCH', True),
@@ -61,6 +61,7 @@ FEATURE_DEFAULTS = {
 # Feature → Django apps that belong to it
 FEATURE_APPS = {
     Feature.FORMS: ['forms'],
+    Feature.WORKFLOWS: ['workflows'],
     Feature.CELERY: ['django_celery_results', 'django_celery_beat'],
     Feature.PUSH_NOTIFICATIONS: ['pushnotif'],
     Feature.RULE_ENGINE: ['core_rule_engine'],
@@ -75,6 +76,7 @@ FEATURE_APPS = {
 # Feature → GraphQL schema module (app_label.schema)
 FEATURE_SCHEMA_MODULES = {
     Feature.FORMS: 'forms.schema',
+    Feature.WORKFLOWS: 'workflows.schema',
     Feature.PUSH_NOTIFICATIONS: 'pushnotif.schema',
 }
 

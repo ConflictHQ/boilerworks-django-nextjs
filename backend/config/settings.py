@@ -267,6 +267,7 @@ INSTALLED_APPS = [
     'import_export',
     'simple_history',
     'forms',
+    'workflows',
     # End of Django Standard
 
     # Start of Celery
