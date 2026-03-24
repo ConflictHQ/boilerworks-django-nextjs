@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { Loader2Icon, PlusIcon, CodeIcon, LayoutIcon, EyeIcon, EyeOffIcon } from "lucide-react";
+import { Loader2Icon, PlusIcon, CodeIcon, LayoutIcon, EyeIcon, EyeOffIcon, GripVerticalIcon } from "lucide-react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -77,11 +78,11 @@ export default function NewFormPage() {
 
   return (
     <div className="flex flex-1 overflow-hidden">
-      {/* Full-height split from the content pane edge */}
-      <div className={`grid flex-1 ${showPreview ? "grid-cols-[1fr_380px]" : "grid-cols-1"}`}>
-
+      {/* Full-height resizable split */}
+      <PanelGroup direction="horizontal" className="flex-1">
+        <Panel defaultSize={showPreview ? 65 : 100} minSize={40}>
         {/* LEFT PANE: scrollable form + builder */}
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 overflow-y-auto p-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex h-full flex-col gap-6 overflow-y-auto p-6">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
@@ -173,17 +174,25 @@ export default function NewFormPage() {
             Create Form
           </Button>
         </form>
+        </Panel>
 
-        {/* RIGHT PANE: sticky preview, full height, separate scroll */}
+        {/* RESIZE HANDLE + RIGHT PANE */}
         {showPreview && (
-          <div className="border-l bg-muted/30 overflow-y-auto p-6">
-            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Live Preview</h2>
-            <div className="rounded-lg border bg-background p-4 shadow-sm">
-              <FormPreview schema={liveSchema} formName={nameValue || "Untitled Form"} />
-            </div>
-          </div>
+          <>
+            <PanelResizeHandle className="flex w-2 items-center justify-center bg-border/50 hover:bg-border transition-colors">
+              <GripVerticalIcon className="h-4 w-4 text-muted-foreground" />
+            </PanelResizeHandle>
+            <Panel defaultSize={35} minSize={20}>
+              <div className="h-full overflow-y-auto bg-muted/30 p-6">
+                <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Live Preview</h2>
+                <div className="rounded-lg border bg-background p-4 shadow-sm">
+                  <FormPreview schema={liveSchema} formName={nameValue || "Untitled Form"} />
+                </div>
+              </div>
+            </Panel>
+          </>
         )}
-      </div>
+      </PanelGroup>
     </div>
   );
 }
