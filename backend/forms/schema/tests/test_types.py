@@ -265,3 +265,86 @@ class GraphQLFormTest(TestCase):
         )
         self.assertIsNone(result.errors)
         self.assertFalse(result.data['submitForm']['ok'])
+
+
+class PublicFormTest(TestCase):
+    """Tests for public/anonymous form submissions."""
+
+    def setUp(self):
+        from organization.models import Organization, OrganizationMember
+        self.org = Organization.objects.create(name='PubFormOrg')
+        self.user = User.objects.create_superuser(
+            username='pub_form', email='pubf@test.com', password='testpass',
+        )
+        OrganizationMember.objects.create(
+            organization=self.org, member=self.user, is_active=True,
+        )
+        self.user.profile.active_organization = self.org
+        self.user.profile.save()
+
+    def test_public_form_accepts_anonymous_submission(self):
+        form = FormDefinition.objects.create(
+            name='Public Form', slug='public-form',
+            status=FormStatus.PUBLISHED, is_public=True,
+            schema={'type': 'object', 'properties': {'feedback': {'type': 'string'}}, 'required': ['feedback']},
+            created_by=self.user, updated_by=self.user,
+        )
+        sub = FormSubmission.submit(form, {'feedback': 'great!'}, user=None)
+        self.assertEqual(sub.status, SubmissionStatus.SUBMITTED)
+        self.assertIsNone(sub.submitted_by)
+        self.assertEqual(sub.payload['feedback'], 'great!')
+
+    def test_non_public_form_rejects_anonymous(self):
+        form = FormDefinition.objects.create(
+            name='Private Form', slug='private-form',
+            status=FormStatus.PUBLISHED, is_public=False,
+            schema={'type': 'object', 'properties': {'data': {'type': 'string'}}},
+            created_by=self.user, updated_by=self.user,
+        )
+        with self.assertRaises(ValidationError):
+            FormSubmission.submit(form, {'data': 'test'}, user=None)
+
+    def test_public_form_query_on_auth_schema(self):
+        from config.schema import schema_auth
+        FormDefinition.objects.create(
+            name='Public Query', slug='public-query',
+            status=FormStatus.PUBLISHED, is_public=True,
+            schema={'type': 'object', 'properties': {'x': {'type': 'string'}}},
+            created_by=self.user, updated_by=self.user,
+        )
+        result = schema_auth.execute_sync(
+            '{ publicForm(slug: "public-query") { name slug status } }',
+        )
+        self.assertIsNone(result.errors)
+        self.assertEqual(result.data['publicForm']['name'], 'Public Query')
+
+    def test_public_form_query_returns_null_for_private(self):
+        from config.schema import schema_auth
+        FormDefinition.objects.create(
+            name='Private Only', slug='private-only',
+            status=FormStatus.PUBLISHED, is_public=False,
+            created_by=self.user, updated_by=self.user,
+        )
+        result = schema_auth.execute_sync(
+            '{ publicForm(slug: "private-only") { name } }',
+        )
+        self.assertIsNone(result.errors)
+        self.assertIsNone(result.data['publicForm'])
+
+    def test_submit_public_form_mutation(self):
+        from config.schema import schema_auth
+        from core.schema.context import StrawberryContext
+        FormDefinition.objects.create(
+            name='Submit Public', slug='submit-public',
+            status=FormStatus.PUBLISHED, is_public=True,
+            schema={'type': 'object', 'properties': {'msg': {'type': 'string'}}, 'required': ['msg']},
+            created_by=self.user, updated_by=self.user,
+        )
+        ctx = StrawberryContext(FakeRequest(self.user))
+        result = schema_auth.execute_sync(
+            'mutation { submitPublicForm(slug: "submit-public", payload: {msg: "anon"}) { ok } }',
+            context_value=ctx,
+        )
+        self.assertIsNone(result.errors)
+        self.assertTrue(result.data['submitPublicForm']['ok'])
+        self.assertEqual(FormSubmission.objects.filter(form__slug='submit-public').count(), 1)
