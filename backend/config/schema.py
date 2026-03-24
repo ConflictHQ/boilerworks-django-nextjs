@@ -8,6 +8,7 @@ from strawberry_django.optimizer import DjangoOptimizerExtension
 
 import core.schema.mutations as CoreMutations
 import core_ui.schema as UiSchema
+import forms.schema as FormsSchema
 import organization.schema as OrganizationSchema
 import pushnotif.schema as PushNotificationSchema
 from core.schema.types.permission_analysis import PermissionAnalysisQuery
@@ -21,6 +22,7 @@ from core.schema.types.user import UserType
 @strawberry.type
 class Query(
     PermissionAnalysisQuery,
+    FormsSchema.Query,
     UiSchema.Query,
     OrganizationSchema.Query,
     PushNotificationSchema.Query,
@@ -35,6 +37,7 @@ class Query(
 @strawberry.type
 class Mutation(
     CoreMutations.Mutation,
+    FormsSchema.Mutation,
     UiSchema.Mutation,
     OrganizationSchema.Mutation,
     PushNotificationSchema.Mutation,
