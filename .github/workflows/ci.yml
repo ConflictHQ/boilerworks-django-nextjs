@@ -84,7 +84,26 @@ jobs:
         run: pip install pipenv
       - name: Install dependencies
         run: pipenv requirements --dev | pip install -r /dev/stdin
+      - name: Install coverage
+        run: pip install coverage
       - name: Run migrations
         run: python manage.py migrate --noinput
-      - name: Run tests
-        run: python manage.py test
+      - name: Run tests with coverage
+        run: |
+          coverage run --source='core/schema,core_ui/schema,organization/schema,pushnotif/schema' manage.py test
+          coverage report --fail-under=60
+          coverage xml -o coverage.xml
+      - name: Export GraphQL schema SDL
+        run: python manage.py shell -c "from config.schema import schema; print(schema.as_str())" > schema.graphql
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: backend/coverage.xml
+      - name: Upload schema SDL
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: schema-sdl
+          path: backend/schema.graphql
