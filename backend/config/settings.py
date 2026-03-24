@@ -64,7 +64,7 @@ else:
 # SECURITY WARNING: keep the secret key used in production secret!
 
 DEBUG = env_bool('DJANGO_DEBUG', False)
-DEFAULT_USER_TEST = env_str('DJANGO_DEFAULT_USER_TEST', 'user1')  # only for local login the user if there is no user logged in
+DEFAULT_USER_TEST = env_str('DJANGO_DEFAULT_USER_TEST', 'admin')  # only for local login the user if there is no user logged in
 
 # The default user to execute automatic system operations. i.e. scheduled tasks, automatic signatures...
 # The default set of permissions available for the system user(s). For instance, the permission to sign documents.
@@ -654,7 +654,7 @@ elif CONFIGURATION.lower() == "Local".lower() or CONFIGURATION.lower() == "Local
     DEBUG = True
     ALLOWED_HOSTS = ['*', ]
     AUTH_PASSWORD_VALIDATORS = []
-    DEFAULT_USER_TEST = env_str('DJANGO_', 'user1')  # only for local login the user if there is no user logged in
+    DEFAULT_USER_TEST = env_str('DJANGO_', 'admin')  # only for local login the user if there is no user logged in
     TELEMETRY_LOGS = False
     INSTALLED_APPS.append('testdata')
     LOGGING = {
@@ -681,7 +681,7 @@ elif CONFIGURATION.lower() == "LocalVerbose".lower():
     DEBUG = True
     ALLOWED_HOSTS = ['*', ]
     AUTH_PASSWORD_VALIDATORS = []
-    DEFAULT_USER_TEST = env_str('DJANGO_', 'user1')  # only for local login the user if there is no user logged in
+    DEFAULT_USER_TEST = env_str('DJANGO_', 'admin')  # only for local login the user if there is no user logged in
     TELEMETRY_LOGS = False
 
     LOGGING = {
