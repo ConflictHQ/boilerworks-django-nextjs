@@ -61,9 +61,12 @@ Mutation = strawberry.type(
 # Schema instance
 # ---------------------------------------------------------------------------
 
+from core.schema.subscriptions import Subscription
+
 schema = strawberry.Schema(
     query=Query,
     mutation=Mutation,
+    subscription=Subscription,
     extensions=[DjangoOptimizerExtension],
 )
 

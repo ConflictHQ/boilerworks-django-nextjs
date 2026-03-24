@@ -48,6 +48,8 @@ urls = [
     # GraphQL endpoints (Strawberry) — rate limited
     path('gql/config/', csrf_exempt(autologin(gql_logger(ratelimit(key='user_or_ip', rate='100/m', block=True)(strawberry_view))))),
     path('gql/config/auth/', csrf_exempt(gql_logger(ratelimit(key='ip', rate='30/m', block=True)(strawberry_auth_view)))),
+    # GraphQL WebSocket subscriptions
+    path('gql/config/ws/', csrf_exempt(CoreStrawberryView.as_view(schema=schema))),
 
     path('core/', include('core.urls')),
     path('pushnotif/', include('pushnotif.urls')),

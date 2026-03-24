@@ -101,6 +101,24 @@ jobs:
         with:
           name: coverage-report
           path: backend/coverage.xml
+      - name: Check for schema changes
+        if: github.event_name == 'pull_request'
+        run: |
+          if [ -f ../schema.graphql ]; then
+            if ! diff -q schema.graphql ../schema.graphql > /dev/null 2>&1; then
+              echo "⚠️ GraphQL schema has changed in this PR"
+              echo "::warning::GraphQL schema has changed — review schema.graphql diff"
+              diff ../schema.graphql schema.graphql || true
+            else
+              echo "✅ GraphQL schema unchanged"
+            fi
+          else
+            echo "📝 No committed schema.graphql to compare against"
+          fi
+      - name: Commit schema SDL if changed
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cp schema.graphql ../schema.graphql
       - name: Upload schema SDL
         if: always()
         uses: actions/upload-artifact@v4
