@@ -1,25 +1,23 @@
-import logging
-import uuid
-from email.headerregistry import Address
+"""User-related mutations migrated from Graphene to Strawberry."""
+from __future__ import annotations
 
-import graphene
-from core.emails import Emails, WelcomeEmailParameters
-from core.models import Profile, SignRequest
-from core.schema.mutations.common import UpsertMutation, UtilityForm
-from core.schema.mutations.restricted_serializer_mutation import RestrictedSerializerMutation
-from core.schema.user import SignRequestType, UserType
-from core.serializers.profile import ProfileSerializer
-from core.systems import EmailRequest
-from django import forms
+import logging
+from typing import Optional
+
+import strawberry
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY as AUTH_SESSION_KEY
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
-from django.forms import ModelForm
-from graphene_django.types import ErrorType
+from django.core.exceptions import PermissionDenied, ValidationError
 from graphql import GraphQLError
-from graphql_relay import from_global_id
+from strawberry.types import Info
+
+from core.models import Profile, SignRequest
+from core.schema.mutations.common import UtilityForm
+from core.schema.common import GlobalIDUtils, MutationResult
+from core.schema.mutations.base import resolve_instance_from_id
+from core.schema.types.user import SignRequestType as StrawberrySignRequestType, UserType as StrawberryUserType
 
 try:
     from django.contrib.auth import HASH_SESSION_KEY as AUTH_HASH_SESSION_KEY
@@ -29,404 +27,279 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-class ProfileForm(UtilityForm, forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = 'avatar', 'created_by'
+# ---------------------------------------------------------------------------
+# Helper: resolve user from global ID using Graphene registry
+# (many mutations reference Graphene's UserType.get_object / SignRequestType)
+# ---------------------------------------------------------------------------
+
+def _get_user_object(info, global_id: str, raise_not_found: bool = True) -> User:
+    """Resolve a User from a relay global ID, using the Graphene registry."""
+    from core.schema.user import UserType
+    return UserType.get_object(info, global_id, raise_not_found=raise_not_found)
 
 
-class ProfileInput(graphene.InputObjectType):
-    avatar = graphene.String(required=False)
+def _get_sign_request_object(info, global_id: str, raise_not_found: bool = True) -> SignRequest:
+    """Resolve a SignRequest from a relay global ID."""
+    from core.schema.user import SignRequestType
+    return SignRequestType.get_object(info, global_id, raise_not_found=raise_not_found)
 
 
-class ProfileMutation(RestrictedSerializerMutation):
-    # The class attributes define the response of the mutation
-    ok = graphene.Boolean()
-    errors = graphene.List(ErrorType)
+def _get_sign_request_pk(global_id: str) -> str:
+    """Extract the PK from a SignRequest global ID."""
+    from core.schema.user import SignRequestType
+    return SignRequestType.get_pk(global_id)
 
-    class Meta:
-        serializer_class = ProfileSerializer
-        lookup_field = 'gid'
-        model_operation = ['create']
-        fields = "__all__"
 
-    @classmethod
-    def get_serializer_kwargs(cls, root, info, **input):
+# ---------------------------------------------------------------------------
+# Input types
+# ---------------------------------------------------------------------------
+
+@strawberry.input
+class ProfileInput:
+    avatar: Optional[str] = None
+
+
+@strawberry.input
+class UserInput:
+    id: Optional[strawberry.ID] = None
+    username: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    profile: Optional[ProfileInput] = None
+
+
+# ---------------------------------------------------------------------------
+# Response types
+# ---------------------------------------------------------------------------
+
+@strawberry.type
+class LoginResult:
+    user: Optional[StrawberryUserType]
+
+
+@strawberry.type
+class SwitchUserResult:
+    user: Optional[StrawberryUserType]
+
+
+@strawberry.type
+class UpsertUserResult:
+    instance: Optional[StrawberryUserType]
+
+
+# ---------------------------------------------------------------------------
+# Mutations
+# ---------------------------------------------------------------------------
+
+@strawberry.type
+class UserMutations:
+
+    @strawberry.mutation(description="Authenticate a user with username and password.")
+    def login(self, info: Info, username: str, password: str) -> LoginResult:
+        user = authenticate(request=info.context.request, username=username, password=password)
+        if not user:
+            raise PermissionDenied('User not found')
+
+        login(info.context.request, user)
+
+        if hasattr(info.context, "user"):
+            # Clear cached_property so subsequent access sees the new user
+            try:
+                del info.context.__dict__['user']
+            except KeyError:
+                pass
+
+        return LoginResult(user=user)
+
+    @strawberry.mutation(description="Logout the current user.")
+    def logout(self, info: Info) -> bool:
+        logout(info.context.request)
+        return True
+
+    @strawberry.mutation(description="Switch the active user (impersonation).")
+    def switch_user(self, info: Info, id: strawberry.ID) -> SwitchUserResult:
+        user: User = info.context.user
+        request = info.context.request
+
+        if id == '':
+            if 'MAIN_USER_PK' not in request.session:
+                return SwitchUserResult(user=info.context.user)
+            other_user = User.objects.get(pk=request.session['MAIN_USER_PK'])
+        else:
+            other_user = _get_user_object(info, id, raise_not_found=True)
+
+        # Clear cached user so context sees the switched user
+        try:
+            del info.context.__dict__['user']
+        except KeyError:
+            pass
+
+        request.session[AUTH_SESSION_KEY] = other_user.pk
+        request.session[AUTH_HASH_SESSION_KEY] = other_user.get_session_auth_hash()
+
+        if 'MAIN_USER_PK' not in request.session:
+            request.session['MAIN_USER_PK'] = user.pk
+
+        request.session.save()
+
+        return SwitchUserResult(user=other_user)
+
+    @strawberry.mutation(description="Upsert user profile via UtilityForm.apply_forms.")
+    def upsert_user(self, info: Info, input: UserInput) -> UpsertUserResult:
+        from core.schema.user import UserType as GrapheneUserType
+
+        # Convert strawberry input to dict for UtilityForm
+        input_data = {}
+        if input.id is not None:
+            input_data['id'] = input.id
+        input_data['username'] = input.username
+        if input.first_name is not None:
+            input_data['first_name'] = input.first_name
+        if input.last_name is not None:
+            input_data['last_name'] = input.last_name
+        if input.profile is not None:
+            profile_data = {}
+            if input.profile.avatar is not None:
+                profile_data['avatar'] = input.profile.avatar
+            input_data['profile'] = profile_data
+
+        # Set the user's global ID as the input ID (same as Graphene version)
+        input_data['id'] = GrapheneUserType.to_global_id(info.context.user)
+
+        instance = UtilityForm.apply_forms(None, info, input_data)
+        return UpsertUserResult(instance=instance)
+
+    @strawberry.mutation(description="Update user profile via ProfileSerializer (restricted).")
+    def profile(self, info: Info, input: strawberry.scalars.JSON) -> MutationResult:
+        from core.serializers.profile import ProfileSerializer
+        from graphql_relay import from_global_id as relay_from_global_id
+
         fields_provided = input.keys()
-
-        # Get the user who is making the call
         user_id = info.context.user.id
 
         if 'user' in fields_provided and 'id' in input['user']:
-            user_id = from_global_id(input['user']['id']).id
+            user_id = relay_from_global_id(input['user']['id']).id
             input['user']['id'] = user_id
 
         instance = Profile.objects.filter(user_id=user_id).first()
 
         if 'address' in fields_provided and 'state' in input['address']:
-            input['address']['state'] = input['address']['state'].value
+            # state enum value already comes as string from Strawberry
+            pass
 
-        if 'gender' in fields_provided:
+        if 'gender' in fields_provided and hasattr(input['gender'], 'value'):
             input['gender'] = input['gender'].value
 
-        if 'preferred_contact' in fields_provided:
+        if 'preferred_contact' in fields_provided and hasattr(input['preferred_contact'], 'value'):
             input['preferred_contact'] = input['preferred_contact'].value
 
-        if 'preferred_language' in fields_provided:
+        if 'preferred_language' in fields_provided and hasattr(input['preferred_language'], 'value'):
             input['preferred_language'] = input['preferred_language'].value
 
-        if instance is None:
-            return {'data': input, 'partial': True, "context": {"request": info.context}}
+        kwargs = {'data': input, 'partial': True, 'context': {'request': info.context.request}}
+        if instance is not None:
+            kwargs['instance'] = instance
+
+        serializer = ProfileSerializer(**kwargs)
+        if serializer.is_valid():
+            serializer.save()
+            return MutationResult.success()
         else:
-            return {'instance': instance, 'data': input, 'partial': True, "context": {"request": info.context}}
+            return MutationResult.from_serializer_errors(serializer.errors)
 
-    @classmethod
-    def response(cls, ok, errors):
-        return ProfileMutation(ok=ok, errors=errors)
-
-
-class RequestPwdChangeMutation(graphene.Mutation):
-    ok = graphene.Boolean()
-
-    class Arguments:
-        user_gid = graphene.ID(
-            description='User ID. Sends the reset password email to this user'
-                        'If not provided, the current user will receive the email.'
-                        'Requires PROFILE_CHANGE_RESET_PASSWORD_USERS permission '
-                        'to send to other users'
-        )
-
-    @classmethod
-    def mutate(cls, root, info, user_gid=None):
-        user = user_gid and UserType.get_object(info, user_gid, raise_not_found=True) or\
-               info.context.user
+    @strawberry.mutation(
+        description="Request a password reset email. "
+                    "Requires PROFILE_CHANGE_RESET_PASSWORD_USERS permission to send to other users."
+    )
+    def profile_request_pwd_change(self, info: Info, user_gid: Optional[strawberry.ID] = None) -> bool:
+        user = _get_user_object(info, user_gid, raise_not_found=True) if user_gid else info.context.user
 
         if user != info.context.user:
             from config.roles_gen import P
-            P.PROFILE_CHANGE_RESET_PASSWORD_USERS.check(
-                info.context.user, True
-            )
+            P.PROFILE_CHANGE_RESET_PASSWORD_USERS.check(info.context.user, True)
 
         user.profile.request_reset_password()
-        return cls(ok=True)
+        return True
 
-
-class RequestDeleteUserMutation(graphene.Mutation):
-    ok = graphene.Boolean()
-
-    class Arguments:
-        user_gid = graphene.ID(
-            description='User ID. Request to delete user.'
-                        'If not provided, the current user will be deleted.'
-                        'Requires PROFILE_DELETE_USERS permission if deleting other users'
-        )
-
-    @classmethod
-    def mutate(cls, root, info, user_gid=None):
-        user = user_gid and UserType.get_object(info, user_gid, raise_not_found=True) or\
-               info.context.user
+    @strawberry.mutation(
+        description="Request deletion of a user account. "
+                    "Requires PROFILE_DELETE_USERS permission to delete other users."
+    )
+    def profile_request_delete_user(self, info: Info, user_gid: Optional[strawberry.ID] = None) -> bool:
+        user = _get_user_object(info, user_gid, raise_not_found=True) if user_gid else info.context.user
 
         if user != info.context.user:
             from config.roles_gen import P
-            P.PROFILE_DELETE_USERS.check(
-                info.context.user, True
-            )
+            P.PROFILE_DELETE_USERS.check(info.context.user, True)
 
         Profile.anonymize_user(user)
         if user == info.context.user:
-            logout(info.context)
+            logout(info.context.request)
 
-        return cls(ok=True)
+        return True
 
-
-class UserForm(UtilityForm, forms.Form):
-    id = forms.CharField(max_length=50, required=False)
-    username = forms.CharField(max_length=150, required=False)
-    email = forms.EmailField(required=False)
-    first_name = forms.CharField(max_length=150, required=False)
-    last_name = forms.CharField(max_length=150, required=False)
-
-    avatar = forms.URLField(required=False)
-    phone_number = forms.CharField(max_length=50, required=False)
-
-    created_by = forms.ModelChoiceField(get_user_model().objects, required=False)
-    last_modified_by = forms.ModelChoiceField(get_user_model().objects, required=False)
-
-    class Meta:
-        model = get_user_model()
-
-    def __init__(self, *args, instance=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.instance = instance
-
-    def save(self):
-        self.cleaned_data = {k: v for k, v in self.cleaned_data.items() if not v == ''}
-        is_new_user = self.instance.profile.is_new_user()
-        forms.models.construct_instance(self, self.instance, self.fields)
-
-        profile_original, profile_draft = Profile.objects.get_draft(self.instance.profile)
-        profile = profile_draft
-        profile.document_option = Profile.DocumentOptions.DRAFTED
-
-        forms.models.construct_instance(self, profile, self.fields)
-
-        self.instance.save()
-        profile.save()
-        self.cleaned_data['user'] = self.instance
-
-        if is_new_user and not profile_original.is_new_user():
-            Emails.WELCOME(
-                EmailRequest(
-                    subject=f'Welcome {self.first_name} {self.last_name}',
-                    recipients=[Address(
-                        display_name=f'{self.first_name} {self.last_name}',
-                        addr_spec=self.email
-                    )]
-                ),
-                WelcomeEmailParameters(
-                    first_name=self.first_name,
-                    last_name=self.last_name,
-                )
-            )
-
-        return self.instance
-
-
-class UserForm2(UtilityForm, ModelForm):
-    class Meta:
-        model = get_user_model()
-        fields = 'username', 'first_name', 'last_name',
-
-    def save(self, *args, **kwargs):
-        # email is not allowed to be changed
-        return super().save(*args, **kwargs)
-
-    def post_save(self, data):
-        self.instance.save()
-        return self.instance
-
-
-class UserInput(graphene.InputObjectType):
-    id = graphene.ID(required=False)
-    username = graphene.String(required=True)
-    first_name = graphene.String(required=False)
-    last_name = graphene.String(required=False)
-    profile = ProfileInput(required=False)
-
-
-UtilityForm.register_form(UserInput, UserForm2)
-
-
-class UpsertUserMutation(UpsertMutation):
-    # The class attributes define the response of the mutations
-    instance = graphene.Field(UserType)
-
-    class Arguments:
-        input_data = UserInput(required=True, name="input")
-
-    @classmethod
-    def mutate(cls, root, info, input_data):
-        input_data['id'] = UserType.to_global_id(info.context.user)
-        return super().mutate(root, info, input_data)
-
-    @classmethod
-    def perform_mutate(cls, form, info):
-        super().perform_mutate(form, info)
-        form.cleaned_data['id'] = UserType.to_global_id(form.cleaned_data['user'])
-        return cls(errors=[], **form.cleaned_data)
-
-    def resolve_user(self, info, **kwargs):
-        self.check_errors()
-        return self.user
-
-
-class LoginMutationMagic(graphene.Mutation):
-    class Arguments:
-        did_token = graphene.String(description='Magic did token')
-
-    user = graphene.Field(UserType)
-
-    @classmethod
-    def mutate(cls, root, info, did_token):
-        user = authenticate(request=info.context, magic_token=did_token)
-        is_new_user = not user and 'email' in info.context.session
-
-        if is_new_user:
-            email = info.context.session['email']
-            gid = uuid.uuid4()
-            user = get_user_model().objects.create(username=gid.hex, email=email)
-            user.profile = Profile.objects.create(
-                gid=gid,
-                user=user,
-                created_by=get_user_model().objects.get(username=settings.API_SYSTEM_USER)
-            )
-        elif not user:
-            raise PermissionDenied('Invalid Token')
-
-        login(info.context, user)
-
-        if hasattr(info.context, "user"):
-            info.context.user = user
-
-        return cls(user=user)
-
-
-class LoginMutation(graphene.Mutation):
-    class Arguments:
-        username = graphene.String(description='Username')
-        password = graphene.String(description='Password')
-
-    user = graphene.Field(UserType)
-
-    @classmethod
-    def mutate(cls, root, info, username, password):
-        user = authenticate(request=info.context, username=username, password=password)
-        if not user:
-            raise PermissionDenied('User not found')
-
-        login(info.context, user)
-
-        if hasattr(info.context, "user"):
-            info.context.user = user
-
-        return cls(user=user)
-
-
-class LogoutMutation(graphene.Mutation):
-    ok = graphene.Boolean()
-
-    @classmethod
-    def mutate(cls, root, info):
-        logout(info.context)
-        return cls(ok=True)
-
-
-class SwitchUserMutation(graphene.Mutation):
-    user = graphene.Field(UserType)
-
-    class Arguments:
-        id = graphene.ID(description='User ID')
-
-    @classmethod
-    def mutate(cls, root, info, id):
-        user: User = info.context.user
-        if id == '':
-            if 'MAIN_USER_PK' not in info.context.session:
-                return cls(user=info.context.user)
-            other_user = User.objects.get(pk=info.context.session['MAIN_USER_PK'])
-        else:
-            other_user = UserType.get_object(info, id, raise_not_found=True)
-
-        info.context.user = other_user
-        info.context.session[AUTH_SESSION_KEY] = other_user.pk
-        info.context.session[AUTH_HASH_SESSION_KEY] = other_user.get_session_auth_hash()
-
-        if 'MAIN_USER_PK' not in info.context.session:
-            info.context.session['MAIN_USER_PK'] = user.pk
-
-        info.context.session.save()
-
-        return cls(user=info.context.user)
-
-
-class PinUpdateMutation(graphene.Mutation):
-    ok = graphene.Boolean()
-
-    class Arguments:
-        pin = graphene.String(description='User Pin')
-
-    @classmethod
-    def mutate(cls, root, info, pin):
+    @strawberry.mutation(description="Update or set the user's PIN.")
+    def pin_update(self, info: Info, pin: str) -> bool:
         user = info.context.user
         user.profile.update_pin(pin)
-        return cls(ok=True)
+        return True
 
-
-class PinTransactionMutation(graphene.Mutation):
-    ok = graphene.Boolean()
-
-    class Arguments:
-        pin = graphene.String(description='User Pin')
-        proxy_user = graphene.ID(description='Proxy User ID. The pin belongs to this user and '
-                                             'the current user is acting on behalf of this user. '
-                                             'Current user must have the permission to act on behalf of the proxy user.')
-
-    @classmethod
-    def mutate(cls, root, info, pin, proxy_user=None, data=None):
+    @strawberry.mutation(
+        description="Authenticate a PIN transaction. "
+                    "The proxy_user parameter allows acting on behalf of another user."
+    )
+    def pin_transaction(
+        self,
+        info: Info,
+        pin: str,
+        proxy_user: Optional[strawberry.ID] = None,
+    ) -> bool:
         profile: Profile = info.context.user.profile
+        resolved_proxy_user = None
         if proxy_user:
-            proxy_user = UserType.get_object(info, proxy_user, raise_not_found=True)
+            resolved_proxy_user = _get_user_object(info, proxy_user, raise_not_found=True)
 
-        profile.authenticate(pin, proxy_user, data)
-        return cls(ok=True)
+        profile.authenticate(pin, resolved_proxy_user, None)
+        return True
 
-
-class SignRequestUserMutation(graphene.Mutation):
-    """
-    This mutation is used to request a sign to a user.
-    In order to request a sign:
-        * the user must have the permission SIGNREQUEST_CHANGE_SIGN
-    """
-    ok = graphene.Boolean()
-
-    class Arguments:
-        gid = graphene.String(description='Global ID of the Sign Request')
-        user_to_request = graphene.ID(description='Global User ID to request the sign')
-
-    @classmethod
-    def mutate(cls, root, info, gid, user_to_request):
+    @strawberry.mutation(
+        description="Request a sign from a user. "
+                    "The user must have SIGNREQUEST_CHANGE_SIGN permission."
+    )
+    def sign_request_user(
+        self,
+        info: Info,
+        gid: str,
+        user_to_request: strawberry.ID,
+    ) -> bool:
         # SignRequestType.get_object can not be used because of the security in SignRequestType
-        # This assume everyone can request a sign
-        sign_request_pk = SignRequestType.get_pk(gid)
+        # This assumes everyone can request a sign
+        sign_request_pk = _get_sign_request_pk(gid)
         sign_request = SignRequest.objects.filter(pk=sign_request_pk).first()
 
         if not sign_request:
-            raise GraphQLError(f'Object id {str(cls)}:{gid} not found')
+            raise GraphQLError(f'Object id SignRequest:{gid} not found')
 
-        user_to_request = UserType.get_object(info, user_to_request, raise_not_found=True)
+        resolved_user = _get_user_object(info, user_to_request, raise_not_found=True)
         if sign_request.is_rejected:
-            sign_request = sign_request.reset_sign_request(user_to_request)
+            sign_request = sign_request.reset_sign_request(resolved_user)
 
-        sign_request.request_user(user_to_request)
-        return cls(ok=True)
+        sign_request.request_user(resolved_user)
+        return True
 
-
-class SignRequestSignMutation(graphene.Mutation):
-    """
-    This mutation is used to sign a sign request.
-    In order to sign a sign request
-        * the current user must have:
-            * The permission SIGNREQUEST_CHANGE_SIGN
-            * Pin transaction active
-        * the status the request must be SIGN_REQUIRED
-    """
-    ok = graphene.Boolean()
-
-    class Arguments:
-        gid = graphene.String(description='Global ID of the Sign Request')
-
-    @classmethod
-    def mutate(cls, root, info, gid):
-        sign_request = SignRequestType.get_object(info, gid, raise_not_found=True)
+    @strawberry.mutation(
+        description="Sign a sign request. Requires SIGNREQUEST_CHANGE_SIGN permission "
+                    "and an active PIN transaction. Status must be SIGN_REQUIRED."
+    )
+    def sign_request_sign(self, info: Info, gid: str) -> bool:
+        sign_request = _get_sign_request_object(info, gid, raise_not_found=True)
         sign_request.sign(info.context.user)
-        return cls(ok=True)
+        return True
 
-
-class SignRequestCancelMutation(graphene.Mutation):
-    """
-    This mutation is used to cancel the SignRequest. This invalidates the whole sign request.
-    In order to cancel a sign
-        * the current user must have:
-            * The permission SIGNREQUEST_CHANGE_CANCEL
-    """
-    ok = graphene.Boolean()
-
-    class Arguments:
-        gid = graphene.String(description='Global ID of the Sign Request')
-        note = graphene.String(description='Note for the cancellation')
-
-    @classmethod
-    def mutate(cls, root, info, gid, note):
-        sign_request = SignRequestType.get_object(info, gid)
+    @strawberry.mutation(
+        description="Cancel a sign request. Requires SIGNREQUEST_CHANGE_CANCEL permission."
+    )
+    def sign_request_cancel(self, info: Info, gid: str, note: str) -> bool:
+        sign_request = _get_sign_request_object(info, gid)
         sign_request.cancel(info.context.user, note)
-        return cls(ok=True)
+        return True

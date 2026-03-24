@@ -1,7 +1,4 @@
-import graphene
+from .mutations import Mutation
+from .queries import Query
 
-from .mutations import *  # noqa
-from .queries import *  # noqa
-from .types import *  # noqa
-
-schema = graphene.Schema(query=Query, mutation=Mutation)
+__all__ = ['Query', 'Mutation']

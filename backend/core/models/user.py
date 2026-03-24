@@ -10,7 +10,6 @@ from typing import List, Optional, Tuple
 
 from config.roles_gen import P
 from constance import config
-from core.dataloaders import DataLoaderContext, dataloader
 from core.middleware.current_user import get_current_user
 from core.models import GlobalIDLink, RequiresApproveMixin, Tracking
 from core.models.address import Address
@@ -886,32 +885,6 @@ class Profile(RequiresApproveMixin, Tracking):
                 enabled=True
             ).values_list('attribute', flat=True)
         )
-
-    @dataloader
-    @staticmethod
-    def load_profile_from_ids(_context: DataLoaderContext, profile_ids):
-        """
-        DataLoader for user profiles.
-        """
-        queryset: QuerySet[Profile] = (
-            Profile.objects.filter(gid__in=profile_ids)
-            .select_related('avatar', 'signature', 'active_organization')
-        )
-        for profile in queryset:
-            yield profile.gid, profile
-
-    @dataloader
-    @staticmethod
-    def load_profile_from_user_ids(_context: DataLoaderContext, user_ids):
-        """
-        DataLoader for user profiles.
-        """
-        queryset: QuerySet[Profile] = (
-            Profile.objects.filter(user_id__in=user_ids)
-            .select_related('avatar', 'signature', 'active_organization')
-        )
-        for profile in queryset:
-            yield profile.user_id, profile
 
     def register_in_auth0(self, reset_password=True):
         """

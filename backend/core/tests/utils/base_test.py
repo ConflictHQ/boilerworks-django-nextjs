@@ -2,7 +2,7 @@ import dataclasses
 import inspect
 
 import config.schema as ConfigSchema
-from core.dataloaders import DataLoaderContext, DeferredExecutionContext
+from core.schema.context import StrawberryContext
 from core.tests.utils.document_writer import DocWriter
 from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType

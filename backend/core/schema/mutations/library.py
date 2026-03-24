@@ -1,161 +1,169 @@
+"""Library mutations migrated from Graphene to Strawberry."""
+from __future__ import annotations
+
 from typing import Optional
 
-import graphene
+import strawberry
+from graphql import GraphQLError
+from strawberry.types import Info
+
 from core.models import SharedDirectory, SharedFile, Upload
-from core.schema.library import SharedDirectoryType
-from core.schema.upload import UploadType
+from core.schema.types.library import SharedDirectoryType as StrawberrySharedDirectoryType
+from core.schema.types.upload import UploadType as StrawberryUploadType
 
 
-class LibraryMkdirMutation(graphene.Mutation):
-    ok = graphene.Boolean()
+# ---------------------------------------------------------------------------
+# Helpers — resolve objects using the Graphene registry (same as originals)
+# ---------------------------------------------------------------------------
 
-    directory = graphene.Field(SharedDirectoryType)
+def _get_shared_directory(info, global_id: str, raise_not_found: bool = True) -> SharedDirectory:
+    from core.schema.library import SharedDirectoryType
+    return SharedDirectoryType.get_object(info, global_id, raise_not_found=raise_not_found)
 
-    class Arguments:
-        name = graphene.String(description='name of the directory', required=True)
-        parent_guid = graphene.ID(description='Parent Directory Global Id', required=False)
-        icon = graphene.ID(description='File Global Id of the Icon', required=False)
 
-    @classmethod
-    def mutate(
-            cls,
-            root,
-            info,
-            name: str,
-            parent_guid: Optional[str] = None,
-            icon: Optional[str | int] = None
-    ):
-        parent: Optional[SharedDirectory]
+def _get_upload(info, global_id: str, raise_not_found: bool = True) -> Upload:
+    from core.schema.upload import UploadType
+    return UploadType.get_object(info, global_id, raise_not_found=raise_not_found)
+
+
+# ---------------------------------------------------------------------------
+# Response types
+# ---------------------------------------------------------------------------
+
+@strawberry.type
+class LibraryMkdirResult:
+    ok: bool
+    directory: Optional[StrawberrySharedDirectoryType]
+
+
+@strawberry.type
+class LibraryRenameDirectoryResult:
+    ok: bool
+    directory: Optional[StrawberrySharedDirectoryType]
+
+
+@strawberry.type
+class LibraryRenameFileResult:
+    ok: bool
+    file: Optional[StrawberryUploadType]
+
+
+@strawberry.type
+class LibraryRmFileResult:
+    ok: bool
+    directory: Optional[StrawberrySharedDirectoryType]
+
+
+@strawberry.type
+class LibrarySetIconResult:
+    ok: bool
+    directory: Optional[StrawberrySharedDirectoryType]
+
+
+# ---------------------------------------------------------------------------
+# Mutations
+# ---------------------------------------------------------------------------
+
+@strawberry.type
+class LibraryMutations:
+
+    @strawberry.mutation(description="Create a new directory in the library.")
+    def library_mkdir(
+        self,
+        info: Info,
+        name: str,
+        parent_guid: Optional[strawberry.ID] = None,
+        icon: Optional[strawberry.ID] = None,
+    ) -> LibraryMkdirResult:
+        parent: Optional[SharedDirectory] = None
         match parent_guid:
             case str() | int():
-                parent: SharedDirectory = SharedDirectoryType.get_object(
-                    info,
-                    parent_guid,
-                    raise_not_found=True
-                )
+                parent = _get_shared_directory(info, parent_guid, raise_not_found=True)
             case None:
                 parent = None
 
-        directory = SharedDirectory.objects.mkdir(path=parent, name=name, created_by=info.context.user)
+        directory = SharedDirectory.objects.mkdir(
+            path=parent, name=name, created_by=info.context.user,
+        )
 
         if icon is not None:
-            upload = UploadType.get_object(
-                info,
-                icon,
-                raise_not_found=True
-            )
+            upload = _get_upload(info, icon, raise_not_found=True)
             directory.icon = upload
             directory.save()
 
-        return cls(ok=True, directory=directory)
+        return LibraryMkdirResult(ok=True, directory=directory)
 
-
-class LibraryRmdirMutation(graphene.Mutation):
-    ok = graphene.Boolean()
-
-    class Arguments:
-        directory_guid = graphene.ID(description='Parent Directory Global Id', required=True)
-
-    @classmethod
-    def mutate(cls, root, info, directory_guid: str = None):
-
-        directory: Optional[SharedDirectory]
+    @strawberry.mutation(description="Remove a directory from the library.")
+    def library_rmdir(self, info: Info, directory_guid: strawberry.ID) -> bool:
+        directory: Optional[SharedDirectory] = None
         match directory_guid:
             case str() | int():
-                directory: SharedDirectory = SharedDirectoryType.get_object(
-                    info,
-                    directory_guid,
-                    raise_not_found=True
-                )
+                directory = _get_shared_directory(info, directory_guid, raise_not_found=True)
             case _:
-                return cls(ok=False)
+                return False
 
         directory.delete()
+        return True
 
-        return cls(ok=True)
-
-
-class LibraryRenameDirectoryMutation(graphene.Mutation):
-    ok = graphene.Boolean()
-
-    directory = graphene.Field(SharedDirectoryType)
-
-    class Arguments:
-        name = graphene.String(description='New name of the directory', required=True)
-        guid = graphene.ID(description='Directory Global Id', required=True)
-
-    @classmethod
-    def mutate(cls, root, info, name: str, guid: Optional[str] = None):
-        directory: SharedDirectory = SharedDirectoryType.get_object(info, guid, raise_not_found=True)
+    @strawberry.mutation(description="Rename a directory in the library.")
+    def library_rename_dir(
+        self,
+        info: Info,
+        name: str,
+        guid: strawberry.ID,
+    ) -> LibraryRenameDirectoryResult:
+        directory = _get_shared_directory(info, guid, raise_not_found=True)
         directory = SharedDirectory.objects.rename(directory=directory, name=name)
-        return cls(ok=True, directory=directory)
+        return LibraryRenameDirectoryResult(ok=True, directory=directory)
 
-
-class LibraryRenameFileMutation(graphene.Mutation):
-
-    ok = graphene.Boolean()
-
-    file = graphene.Field(UploadType)
-
-    class Arguments:
-        name = graphene.String(description='New name of the directory', required=True)
-        guid = graphene.ID(description='Directory Global Id', required=True)
-
-    @classmethod
-    def mutate(cls, root, info, name: str, guid: Optional[str] = None):
-        upload: UploadType = UploadType.get_object(info, guid, raise_not_found=True)
+    @strawberry.mutation(description="Rename a file in the library.")
+    def library_rename_file(
+        self,
+        info: Info,
+        name: str,
+        guid: strawberry.ID,
+    ) -> LibraryRenameFileResult:
+        upload = _get_upload(info, guid, raise_not_found=True)
         upload.name = name
         upload.save()
         queryset = list(SharedFile.objects.filter(file=upload))
         for shared_file in queryset:
             SharedFile.objects.rename(shared_file=shared_file, name=name)
-        return cls(ok=True, file=upload)
+        return LibraryRenameFileResult(ok=True, file=upload)
 
-
-class LibraryRmFileMutation(graphene.Mutation):
-
-    ok = graphene.Boolean()
-
-    directory = graphene.Field(SharedDirectoryType)
-
-    class Arguments:
-        directory = graphene.ID(description='Directory Global Id', required=True)
-        file = graphene.ID(description='File Global Id', required=True)
-
-    @classmethod
-    def mutate(cls, root, info, directory: str | int, file: str | int):
-        upload: Upload = UploadType.get_object(info, file, raise_not_found=True)
-        directory: SharedDirectory = SharedDirectoryType.get_object(info, directory, raise_not_found=True)
+    @strawberry.mutation(description="Remove a file from a library directory.")
+    def library_rm_file(
+        self,
+        info: Info,
+        directory: strawberry.ID,
+        file: strawberry.ID,
+    ) -> LibraryRmFileResult:
+        upload: Upload = _get_upload(info, file, raise_not_found=True)
+        dir_obj: SharedDirectory = _get_shared_directory(info, directory, raise_not_found=True)
 
         queryset = SharedFile.objects.filter(
             file=upload,
-            parent=directory,
+            parent=dir_obj,
         )
 
         if queryset.exists():
             queryset.delete()
-            return cls(ok=True, directory=directory)
+            return LibraryRmFileResult(ok=True, directory=dir_obj)
 
-        return cls(ok=False, directory=directory)
+        return LibraryRmFileResult(ok=False, directory=dir_obj)
 
+    @strawberry.mutation(description="Set the icon for a library directory.")
+    def library_set_icon(
+        self,
+        info: Info,
+        directory: strawberry.ID,
+        file: strawberry.ID,
+    ) -> LibrarySetIconResult:
+        upload: Upload = _get_upload(info, file, raise_not_found=True)
+        dir_obj: SharedDirectory = _get_shared_directory(info, directory, raise_not_found=True)
 
-class LibrarySetIconMutation(graphene.Mutation):
-
-    ok = graphene.Boolean()
-
-    directory = graphene.Field(SharedDirectoryType)
-
-    class Arguments:
-        directory = graphene.ID(description='Directory Global Id', required=True)
-        file = graphene.ID(description='File Global Id', required=True)
-
-    @classmethod
-    def mutate(cls, root, info, directory: str | int, file: str | int):
-        upload: Upload = UploadType.get_object(info, file, raise_not_found=True)
-        directory: SharedDirectory = SharedDirectoryType.get_object(info, directory, raise_not_found=True)
-
-        directory.icon = upload
-        directory.save()
+        dir_obj.icon = upload
+        dir_obj.save()
 
         icons = SharedDirectory.objects.get_by_path('/icons')
         if icons is not None:
@@ -163,4 +171,4 @@ class LibrarySetIconMutation(graphene.Mutation):
                 icons.files.add(upload)
                 icons.save()
 
-        return cls(ok=False, directory=directory)
+        return LibrarySetIconResult(ok=False, directory=dir_obj)
