@@ -10,16 +10,8 @@ import core.schema.mutations as CoreMutations
 import core_ui.schema as UiSchema
 import organization.schema as OrganizationSchema
 import pushnotif.schema as PushNotificationSchema
+from core.schema.types.permission_analysis import PermissionAnalysisQuery
 from core.schema.types.user import UserType
-
-
-# ---------------------------------------------------------------------------
-# Core queries (assembled from type modules)
-# ---------------------------------------------------------------------------
-
-@strawberry.type
-class CoreQuery:
-    pass  # Core queries will be added as fields here during Phase 6 full wiring
 
 
 # ---------------------------------------------------------------------------
@@ -28,6 +20,7 @@ class CoreQuery:
 
 @strawberry.type
 class Query(
+    PermissionAnalysisQuery,
     UiSchema.Query,
     OrganizationSchema.Query,
     PushNotificationSchema.Query,
