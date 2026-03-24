@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -122,6 +122,7 @@ function defaultField(index: number): FieldDef {
 type FormBuilderProps = {
   schema: Record<string, unknown>;
   onSave: (schema: Record<string, unknown>) => void;
+  onChange?: (schema: Record<string, unknown>) => void;
 };
 
 // ---------------------------------------------------------------------------
@@ -523,9 +524,17 @@ function fieldsToSchema(fields: FieldDef[]): Record<string, unknown> {
 // Main component
 // ---------------------------------------------------------------------------
 
-export function FormBuilder({ schema, onSave }: FormBuilderProps) {
+export function FormBuilder({ schema, onSave, onChange }: FormBuilderProps) {
   const [fields, setFields] = useState<FieldDef[]>(() => schemaToFields(schema));
   const [allExpanded, setAllExpanded] = useState(false);
+
+  // Live preview: notify parent on every field change
+  const fieldsJson = JSON.stringify(fields);
+  React.useEffect(() => {
+    if (onChange) {
+      onChange(fieldsToSchema(fields));
+    }
+  }, [fieldsJson]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sensors = useSensors(
     useSensor(PointerSensor),
