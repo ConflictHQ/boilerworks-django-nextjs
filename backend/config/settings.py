@@ -259,7 +259,6 @@ INSTALLED_APPS = [
     'django_filters',
     'djmoney',
     'nested_admin',
-    'localflavor',
     "sslserver",
     'storages',
     'django_crontab',
