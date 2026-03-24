@@ -43,23 +43,23 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 const FIELD_TYPES = [
-  { value: "text", label: "Text", icon: "Aa" },
-  { value: "textarea", label: "Textarea", icon: "¶" },
-  { value: "number", label: "Number", icon: "#" },
-  { value: "integer", label: "Integer", icon: "1" },
-  { value: "boolean", label: "Checkbox", icon: "☑" },
-  { value: "date", label: "Date", icon: "📅" },
-  { value: "datetime", label: "Date & Time", icon: "🕐" },
-  { value: "email", label: "Email", icon: "@" },
-  { value: "url", label: "URL", icon: "🔗" },
-  { value: "select", label: "Dropdown", icon: "▼" },
-  { value: "multi_select", label: "Multi-Select", icon: "☰" },
-  { value: "rating", label: "Rating (Stars)", icon: "★" },
-  { value: "scale", label: "Scale (Slider)", icon: "─●─" },
-  { value: "file", label: "File Upload", icon: "📎" },
-  { value: "signature", label: "Signature", icon: "✍" },
-  { value: "repeatable", label: "Repeatable Section", icon: "⟳" },
-  { value: "percentage_split", label: "Percentage Split", icon: "%" },
+  { value: "text", label: "Text", icon: "Aa", hint: "Single-line text input" },
+  { value: "textarea", label: "Textarea", icon: "¶", hint: "Multi-line text area" },
+  { value: "number", label: "Number", icon: "#", hint: "Decimal number input" },
+  { value: "integer", label: "Integer", icon: "1", hint: "Whole number input" },
+  { value: "boolean", label: "Checkbox", icon: "☑", hint: "True/false toggle" },
+  { value: "date", label: "Date", icon: "📅", hint: "Date picker (YYYY-MM-DD)" },
+  { value: "datetime", label: "Date & Time", icon: "🕐", hint: "Date and time picker" },
+  { value: "email", label: "Email", icon: "@", hint: "Email address with validation" },
+  { value: "url", label: "URL", icon: "🔗", hint: "Web URL with validation" },
+  { value: "select", label: "Dropdown", icon: "▼", hint: "Choose one from a list of options" },
+  { value: "multi_select", label: "Multi-Select", icon: "☰", hint: "Choose multiple from a list" },
+  { value: "rating", label: "Rating (Stars)", icon: "★", hint: "Star rating (1-5 by default)" },
+  { value: "scale", label: "Scale (Slider)", icon: "─●─", hint: "Numeric slider (0-10 by default)" },
+  { value: "file", label: "File Upload", icon: "📎", hint: "Upload files (PDF, images, etc.)" },
+  { value: "signature", label: "Signature", icon: "✍", hint: "Capture a signature" },
+  { value: "repeatable", label: "Repeatable Section", icon: "⟳", hint: "Add multiple rows of the same fields" },
+  { value: "percentage_split", label: "Percentage Split", icon: "%", hint: "Allocate percentages across categories" },
 ];
 
 type FieldDef = {
@@ -351,7 +351,7 @@ function SortableField({
         <button type="button" {...attributes} {...listeners} className="cursor-grab text-gray-400 hover:text-gray-600">
           <GripVerticalIcon className="h-4 w-4" />
         </button>
-        <span className="w-6 text-center text-xs text-gray-400">{typeInfo?.icon}</span>
+        <span className="w-6 text-center text-xs text-gray-400" title={typeInfo?.hint}>{typeInfo?.icon}</span>
         <Input
           value={field.title}
           onChange={(e) => onUpdate({ ...field, title: e.target.value })}
@@ -365,7 +365,10 @@ function SortableField({
           <SelectContent>
             {FIELD_TYPES.map((ft) => (
               <SelectItem key={ft.value} value={ft.value}>
-                <span className="mr-2">{ft.icon}</span> {ft.label}
+                <div className="flex flex-col">
+                  <span><span className="mr-2">{ft.icon}</span>{ft.label}</span>
+                  <span className="text-[10px] text-muted-foreground">{ft.hint}</span>
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
@@ -399,6 +402,10 @@ function SortableField({
           <TrashIcon className="h-4 w-4" />
         </button>
       </div>
+
+      {!expanded && typeInfo?.hint && (
+        <div className="px-3 pb-2 text-[11px] text-muted-foreground">{typeInfo.hint}</div>
+      )}
 
       {expanded && (
         <div className="border-t px-3 pb-3 pt-3">
