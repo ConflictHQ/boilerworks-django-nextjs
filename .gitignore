@@ -1,0 +1,11 @@
+.idea/
+backend/backend.iml
+client_secret*.json
+*.env.local
+.env
+local.env
+backend/static/app/
+*.iml
+backend/.coverage
+backend/Pipfile.bak
+docker/runtime/

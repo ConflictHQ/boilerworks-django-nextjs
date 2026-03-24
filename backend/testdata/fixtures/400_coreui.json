@@ -1,0 +1,98 @@
+[
+  {
+    "model": "core_ui.component",
+    "fields": {
+      "version": 3,
+      "created_at": "2023-10-28T22:13:36.563Z",
+      "created_by": [
+        "test_superuser"
+      ],
+      "updated_at": "2023-11-11T15:23:05.813Z",
+      "updated_by": null,
+      "guid": "58df2503-f1f9-4720-b17f-1e0910d3de48",
+      "name": "Navigation",
+      "slug": "navigation",
+      "description": "",
+      "is_active": true,
+      "path": null,
+      "icon": null,
+      "properties": {},
+      "permissions": [
+        [
+          "add_navigation",
+          "core_ui",
+          "component"
+        ],
+        [
+          "change_navigation",
+          "core_ui",
+          "component"
+        ],
+        [
+          "delete_navigation",
+          "core_ui",
+          "component"
+        ],
+        [
+          "view_navigation",
+          "core_ui",
+          "component"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "core_ui.component",
+    "fields": {
+      "version": 2,
+      "created_at": "2023-10-28T22:17:29.128Z",
+      "created_by": [
+        "test_superuser"
+      ],
+      "updated_at": "2023-10-28T22:21:33.252Z",
+      "updated_by": null,
+      "guid": "7133a922-18e4-404f-b096-eb3e68ca5dbd",
+      "name": "Dashboard",
+      "slug": "dashboard",
+      "description": null,
+      "is_active": true,
+      "path": null,
+      "icon": null,
+      "properties": {},
+      "permissions": [
+        [
+          "add_dashboard",
+          "core_ui",
+          "component"
+        ],
+        [
+          "change_dashboard",
+          "core_ui",
+          "component"
+        ],
+        [
+          "delete_dashboard",
+          "core_ui",
+          "component"
+        ],
+        [
+          "view_dashboard",
+          "core_ui",
+          "component"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "core_ui.componentrelationship",
+    "fields": {
+      "parent": [
+        "navigation"
+      ],
+      "child": [
+        "dashboard"
+      ],
+      "order": 0
+    }
+  }
+]

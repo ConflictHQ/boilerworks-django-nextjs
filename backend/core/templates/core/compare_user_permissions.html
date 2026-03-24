@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare User Permissions</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #1976d2;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .selection-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .selection-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .selection-box {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fafafa;
+        }
+
+        .selection-box h2 {
+            margin-top: 0;
+            color: #1976d2;
+            font-size: 18px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #1976d2;
+        }
+
+        .user-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .user-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-item:hover {
+            background: #f5f5f5;
+        }
+
+        .user-item.selected {
+            background: #e3f2fd;
+            border-left: 4px solid #1976d2;
+        }
+
+        .user-item input[type="radio"],
+        .user-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .user-item label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .user-details {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .selected-count {
+            background: #1976d2;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .compare-button {
+            width: 100%;
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 20px;
+        }
+
+        .compare-button:hover:not(:disabled) {
+            background: #45a049;
+        }
+
+        .compare-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        #comparison-results {
+            min-height: 100px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .htmx-indicator {
+            display: none;
+        }
+
+        .htmx-request .htmx-indicator,
+        .htmx-request.htmx-indicator {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+        }
+
+        .error-message {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            color: #c62828;
+        }
+
+        /* Scrollbar styling */
+        .user-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .user-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .user-list::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .user-list::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/admin/auth/user/" class="back-link">← Back to User List</a>
+
+        <h1>Permission Comparison Tool</h1>
+        <p class="subtitle">Compare user group permissions or compare groups directly</p>
+
+        <!-- Tab Navigation -->
+        <div style="margin-bottom: 30px; border-bottom: 2px solid #e0e0e0;">
+            <button onclick="switchTab('users')" id="tab-users" class="tab-button active" style="padding: 12px 24px; border: none; background: none; cursor: pointer; font-size: 16px; font-weight: 600; color: #666; border-bottom: 3px solid transparent; margin-bottom: -2px;">
+                Compare Users
+            </button>
+            <button onclick="switchTab('groups')" id="tab-groups" class="tab-button" style="padding: 12px 24px; border: none; background: none; cursor: pointer; font-size: 16px; font-weight: 600; color: #666; border-bottom: 3px solid transparent; margin-bottom: -2px;">
+                Compare Groups
+            </button>
+        </div>
+
+        <!-- Users Comparison Tab -->
+        <div id="users-tab-content" class="tab-content">
+            <form id="comparison-form"
+                  hx-post="/app/core/core/compare-user-permissions-data/"
+                  hx-target="#comparison-results"
+                  hx-indicator="#loading-indicator">
+                {% csrf_token %}
+
+            <div class="selection-container">
+                <!-- Base User Selection -->
+                <div class="selection-box">
+                    <h2>1. Select Base User</h2>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                        The reference user whose permissions will be compared
+                    </p>
+
+                    <input
+                        type="text"
+                        id="base-user-search"
+                        class="search-input"
+                        placeholder="Search by username, name, or email..."
+                        hx-get="/app/core/core/search-users/"
+                        hx-trigger="keyup changed delay:300ms"
+                        hx-target="#base-user-list"
+                        hx-vals='{"type": "base"}'
+                        name="q"
+                    >
+
+                    <div id="base-user-list" class="user-list">
+                        <div class="empty-state">
+                            Type to search for users...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Users Selection -->
+                <div class="selection-box">
+                    <h2>
+                        2. Select Users to Compare
+                        <span id="compared-count" class="selected-count" style="display: none;">0</span>
+                    </h2>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                        Select one or more users to compare against the base user
+                    </p>
+
+                    <input
+                        type="text"
+                        id="compared-user-search"
+                        class="search-input"
+                        placeholder="Search by username, name, or email..."
+                        hx-get="/app/core/core/search-users/"
+                        hx-trigger="keyup changed delay:300ms"
+                        hx-target="#compared-user-list"
+                        hx-vals='{"type": "compared"}'
+                        name="q"
+                    >
+
+                    <div id="compared-user-list" class="user-list">
+                        <div class="empty-state">
+                            Type to search for users...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                <button type="submit" id="compare-btn" class="compare-button" disabled>
+                    Compare User Permissions
+                </button>
+            </form>
+        </div>
+
+        <!-- Groups Comparison Tab -->
+        <div id="groups-tab-content" class="tab-content" style="display: none;">
+            <form id="group-comparison-form"
+                  hx-post="/app/core/core/compare-group-permissions-data/"
+                  hx-target="#group-comparison-results"
+                  hx-indicator="#group-loading-indicator">
+                {% csrf_token %}
+
+                <div class="selection-container">
+                    <!-- Base Group Selection -->
+                    <div class="selection-box">
+                        <h2>1. Select Base Group</h2>
+                        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                            The reference group whose permissions will be compared
+                        </p>
+
+                        <input
+                            type="text"
+                            id="base-group-search"
+                            class="search-input"
+                            placeholder="Search by group name or permission name..."
+                            hx-get="/app/core/core/search-groups/"
+                            hx-trigger="load, keyup changed delay:300ms"
+                            hx-target="#base-group-list"
+                            hx-vals='{"type": "base"}'
+                            name="q"
+                        >
+
+                        <div id="base-group-list" class="user-list">
+                            <div class="empty-state">
+                                Loading groups...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Groups Selection -->
+                    <div class="selection-box">
+                        <h2>
+                            2. Select Groups to Compare
+                            <span id="compared-group-count" class="selected-count" style="display: none;">0</span>
+                        </h2>
+                        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                            Select one or more groups to compare against the base group
+                        </p>
+
+                        <input
+                            type="text"
+                            id="compared-group-search"
+                            class="search-input"
+                            placeholder="Search by group name or permission name..."
+                            hx-get="/app/core/core/search-groups/"
+                            hx-trigger="load, keyup changed delay:300ms"
+                            hx-target="#compared-group-list"
+                            hx-vals='{"type": "compared"}'
+                            name="q"
+                        >
+
+                        <div id="compared-group-list" class="user-list">
+                            <div class="empty-state">
+                                Loading groups...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" id="compare-group-btn" class="compare-button" disabled>
+                    Compare Group Permissions
+                </button>
+            </form>
+
+            <div id="group-loading-indicator" class="loading htmx-indicator">
+                <p>🔄 Loading comparison results...</p>
+            </div>
+
+            <div id="group-comparison-results" style="margin-top: 30px;">
+                <!-- Group comparison results will be loaded here -->
+            </div>
+        </div>
+
+        <div id="loading-indicator" class="loading htmx-indicator">
+            <p>🔄 Loading comparison results...</p>
+        </div>
+
+        <div id="comparison-results" style="margin-top: 30px;">
+            <!-- Comparison results will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tab) {
+            const usersTab = document.getElementById('tab-users');
+            const groupsTab = document.getElementById('tab-groups');
+            const usersContent = document.getElementById('users-tab-content');
+            const groupsContent = document.getElementById('groups-tab-content');
+
+            if (tab === 'users') {
+                usersTab.classList.add('active');
+                usersTab.style.color = '#1976d2';
+                usersTab.style.borderBottom = '3px solid #1976d2';
+                groupsTab.classList.remove('active');
+                groupsTab.style.color = '#666';
+                groupsTab.style.borderBottom = '3px solid transparent';
+                usersContent.style.display = 'block';
+                groupsContent.style.display = 'none';
+            } else {
+                groupsTab.classList.add('active');
+                groupsTab.style.color = '#1976d2';
+                groupsTab.style.borderBottom = '3px solid #1976d2';
+                usersTab.classList.remove('active');
+                usersTab.style.color = '#666';
+                usersTab.style.borderBottom = '3px solid transparent';
+                groupsContent.style.display = 'block';
+                usersContent.style.display = 'none';
+            }
+        }
+
+        // Track selected users
+        let selectedBaseUser = null;
+        let selectedComparedUsers = new Set();
+
+        // Track selected groups
+        let selectedBaseGroup = null;
+        let selectedComparedGroups = new Set();
+
+        // Update button state for users
+        function updateButtonState() {
+            const button = document.getElementById('compare-btn');
+            const isValid = selectedBaseUser !== null && selectedComparedUsers.size > 0;
+            button.disabled = !isValid;
+
+            // Update count badge
+            const countBadge = document.getElementById('compared-count');
+            if (selectedComparedUsers.size > 0) {
+                countBadge.textContent = selectedComparedUsers.size;
+                countBadge.style.display = 'inline-block';
+            } else {
+                countBadge.style.display = 'none';
+            }
+        }
+
+        // Update button state for groups
+        function updateGroupButtonState() {
+            const button = document.getElementById('compare-group-btn');
+            const isValid = selectedBaseGroup !== null && selectedComparedGroups.size > 0;
+            button.disabled = !isValid;
+
+            // Update count badge
+            const countBadge = document.getElementById('compared-group-count');
+            if (selectedComparedGroups.size > 0) {
+                countBadge.textContent = selectedComparedGroups.size;
+                countBadge.style.display = 'inline-block';
+            } else {
+                countBadge.style.display = 'none';
+            }
+        }
+
+        // Initialize active tab style
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('tab-users').style.color = '#1976d2';
+            document.getElementById('tab-users').style.borderBottom = '3px solid #1976d2';
+        });
+
+        // Handle base user selection
+        document.addEventListener('change', function(e) {
+            if (e.target.name === 'base_user_id') {
+                selectedBaseUser = e.target.value;
+                updateButtonState();
+
+                // Update visual selection
+                document.querySelectorAll('#base-user-list .user-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                e.target.closest('.user-item').classList.add('selected');
+            }
+        });
+
+        // Handle compared users selection
+        document.addEventListener('change', function(e) {
+            if (e.target.name === 'compared_user_ids') {
+                const userId = e.target.value;
+                if (e.target.checked) {
+                    selectedComparedUsers.add(userId);
+                    e.target.closest('.user-item').classList.add('selected');
+                } else {
+                    selectedComparedUsers.delete(userId);
+                    e.target.closest('.user-item').classList.remove('selected');
+                }
+                updateButtonState();
+            }
+
+            // Handle base group selection
+            if (e.target.name === 'base_group_id') {
+                selectedBaseGroup = e.target.value;
+                updateGroupButtonState();
+
+                // Update visual selection
+                document.querySelectorAll('#base-group-list .user-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                e.target.closest('.user-item').classList.add('selected');
+            }
+
+            // Handle compared groups selection
+            if (e.target.name === 'compared_group_ids') {
+                const groupId = e.target.value;
+                if (e.target.checked) {
+                    selectedComparedGroups.add(groupId);
+                    e.target.closest('.user-item').classList.add('selected');
+                } else {
+                    selectedComparedGroups.delete(groupId);
+                    e.target.closest('.user-item').classList.remove('selected');
+                }
+                updateGroupButtonState();
+            }
+        });
+
+        // Clear comparison results when search changes
+        document.getElementById('base-user-search').addEventListener('input', function() {
+            selectedBaseUser = null;
+            document.getElementById('comparison-results').innerHTML = '';
+            updateButtonState();
+        });
+
+        document.getElementById('compared-user-search').addEventListener('input', function() {
+            // Keep selected checkboxes when searching
+            updateButtonState();
+        });
+
+        // Clear group comparison results when search changes
+        document.getElementById('base-group-search').addEventListener('input', function() {
+            selectedBaseGroup = null;
+            document.getElementById('group-comparison-results').innerHTML = '';
+            updateGroupButtonState();
+        });
+
+        document.getElementById('compared-group-search').addEventListener('input', function() {
+            // Keep selected checkboxes when searching
+            updateGroupButtonState();
+        });
+
+        // Pre-select users if coming from admin action
+        {% if preselected_user_ids %}
+        document.addEventListener('htmx:afterSwap', function(event) {
+            if (event.detail.target.id === 'compared-user-list') {
+                const preselectedIds = {{ preselected_user_ids|safe }};
+                preselectedIds.forEach(function(id) {
+                    const checkbox = document.querySelector(`input[name="compared_user_ids"][value="${id}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+            }
+        });
+
+        // Trigger initial search if we have preselected users
+        setTimeout(function() {
+            document.getElementById('compared-user-search').value = ' ';
+            document.getElementById('compared-user-search').dispatchEvent(new Event('keyup'));
+        }, 100);
+        {% endif %}
+    </script>
+</body>
+</html>

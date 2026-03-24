@@ -1,0 +1,144 @@
+{
+  "nav": {
+    "section": "Plataforma",
+    "playground": "Playground",
+    "models": "Modelos",
+    "documentation": "Documentação",
+    "settings": "Configurações",
+    "table": "Tabela",
+    "form": "Formulário",
+    "history": "Histórico",
+    "starred": "Favoritos",
+    "genesis": "Genesis",
+    "explorer": "Explorador",
+    "quantum": "Quantum",
+    "introduction": "Introdução",
+    "getStarted": "Começar",
+    "tutorials": "Tutoriais",
+    "changelog": "Registro de alterações",
+    "general": "Geral",
+    "team": "Equipe",
+    "billing": "Faturamento",
+    "limits": "Limites",
+    "hooks": "Hooks",
+    "secured": "Página segura"
+  },
+  "user": {
+    "account": "Conta",
+    "notifications": "Notificações",
+    "logout": "Sair"
+  },
+  "language": {
+    "label": "Idioma",
+    "en": "Inglês",
+    "pl": "Polonês",
+    "es": "Espanhol",
+    "fr": "Francês",
+    "de": "Alemão",
+    "it": "Italiano",
+    "pt": "Português"
+  },
+  "dashboard": {
+    "stats": {
+      "revenue": "Receita total",
+      "orders": "Pedidos",
+      "customers": "Clientes",
+      "products": "Produtos",
+      "fromLastMonth": "em relação ao mês passado"
+    },
+    "revenue": {
+      "title": "Receita",
+      "description": "Receita mensal dos últimos 12 meses",
+      "label": "Receita"
+    },
+    "channels": {
+      "title": "Canais",
+      "description": "Vendas por canal de aquisição",
+      "organic": "Orgânico",
+      "direct": "Direto",
+      "referral": "Indicação",
+      "paid": "Pago"
+    },
+    "sales": {
+      "title": "Vendas por categoria",
+      "description": "Unidades vendidas por categoria de produto neste trimestre",
+      "label": "Unidades vendidas",
+      "electronics": "Eletrônicos",
+      "clothing": "Roupas",
+      "accessories": "Acessórios",
+      "footwear": "Calçados",
+      "sports": "Esportes"
+    }
+  },
+  "dataTable": {
+    "search": "Pesquisar…",
+    "filters": "Filtros",
+    "clearAll": "Limpar tudo",
+    "noResults": "Sem resultados.",
+    "panel": {
+      "title": "Filtros",
+      "clearAll": "Limpar tudo",
+      "all": "Todos",
+      "cancel": "Cancelar",
+      "apply": "Aplicar",
+      "placeholder": "Filtrar por {label}…"
+    },
+    "pagination": {
+      "rowsPerPage": "Linhas por página",
+      "page": "Página {current} de {total}",
+      "results": "{count, plural, one {# resultado} other {# resultados}}"
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "description": "Gerencie as preferências da sua aplicação.",
+    "language": {
+      "title": "Idioma",
+      "description": "Escolha o idioma usado em toda a interface."
+    },
+    "theme": {
+      "title": "Aparência",
+      "description": "Escolha seu esquema de cores preferido.",
+      "light": "Claro",
+      "dark": "Escuro",
+      "system": "Sistema"
+    }
+  },
+  "hooks": {
+    "title": "Hooks",
+    "description": "Demos interativos dos hooks utilitários integrados.",
+    "debounce": {
+      "title": "useDebounce",
+      "description": "O valor só é atualizado após 300 ms sem digitação.",
+      "label": "Campo de pesquisa",
+      "placeholder": "Digite algo…",
+      "raw": "Valor atual",
+      "debounced": "Valor com debounce"
+    },
+    "localStorage": {
+      "title": "useLocalStorage",
+      "description": "Contador persistido no localStorage — sobrevive ao recarregamento da página.",
+      "label": "Contador",
+      "increment": "Incrementar",
+      "reset": "Redefinir"
+    },
+    "clipboard": {
+      "title": "useCopyToClipboard",
+      "description": "Copia texto para a área de transferência; o botão é redefinido após 2 segundos.",
+      "label": "Texto a copiar",
+      "copy": "Copiar",
+      "copied": "Copiado!"
+    },
+    "confirm": {
+      "title": "useConfirm",
+      "description": "Aguarda uma Promise de um AlertDialog — sem estado local de diálogo.",
+      "trigger": "Excluir item",
+      "dialogTitle": "Excluir este item?",
+      "dialogDescription": "Esta ação não pode ser desfeita.",
+      "confirmLabel": "Excluir",
+      "cancelLabel": "Cancelar",
+      "resultConfirmed": "Confirmado — item excluído.",
+      "resultCancelled": "Cancelado."
+    }
+  }
+}

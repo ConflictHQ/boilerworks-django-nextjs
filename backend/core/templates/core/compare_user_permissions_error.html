@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Compare User Permissions</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .error-container {
+            max-width: 600px;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .error-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #d32f2f;
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        .error-message {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .error-detail {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            text-align: left;
+        }
+        .back-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #1976d2;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .back-button:hover {
+            background: #1565c0;
+        }
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e3f2fd;
+            border-radius: 6px;
+            text-align: left;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 8px 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">⚠️</div>
+        <h1>{{ error_message }}</h1>
+
+        <div class="error-detail">
+            {{ error_detail }}
+        </div>
+
+        <a href="{{ back_url }}" class="back-button">← Go to User List</a>
+
+        <div class="instructions">
+            <h3>How to Use the Permission Comparison Tool</h3>
+            <ol>
+                <li>Navigate to the <strong>Django Admin → Users</strong> page</li>
+                <li>Select <strong>2 or more users</strong> using the checkboxes on the left</li>
+                <li>Choose <strong>"Compare user group permissions"</strong> from the Actions dropdown at the top</li>
+                <li>Click the <strong>"Go"</strong> button</li>
+                <li>You'll be redirected to the comparison page where you can select a base user</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,144 @@
+{
+  "nav": {
+    "section": "Plateforme",
+    "playground": "Playground",
+    "models": "Modèles",
+    "documentation": "Documentation",
+    "settings": "Paramètres",
+    "table": "Tableau",
+    "form": "Formulaire",
+    "history": "Historique",
+    "starred": "Favoris",
+    "genesis": "Genesis",
+    "explorer": "Explorateur",
+    "quantum": "Quantum",
+    "introduction": "Introduction",
+    "getStarted": "Commencer",
+    "tutorials": "Tutoriels",
+    "changelog": "Journal des modifications",
+    "general": "Général",
+    "team": "Équipe",
+    "billing": "Facturation",
+    "limits": "Limites",
+    "hooks": "Hooks",
+    "secured": "Page sécurisée"
+  },
+  "user": {
+    "account": "Compte",
+    "notifications": "Notifications",
+    "logout": "Se déconnecter"
+  },
+  "language": {
+    "label": "Langue",
+    "en": "Anglais",
+    "pl": "Polonais",
+    "es": "Espagnol",
+    "fr": "Français",
+    "de": "Allemand",
+    "it": "Italien",
+    "pt": "Portugais"
+  },
+  "dashboard": {
+    "stats": {
+      "revenue": "Chiffre d'affaires total",
+      "orders": "Commandes",
+      "customers": "Clients",
+      "products": "Produits",
+      "fromLastMonth": "par rapport au mois dernier"
+    },
+    "revenue": {
+      "title": "Chiffre d'affaires",
+      "description": "Chiffre d'affaires mensuel sur les 12 derniers mois",
+      "label": "Chiffre d'affaires"
+    },
+    "channels": {
+      "title": "Canaux",
+      "description": "Ventes par canal d'acquisition",
+      "organic": "Organique",
+      "direct": "Direct",
+      "referral": "Référence",
+      "paid": "Payant"
+    },
+    "sales": {
+      "title": "Ventes par catégorie",
+      "description": "Unités vendues par catégorie de produit ce trimestre",
+      "label": "Unités vendues",
+      "electronics": "Électronique",
+      "clothing": "Vêtements",
+      "accessories": "Accessoires",
+      "footwear": "Chaussures",
+      "sports": "Sports"
+    }
+  },
+  "dataTable": {
+    "search": "Rechercher…",
+    "filters": "Filtres",
+    "clearAll": "Tout effacer",
+    "noResults": "Aucun résultat.",
+    "panel": {
+      "title": "Filtres",
+      "clearAll": "Tout effacer",
+      "all": "Tous",
+      "cancel": "Annuler",
+      "apply": "Appliquer",
+      "placeholder": "Filtrer par {label}…"
+    },
+    "pagination": {
+      "rowsPerPage": "Lignes par page",
+      "page": "Page {current} sur {total}",
+      "results": "{count, plural, one {# résultat} other {# résultats}}"
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "description": "Gérez les préférences de votre application.",
+    "language": {
+      "title": "Langue",
+      "description": "Choisissez la langue utilisée dans toute l'interface."
+    },
+    "theme": {
+      "title": "Apparence",
+      "description": "Choisissez votre schéma de couleurs préféré.",
+      "light": "Clair",
+      "dark": "Sombre",
+      "system": "Système"
+    }
+  },
+  "hooks": {
+    "title": "Hooks",
+    "description": "Démos interactives des hooks utilitaires intégrés.",
+    "debounce": {
+      "title": "useDebounce",
+      "description": "La valeur se met à jour uniquement après 300 ms sans frappe.",
+      "label": "Champ de recherche",
+      "placeholder": "Tapez quelque chose…",
+      "raw": "Valeur actuelle",
+      "debounced": "Valeur avec debounce"
+    },
+    "localStorage": {
+      "title": "useLocalStorage",
+      "description": "Compteur persisté dans localStorage — survit au rechargement de page.",
+      "label": "Compteur",
+      "increment": "Incrémenter",
+      "reset": "Réinitialiser"
+    },
+    "clipboard": {
+      "title": "useCopyToClipboard",
+      "description": "Copie le texte dans le presse-papiers ; le bouton se réinitialise après 2 secondes.",
+      "label": "Texte à copier",
+      "copy": "Copier",
+      "copied": "Copié !"
+    },
+    "confirm": {
+      "title": "useConfirm",
+      "description": "Attend une Promise d'un AlertDialog — sans état de dialogue local.",
+      "trigger": "Supprimer l'élément",
+      "dialogTitle": "Supprimer cet élément ?",
+      "dialogDescription": "Cette action est irréversible.",
+      "confirmLabel": "Supprimer",
+      "cancelLabel": "Annuler",
+      "resultConfirmed": "Confirmé — élément supprimé.",
+      "resultCancelled": "Annulé."
+    }
+  }
+}

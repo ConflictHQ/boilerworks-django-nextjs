@@ -1,0 +1,35 @@
+{% if groups %}
+    {% for group in groups %}
+    <div class="user-item">
+        <label>
+            {% if request.GET.type == "base" %}
+                <input
+                    type="radio"
+                    name="base_group_id"
+                    value="{{ group.id }}"
+                >
+            {% else %}
+                <input
+                    type="checkbox"
+                    name="compared_group_ids"
+                    value="{{ group.id }}"
+                >
+            {% endif %}
+            <div class="user-info">
+                <div class="user-name">{{ group.name }}</div>
+                <div class="user-details">
+                    {{ group.permissions.count }} permission{{ group.permissions.count|pluralize }}
+                </div>
+            </div>
+        </label>
+    </div>
+    {% endfor %}
+{% elif search_query %}
+    <div class="empty-state">
+        No groups found matching "{{ search_query }}"
+    </div>
+{% else %}
+    <div class="empty-state">
+        Type to search for groups...
+    </div>
+{% endif %}

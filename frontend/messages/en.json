@@ -1,0 +1,144 @@
+{
+  "nav": {
+    "section": "Platform",
+    "playground": "Playground",
+    "models": "Models",
+    "documentation": "Documentation",
+    "settings": "Settings",
+    "table": "Table",
+    "form": "Form",
+    "history": "History",
+    "starred": "Starred",
+    "genesis": "Genesis",
+    "explorer": "Explorer",
+    "quantum": "Quantum",
+    "introduction": "Introduction",
+    "getStarted": "Get Started",
+    "tutorials": "Tutorials",
+    "changelog": "Changelog",
+    "general": "General",
+    "team": "Team",
+    "billing": "Billing",
+    "limits": "Limits",
+    "hooks": "Hooks",
+    "secured": "Secured page"
+  },
+  "user": {
+    "account": "Account",
+    "notifications": "Notifications",
+    "logout": "Log out"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "pl": "Polish",
+    "es": "Spanish",
+    "fr": "French",
+    "de": "German",
+    "it": "Italian",
+    "pt": "Portuguese"
+  },
+  "dashboard": {
+    "stats": {
+      "revenue": "Total revenue",
+      "orders": "Orders",
+      "customers": "Customers",
+      "products": "Products",
+      "fromLastMonth": "from last month"
+    },
+    "revenue": {
+      "title": "Revenue",
+      "description": "Monthly revenue for the last 12 months",
+      "label": "Revenue"
+    },
+    "channels": {
+      "title": "Channels",
+      "description": "Sales by acquisition channel",
+      "organic": "Organic",
+      "direct": "Direct",
+      "referral": "Referral",
+      "paid": "Paid"
+    },
+    "sales": {
+      "title": "Sales by category",
+      "description": "Units sold per product category this quarter",
+      "label": "Units sold",
+      "electronics": "Electronics",
+      "clothing": "Clothing",
+      "accessories": "Accessories",
+      "footwear": "Footwear",
+      "sports": "Sports"
+    }
+  },
+  "dataTable": {
+    "search": "Search…",
+    "filters": "Filters",
+    "clearAll": "Clear all",
+    "noResults": "No results.",
+    "panel": {
+      "title": "Filters",
+      "clearAll": "Clear all",
+      "all": "All",
+      "cancel": "Cancel",
+      "apply": "Apply",
+      "placeholder": "Filter by {label}…"
+    },
+    "pagination": {
+      "rowsPerPage": "Rows per page",
+      "page": "Page {current} of {total}",
+      "results": "{count, plural, one {# result} other {# results}}"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your application preferences.",
+    "language": {
+      "title": "Language",
+      "description": "Choose the language used throughout the interface."
+    },
+    "theme": {
+      "title": "Appearance",
+      "description": "Choose your preferred color scheme.",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    }
+  },
+  "hooks": {
+    "title": "Hooks",
+    "description": "Interactive demos for the built-in utility hooks.",
+    "debounce": {
+      "title": "useDebounce",
+      "description": "Value updates only after typing has stopped for 300 ms.",
+      "label": "Search input",
+      "placeholder": "Type something…",
+      "raw": "Raw value",
+      "debounced": "Debounced value"
+    },
+    "localStorage": {
+      "title": "useLocalStorage",
+      "description": "Counter persisted to localStorage — survives page refresh.",
+      "label": "Count",
+      "increment": "Increment",
+      "reset": "Reset"
+    },
+    "clipboard": {
+      "title": "useCopyToClipboard",
+      "description": "Copies text to the clipboard; button resets after 2 seconds.",
+      "label": "Text to copy",
+      "copy": "Copy",
+      "copied": "Copied!"
+    },
+    "confirm": {
+      "title": "useConfirm",
+      "description": "Awaits a Promise from an AlertDialog — no local dialog state required.",
+      "trigger": "Delete item",
+      "dialogTitle": "Delete this item?",
+      "dialogDescription": "This action cannot be undone.",
+      "confirmLabel": "Delete",
+      "cancelLabel": "Cancel",
+      "resultConfirmed": "Confirmed — item deleted.",
+      "resultCancelled": "Cancelled."
+    }
+  }
+}

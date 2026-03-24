@@ -1,0 +1,144 @@
+{
+  "nav": {
+    "section": "Piattaforma",
+    "playground": "Playground",
+    "models": "Modelli",
+    "documentation": "Documentazione",
+    "settings": "Impostazioni",
+    "table": "Tabella",
+    "form": "Modulo",
+    "history": "Cronologia",
+    "starred": "Preferiti",
+    "genesis": "Genesis",
+    "explorer": "Esploratore",
+    "quantum": "Quantum",
+    "introduction": "Introduzione",
+    "getStarted": "Inizia",
+    "tutorials": "Tutorial",
+    "changelog": "Registro modifiche",
+    "general": "Generale",
+    "team": "Team",
+    "billing": "Fatturazione",
+    "limits": "Limiti",
+    "hooks": "Hook",
+    "secured": "Pagina protetta"
+  },
+  "user": {
+    "account": "Account",
+    "notifications": "Notifiche",
+    "logout": "Esci"
+  },
+  "language": {
+    "label": "Lingua",
+    "en": "Inglese",
+    "pl": "Polacco",
+    "es": "Spagnolo",
+    "fr": "Francese",
+    "de": "Tedesco",
+    "it": "Italiano",
+    "pt": "Portoghese"
+  },
+  "dashboard": {
+    "stats": {
+      "revenue": "Fatturato totale",
+      "orders": "Ordini",
+      "customers": "Clienti",
+      "products": "Prodotti",
+      "fromLastMonth": "rispetto al mese scorso"
+    },
+    "revenue": {
+      "title": "Fatturato",
+      "description": "Fatturato mensile degli ultimi 12 mesi",
+      "label": "Fatturato"
+    },
+    "channels": {
+      "title": "Canali",
+      "description": "Vendite per canale di acquisizione",
+      "organic": "Organico",
+      "direct": "Diretto",
+      "referral": "Referral",
+      "paid": "A pagamento"
+    },
+    "sales": {
+      "title": "Vendite per categoria",
+      "description": "Unità vendute per categoria di prodotto in questo trimestre",
+      "label": "Unità vendute",
+      "electronics": "Elettronica",
+      "clothing": "Abbigliamento",
+      "accessories": "Accessori",
+      "footwear": "Calzature",
+      "sports": "Sport"
+    }
+  },
+  "dataTable": {
+    "search": "Cerca…",
+    "filters": "Filtri",
+    "clearAll": "Cancella tutto",
+    "noResults": "Nessun risultato.",
+    "panel": {
+      "title": "Filtri",
+      "clearAll": "Cancella tutto",
+      "all": "Tutti",
+      "cancel": "Annulla",
+      "apply": "Applica",
+      "placeholder": "Filtra per {label}…"
+    },
+    "pagination": {
+      "rowsPerPage": "Righe per pagina",
+      "page": "Pagina {current} di {total}",
+      "results": "{count, plural, one {# risultato} other {# risultati}}"
+    }
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "description": "Gestisci le preferenze della tua applicazione.",
+    "language": {
+      "title": "Lingua",
+      "description": "Scegli la lingua usata in tutta l'interfaccia."
+    },
+    "theme": {
+      "title": "Aspetto",
+      "description": "Scegli la combinazione di colori preferita.",
+      "light": "Chiaro",
+      "dark": "Scuro",
+      "system": "Sistema"
+    }
+  },
+  "hooks": {
+    "title": "Hook",
+    "description": "Demo interattive degli hook di utilità integrati.",
+    "debounce": {
+      "title": "useDebounce",
+      "description": "Il valore si aggiorna solo dopo che la digitazione si è interrotta per 300 ms.",
+      "label": "Campo di ricerca",
+      "placeholder": "Scrivi qualcosa…",
+      "raw": "Valore attuale",
+      "debounced": "Valore con debounce"
+    },
+    "localStorage": {
+      "title": "useLocalStorage",
+      "description": "Contatore persistito in localStorage — sopravvive all'aggiornamento della pagina.",
+      "label": "Contatore",
+      "increment": "Incrementa",
+      "reset": "Reimposta"
+    },
+    "clipboard": {
+      "title": "useCopyToClipboard",
+      "description": "Copia il testo negli appunti; il pulsante si reimposta dopo 2 secondi.",
+      "label": "Testo da copiare",
+      "copy": "Copia",
+      "copied": "Copiato!"
+    },
+    "confirm": {
+      "title": "useConfirm",
+      "description": "Attende una Promise da un AlertDialog — senza stato locale del dialogo.",
+      "trigger": "Elimina elemento",
+      "dialogTitle": "Eliminare questo elemento?",
+      "dialogDescription": "Questa azione non può essere annullata.",
+      "confirmLabel": "Elimina",
+      "cancelLabel": "Annulla",
+      "resultConfirmed": "Confermato — elemento eliminato.",
+      "resultCancelled": "Annullato."
+    }
+  }
+}

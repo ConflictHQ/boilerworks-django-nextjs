@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Lint changed files
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE=${{ github.event.pull_request.base.sha }}
+          else
+            BASE=${{ github.event.before }}
+          fi
+          # Fall back to HEAD~1 if before-sha is unknown (first push to branch)
+          if [ -z "$BASE" ] || ! git cat-file -e "$BASE" 2>/dev/null; then
+            BASE=$(git rev-parse HEAD~1 2>/dev/null || git rev-parse HEAD)
+          fi
+          pre-commit run --from-ref "$BASE" --to-ref "${{ github.sha }}"
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: dbadmin
+          POSTGRES_PASSWORD: Password123
+          POSTGRES_DB: boilerworks
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 3s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 3s
+          --health-timeout 5s
+          --health-retries 3
+        ports:
+          - 6379:6379
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      DJANGO_SETTINGS_MODULE: config.settings
+      DJANGO_CONFIGURATION: Tests
+      DJANGO_SECRET_KEY: ci-not-a-real-secret
+      POSTGRES_ENGINE: django.db.backends.postgresql
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: boilerworks
+      POSTGRES_USER: dbadmin
+      POSTGRES_PASSWORD: Password123
+      DJANGO_CACHE_URL: redis://localhost:6379/1
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pipenv
+        run: pip install pipenv
+      - name: Install dependencies
+        run: pipenv requirements --dev | pip install -r /dev/stdin
+      - name: Run migrations
+        run: python manage.py migrate --noinput
+      - name: Run tests
+        run: python manage.py test

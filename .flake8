@@ -1,0 +1,15 @@
+[flake8]:
+
+max-line-length = 140
+per-file-ignores =
+    __init__.py:F401
+    snap_test_schema.py:E501
+    test_*.py:E501
+    */migrations/*:E501
+    */snapshots/*:E501
+
+extend-ignore = F403, F405
+
+exclude =
+    .env
+    .md

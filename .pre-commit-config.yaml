@@ -1,0 +1,36 @@
+repos:
+-   repo: https://github.com/gitleaks/gitleaks
+    rev: v8.24.3
+    hooks:
+      - id: gitleaks
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+    -   id: check-yaml
+        files: ^backend/.*$
+    -   id: end-of-file-fixer
+        files: ^backend/.*$
+    -   id: trailing-whitespace
+        files: ^backend/.*$
+-   repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        files: ^backend/.*$
+        stages: [ pre-commit ]
+-   repo: https://github.com/pycqa/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        files: ^backend/.*$
+        stages: [ pre-commit ]
+-   repo: local
+    hooks:
+      - id: pre-commit-django-migrations
+        files: ^backend/.*$
+        name: Check Django Migrations
+        stages: [ pre-commit, pre-push ]
+        entry: backend/utils/pre-commit-hook.sh
+        language: system
+        types: [ python ]
+        pass_filenames: false

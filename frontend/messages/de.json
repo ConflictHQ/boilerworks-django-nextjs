@@ -1,0 +1,144 @@
+{
+  "nav": {
+    "section": "Plattform",
+    "playground": "Spielplatz",
+    "models": "Modelle",
+    "documentation": "Dokumentation",
+    "settings": "Einstellungen",
+    "table": "Tabelle",
+    "form": "Formular",
+    "history": "Verlauf",
+    "starred": "Favoriten",
+    "genesis": "Genesis",
+    "explorer": "Explorer",
+    "quantum": "Quantum",
+    "introduction": "Einführung",
+    "getStarted": "Loslegen",
+    "tutorials": "Tutorials",
+    "changelog": "Änderungsprotokoll",
+    "general": "Allgemein",
+    "team": "Team",
+    "billing": "Abrechnung",
+    "limits": "Grenzen",
+    "hooks": "Hooks",
+    "secured": "Gesicherte Seite"
+  },
+  "user": {
+    "account": "Konto",
+    "notifications": "Benachrichtigungen",
+    "logout": "Abmelden"
+  },
+  "language": {
+    "label": "Sprache",
+    "en": "Englisch",
+    "pl": "Polnisch",
+    "es": "Spanisch",
+    "fr": "Französisch",
+    "de": "Deutsch",
+    "it": "Italienisch",
+    "pt": "Portugiesisch"
+  },
+  "dashboard": {
+    "stats": {
+      "revenue": "Gesamtumsatz",
+      "orders": "Bestellungen",
+      "customers": "Kunden",
+      "products": "Produkte",
+      "fromLastMonth": "gegenüber dem Vormonat"
+    },
+    "revenue": {
+      "title": "Umsatz",
+      "description": "Monatlicher Umsatz der letzten 12 Monate",
+      "label": "Umsatz"
+    },
+    "channels": {
+      "title": "Kanäle",
+      "description": "Verkäufe nach Akquisitionskanal",
+      "organic": "Organisch",
+      "direct": "Direkt",
+      "referral": "Empfehlung",
+      "paid": "Bezahlt"
+    },
+    "sales": {
+      "title": "Verkäufe nach Kategorie",
+      "description": "Verkaufte Einheiten nach Produktkategorie in diesem Quartal",
+      "label": "Verkaufte Einheiten",
+      "electronics": "Elektronik",
+      "clothing": "Kleidung",
+      "accessories": "Zubehör",
+      "footwear": "Schuhe",
+      "sports": "Sport"
+    }
+  },
+  "dataTable": {
+    "search": "Suchen…",
+    "filters": "Filter",
+    "clearAll": "Alle löschen",
+    "noResults": "Keine Ergebnisse.",
+    "panel": {
+      "title": "Filter",
+      "clearAll": "Alle löschen",
+      "all": "Alle",
+      "cancel": "Abbrechen",
+      "apply": "Anwenden",
+      "placeholder": "Nach {label} filtern…"
+    },
+    "pagination": {
+      "rowsPerPage": "Zeilen pro Seite",
+      "page": "Seite {current} von {total}",
+      "results": "{count, plural, one {# Ergebnis} other {# Ergebnisse}}"
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "description": "Verwalten Sie Ihre Anwendungseinstellungen.",
+    "language": {
+      "title": "Sprache",
+      "description": "Wählen Sie die Sprache für die gesamte Benutzeroberfläche."
+    },
+    "theme": {
+      "title": "Erscheinungsbild",
+      "description": "Wählen Sie Ihr bevorzugtes Farbschema.",
+      "light": "Hell",
+      "dark": "Dunkel",
+      "system": "System"
+    }
+  },
+  "hooks": {
+    "title": "Hooks",
+    "description": "Interaktive Demos für die eingebauten Utility-Hooks.",
+    "debounce": {
+      "title": "useDebounce",
+      "description": "Der Wert wird erst aktualisiert, wenn 300 ms nach dem Tippen vergangen sind.",
+      "label": "Sucheingabe",
+      "placeholder": "Etwas eingeben…",
+      "raw": "Aktueller Wert",
+      "debounced": "Debounced-Wert"
+    },
+    "localStorage": {
+      "title": "useLocalStorage",
+      "description": "Zähler in localStorage gespeichert — überlebt das Neuladen der Seite.",
+      "label": "Zähler",
+      "increment": "Erhöhen",
+      "reset": "Zurücksetzen"
+    },
+    "clipboard": {
+      "title": "useCopyToClipboard",
+      "description": "Kopiert Text in die Zwischenablage; Schaltfläche wird nach 2 Sekunden zurückgesetzt.",
+      "label": "Zu kopierender Text",
+      "copy": "Kopieren",
+      "copied": "Kopiert!"
+    },
+    "confirm": {
+      "title": "useConfirm",
+      "description": "Wartet auf ein Promise aus einem AlertDialog — kein lokaler Dialog-Status erforderlich.",
+      "trigger": "Element löschen",
+      "dialogTitle": "Dieses Element löschen?",
+      "dialogDescription": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirmLabel": "Löschen",
+      "cancelLabel": "Abbrechen",
+      "resultConfirmed": "Bestätigt — Element gelöscht.",
+      "resultCancelled": "Abgebrochen."
+    }
+  }
+}

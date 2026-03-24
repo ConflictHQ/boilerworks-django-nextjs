@@ -1,0 +1,79 @@
+
+#### Authorization POST /app/session
+#### Authorization: Bearer <your-bearer-token>
+POST https://app.local.boilerworks.net:8443/app/auth1/session
+Content-Type: application/json
+Authorization: Bearer <your-bearer-token>
+
+{
+    "access_token": "<your-access-token>",
+    "id_token": "<your-id-token>",
+    "scope": "openid profile email",
+    "expires_in": null,
+    "token_type": "Bearer",
+    "expires_at": null,
+    "userinfo": {
+        "given_name": "Test",
+        "family_name": "User",
+        "nickname": "testuser",
+        "name": "Test User",
+        "picture": "https://example.com/photo.jpg",
+        "locale": "en",
+        "updated_at": "2023-12-29T19:50:07.222Z",
+        "email": "testuser@boilerworks.dev",
+        "email_verified": true,
+        "iss": "https://boilerworks.us.auth0.com/",
+        "aud": "your-auth0-client-id",
+        "iat": 1703879702,
+        "exp": 1703915702,
+        "sub": "google-oauth2|000000000000000000000",
+        "sid": "your-session-id",
+        "nonce": "your-nonce"
+    }
+}
+
+#### Use this link to access auth0 account
+#### https://accounts.auth0.com/teams/<your-team>/tenants
+####     1. get the client_id and client_secret from the application
+#### Normal Get using Session
+GET https://app.local.boilerworks.net:8000/app/admin
+Authorization: Session <your-session-token>
+
+###
+POST https://dev-boilerworks.us.auth0.com/oauth/token
+Content-Type: application/json
+
+{
+    "audience": "https://dev-boilerworks.us.auth0.com/api/v2/",
+    "client_id": "hYk...ankr",
+    "client_secret": "pK...x-6",
+    "grant_type": "client_credentials"
+}
+
+<> 2025-02-23T132756.200.json
+<> 2025-02-23T132748.403.json
+
+###
+POST https://stg-boilerworks.us.auth0.com/oauth/token
+Content-Type: application/json
+
+{
+    "audience": "https://stg-boilerworks.us.auth0.com/api/v2/",
+    "client_id": "BrW...xw",
+    "client_secret": "OtI...JPJ",
+    "grant_type": "client_credentials"
+}
+
+<> 2025-02-23T134323.200.json
+<> 2025-02-23T133854.200.json
+
+###
+POST https://boilerworks.us.auth0.com/oauth/token
+Content-Type: application/json
+
+{
+    "audience": "https://boilerworks.us.auth0.com/api/v2/",
+    "client_id": "zh...Vgc",
+    "client_secret": "Kn8u...QTP",
+    "grant_type": "client_credentials"
+}
