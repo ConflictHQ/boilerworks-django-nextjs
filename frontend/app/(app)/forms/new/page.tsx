@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { Loader2Icon, PlusIcon, CodeIcon, LayoutIcon, EyeIcon } from "lucide-react";
+import { Loader2Icon, PlusIcon, CodeIcon, LayoutIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -76,109 +76,114 @@ export default function NewFormPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold">Create New Form</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Define fields, configure validation, see a live preview.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setShowPreview(!showPreview)}
-          className={`flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm ${showPreview ? "bg-primary text-primary-foreground" : ""}`}
-        >
-          <EyeIcon className="h-3 w-3" /> {showPreview ? "Hide Preview" : "Show Preview"}
-        </button>
-      </div>
-      <Separator />
+    <div className="flex flex-1 overflow-hidden">
+      {/* Full-height split from the content pane edge */}
+      <div className={`grid flex-1 ${showPreview ? "grid-cols-[1fr_380px]" : "grid-cols-1"}`}>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-        <div className="grid max-w-2xl gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              {...register("name", { required: "Name is required" })}
-              placeholder="e.g. Expense Report"
-              onChange={(e) => { register("name").onChange(e); autoSlug(e.target.value); }}
-            />
-            {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label>Slug</Label>
-              <Input {...register("slug", { required: "Slug is required" })} placeholder="expense-report" />
+        {/* LEFT PANE: scrollable form + builder */}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 overflow-y-auto p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-semibold">Create New Form</h1>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Define fields, configure validation, see a live preview.
+              </p>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label>Description</Label>
-              <Input {...register("description")} placeholder="What is this form for?" />
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowPreview(!showPreview)}
+              className={`flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm ${showPreview ? "bg-primary text-primary-foreground" : ""}`}
+            >
+              {showPreview ? <EyeOffIcon className="h-3 w-3" /> : <EyeIcon className="h-3 w-3" />}
+              {showPreview ? "Hide" : "Preview"}
+            </button>
           </div>
-        </div>
+          <Separator />
 
-        {/* Builder + Preview split */}
-        <div className={`grid gap-6 ${showPreview ? "grid-cols-2" : "grid-cols-1"}`}>
-          {/* Left: Builder */}
-          <div>
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Form Fields</h2>
-              <div className="flex gap-1 rounded-lg border p-0.5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (mode === "json") { try { const s = JSON.parse(jsonText); setSchema(s); setLiveSchema(s); } catch {} }
-                    setMode("visual");
-                  }}
-                  className={`flex items-center gap-1 rounded-md px-3 py-1 text-sm ${mode === "visual" ? "bg-primary text-primary-foreground" : ""}`}
-                >
-                  <LayoutIcon className="h-3 w-3" /> Visual
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setJsonText(JSON.stringify(liveSchema, null, 2)); setMode("json"); }}
-                  className={`flex items-center gap-1 rounded-md px-3 py-1 text-sm ${mode === "json" ? "bg-primary text-primary-foreground" : ""}`}
-                >
-                  <CodeIcon className="h-3 w-3" /> JSON
-                </button>
+          {/* Metadata */}
+          <div className="grid gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label>Form Name</Label>
+              <Input
+                {...register("name", { required: "Name is required" })}
+                placeholder="e.g. Expense Report"
+                onChange={(e) => { register("name").onChange(e); autoSlug(e.target.value); }}
+              />
+              {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <Label>Slug</Label>
+                <Input {...register("slug", { required: "Slug is required" })} placeholder="expense-report" />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label>Description</Label>
+                <Input {...register("description")} placeholder="What is this form for?" />
               </div>
             </div>
+          </div>
 
-            {mode === "visual" ? (
-              <FormBuilder
-                schema={schema}
-                onSave={(s) => { setSchema(s); setLiveSchema(s); }}
-                onChange={(s) => setLiveSchema(s)}
-              />
-            ) : (
-              <Textarea
-                value={jsonText}
-                onChange={(e) => {
-                  setJsonText(e.target.value);
-                  try { setLiveSchema(JSON.parse(e.target.value)); } catch {}
+          <Separator />
+
+          {/* Mode toggle */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Form Fields</h2>
+            <div className="flex gap-1 rounded-lg border p-0.5">
+              <button
+                type="button"
+                onClick={() => {
+                  if (mode === "json") { try { const s = JSON.parse(jsonText); setSchema(s); setLiveSchema(s); } catch {} }
+                  setMode("visual");
                 }}
-                rows={20}
-                className="font-mono text-sm"
-              />
-            )}
+                className={`flex items-center gap-1 rounded-md px-3 py-1 text-sm ${mode === "visual" ? "bg-primary text-primary-foreground" : ""}`}
+              >
+                <LayoutIcon className="h-3 w-3" /> Visual
+              </button>
+              <button
+                type="button"
+                onClick={() => { setJsonText(JSON.stringify(liveSchema, null, 2)); setMode("json"); }}
+                className={`flex items-center gap-1 rounded-md px-3 py-1 text-sm ${mode === "json" ? "bg-primary text-primary-foreground" : ""}`}
+              >
+                <CodeIcon className="h-3 w-3" /> JSON
+              </button>
+            </div>
           </div>
 
-          {/* Right: Live Preview */}
-          {showPreview && (
-            <div className="sticky top-6">
-              <h2 className="mb-3 text-lg font-semibold">Preview</h2>
-              <div className="rounded-lg border p-4">
-                <FormPreview schema={liveSchema} formName={nameValue || "Untitled Form"} />
-              </div>
-            </div>
+          {mode === "visual" ? (
+            <FormBuilder
+              schema={schema}
+              onSave={(s) => { setSchema(s); setLiveSchema(s); }}
+              onChange={(s) => setLiveSchema(s)}
+            />
+          ) : (
+            <Textarea
+              value={jsonText}
+              onChange={(e) => {
+                setJsonText(e.target.value);
+                try { setLiveSchema(JSON.parse(e.target.value)); } catch {}
+              }}
+              rows={24}
+              className="font-mono text-sm"
+            />
           )}
-        </div>
 
-        <Button type="submit" disabled={isSubmitting} className="self-start">
-          {isSubmitting ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : <PlusIcon className="mr-2 h-4 w-4" />}
-          Create Form
-        </Button>
-      </form>
+          <Button type="submit" disabled={isSubmitting} className="self-start">
+            {isSubmitting ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : <PlusIcon className="mr-2 h-4 w-4" />}
+            Create Form
+          </Button>
+        </form>
+
+        {/* RIGHT PANE: sticky preview, full height, separate scroll */}
+        {showPreview && (
+          <div className="border-l bg-muted/30 overflow-y-auto p-6">
+            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Live Preview</h2>
+            <div className="rounded-lg border bg-background p-4 shadow-sm">
+              <FormPreview schema={liveSchema} formName={nameValue || "Untitled Form"} />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
