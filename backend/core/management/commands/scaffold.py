@@ -40,12 +40,21 @@ class Command(BaseCommand):
     help = "Scaffold a new Boilerworks app with models, admin, schema, serializers, and tests"
 
     def add_arguments(self, parser):
-        parser.add_argument('type', choices=['app'], help='What to scaffold')
-        parser.add_argument('--name', required=True, help='App name (snake_case)')
-        parser.add_argument('--model', default='', help='Primary model name (PascalCase)')
+        parser.add_argument('type', choices=['app', 'form', 'workflow'], help='What to scaffold')
+        parser.add_argument('--name', required=True, help='App/form/workflow name')
+        parser.add_argument('--model', default='', help='Primary model name (PascalCase, for app type)')
         parser.add_argument('--fields', default='', help='Fields as name:type pairs (e.g. name:str,value:decimal)')
+        parser.add_argument('--slug', default='', help='Form slug (for form type)')
+        parser.add_argument('--states', default='', help='Comma-separated workflow states (for workflow type)')
 
     def handle(self, *args, **options):
+        scaffold_type = options['type']
+
+        if scaffold_type == 'form':
+            return self._scaffold_form(options)
+        if scaffold_type == 'workflow':
+            return self._scaffold_workflow(options)
+
         app_name = options['name']
         model_name = options['model'] or app_name.replace('_', ' ').title().replace(' ', '')
         fields_str = options['fields']
@@ -348,3 +357,88 @@ class Command(BaseCommand):
                     self.assertIsNotNone(obj.updated_at)
                     self.assertEqual(obj.created_by, self.user)
         """)
+
+    def _scaffold_form(self, options):
+        """Create a FormDefinition from CLI arguments."""
+        name = options['name']
+        slug = options.get('slug') or name.lower().replace(' ', '-').replace('_', '-')
+        fields_str = options.get('fields', '')
+
+        properties = {}
+        required = []
+        if fields_str:
+            for pair in fields_str.split(','):
+                fname, ftype = pair.strip().split(':')
+                fname = fname.strip()
+                ftype = ftype.strip()
+                from forms.field_types import FIELD_TYPES
+                schema_fragment = FIELD_TYPES.get(ftype, {'type': 'string'})
+                properties[fname] = {k: v for k, v in schema_fragment.items() if k != 'description' and k != 'x-widget'}
+                properties[fname]['title'] = fname.replace('_', ' ').title()
+                required.append(fname)
+
+        schema = {
+            'type': 'object',
+            'properties': properties,
+            'required': required,
+        }
+
+        self.stdout.write(f'Creating form definition: {name} (slug: {slug})')
+        self.stdout.write(f'  Fields: {len(properties)}')
+        self.stdout.write(f'  Schema:')
+        import json
+        self.stdout.write(json.dumps(schema, indent=2))
+        self.stdout.write('')
+
+        from forms.models import FormDefinition
+        form = FormDefinition.objects.create(
+            name=name,
+            slug=slug,
+            schema=schema,
+        )
+        self.stdout.write(self.style.SUCCESS(f'Created FormDefinition pk={form.pk} slug={slug} (draft)'))
+        self.stdout.write(f'  Publish with: python manage.py shell -c "from forms.models import FormDefinition; FormDefinition.objects.get(slug=\'{slug}\').publish(None)"')
+
+    def _scaffold_workflow(self, options):
+        """Stub for workflow scaffolding — prints the definition structure."""
+        name = options['name']
+        states_str = options.get('states', '')
+
+        if not states_str:
+            self.stderr.write(self.style.ERROR('--states is required for workflow scaffolding'))
+            return
+
+        states = [s.strip() for s in states_str.split(',')]
+
+        definition = {
+            'name': name,
+            'slug': name.lower().replace(' ', '-'),
+            'states': [],
+            'transitions': [],
+        }
+
+        for i, state in enumerate(states):
+            definition['states'].append({
+                'name': state,
+                'label': state.replace('_', ' ').title(),
+                'is_initial': i == 0,
+                'is_final': i == len(states) - 1,
+                'color': '#22c55e' if i == len(states) - 1 else '#6b7280',
+            })
+
+        # Auto-generate linear transitions
+        for i in range(len(states) - 1):
+            definition['transitions'].append({
+                'from_state': states[i],
+                'to_state': states[i + 1],
+                'label': f'{states[i]} → {states[i + 1]}',
+                'conditions': [],
+                'actions': [],
+            })
+
+        import json
+        self.stdout.write(f'Workflow definition for: {name}')
+        self.stdout.write(json.dumps(definition, indent=2))
+        self.stdout.write('')
+        self.stdout.write(self.style.WARNING('Note: Workflow Engine (#2) not yet implemented.'))
+        self.stdout.write('This output can be used as the WorkflowDefinition.states/transitions JSON when it ships.')
