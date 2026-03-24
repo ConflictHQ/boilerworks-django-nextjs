@@ -210,6 +210,33 @@ PYEOF
         ok "Fixtures written"
         ;;
 
+    seed)
+        banner "Loading seed data"
+        _require_running
+        docker exec -it "$CONTAINER" python manage.py seed "$@"
+        ok "Seed data loaded"
+        ;;
+
+    lint)
+        banner "Running linters"
+        _require_running
+        docker exec "$CONTAINER" python -m flake8 --max-line-length=140
+        docker exec "$CONTAINER" python -m isort --check-only .
+        ok "All clean"
+        ;;
+
+    features)
+        banner "Feature toggles"
+        _require_running
+        docker exec "$CONTAINER" python manage.py features
+        ;;
+
+    scaffold)
+        banner "Scaffolding new app"
+        _require_running
+        docker exec -it "$CONTAINER" python manage.py scaffold "$@"
+        ;;
+
     # ── Nuclear options ──────────────────────────────────────────────────────
 
     reset)
@@ -248,8 +275,12 @@ PYEOF
         echo -e "  ${CYAN}test [app]${NC}          Run test suite"
         echo ""
         echo -e "${BOLD}Dev utilities${NC}"
+        echo -e "  ${CYAN}seed${NC}                Load dev seed fixtures"
+        echo -e "  ${CYAN}lint${NC}                Run flake8 + isort checks"
         echo -e "  ${CYAN}schema${NC}              Export GraphQL schema to static/gql/schema.graphql"
         echo -e "  ${CYAN}perms${NC}               Regenerate config/roles_gen.py permissions enum"
+        echo -e "  ${CYAN}features${NC}            Show feature toggles and their status"
+        echo -e "  ${CYAN}scaffold <args>${NC}     Scaffold a new app (e.g. scaffold app --name=crm)"
         echo -e "  ${CYAN}loaddata${NC}            Load fixtures via dev_utils"
         echo -e "  ${CYAN}dumpdata${NC}            Dump fixtures via dev_utils"
         echo ""
