@@ -15,9 +15,12 @@ from forms.schema.types import FormAnalyticsType, FormDefinitionType, FormSubmis
 @strawberry.type
 class Query:
 
-    @strawberry.field(description="Get the currently published version of a form by slug.")
+    @strawberry.field(description="Get a form by slug. Returns published version if available, otherwise latest.")
     def form_definition(self, info: Info, slug: str) -> Optional[FormDefinitionType]:
-        return FormDefinition.objects.get_published(slug)
+        published = FormDefinition.objects.get_published(slug)
+        if published:
+            return published
+        return FormDefinition.objects.get_latest(slug)
 
     @strawberry.field(description="List all form definitions, optionally filtered by status.")
     def form_definitions(self, info: Info, status: Optional[str] = None) -> list[FormDefinitionType]:
