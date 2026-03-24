@@ -1,52 +1,60 @@
 """Assembled Strawberry GraphQL schema.
 
 Merges Query and Mutation types from all apps into a single schema.
-Replaces config/schema.py (Graphene).
+Disabled features are automatically excluded via config.features.
 """
 import strawberry
 from strawberry_django.optimizer import DjangoOptimizerExtension
 
-import core.schema.mutations as CoreMutations
-import core_ui.schema as UiSchema
-import forms.schema as FormsSchema
-import organization.schema as OrganizationSchema
-import pushnotif.schema as PushNotificationSchema
 from typing import Optional
 
+from config.features import Feature, is_enabled
+
+# ---------------------------------------------------------------------------
+# Always-on imports (core infrastructure)
+# ---------------------------------------------------------------------------
+import core.schema.mutations as CoreMutations
+import core_ui.schema as UiSchema
+import organization.schema as OrganizationSchema
 from core.schema.common import MutationResult
 from core.schema.types.permission_analysis import PermissionAnalysisQuery
 from core.schema.types.user import UserType
-from forms.schema.types import FormDefinitionType
 
 
 # ---------------------------------------------------------------------------
-# Root Query — merges all app queries
+# Feature-gated imports
+# ---------------------------------------------------------------------------
+_query_bases = [PermissionAnalysisQuery, UiSchema.Query, OrganizationSchema.Query]
+_mutation_bases = [CoreMutations.Mutation, UiSchema.Mutation, OrganizationSchema.Mutation]
+
+if is_enabled(Feature.FORMS):
+    import forms.schema as FormsSchema
+    from forms.schema.types import FormDefinitionType
+    _query_bases.append(FormsSchema.Query)
+    _mutation_bases.append(FormsSchema.Mutation)
+
+if is_enabled(Feature.PUSH_NOTIFICATIONS):
+    import pushnotif.schema as PushNotificationSchema
+    _query_bases.append(PushNotificationSchema.Query)
+    _mutation_bases.append(PushNotificationSchema.Mutation)
+
+
+# ---------------------------------------------------------------------------
+# Root Query
 # ---------------------------------------------------------------------------
 
-@strawberry.type
-class Query(
-    PermissionAnalysisQuery,
-    FormsSchema.Query,
-    UiSchema.Query,
-    OrganizationSchema.Query,
-    PushNotificationSchema.Query,
-):
-    pass
+Query = strawberry.type(
+    type('Query', tuple(_query_bases), {'__annotations__': {}}),
+)
 
 
 # ---------------------------------------------------------------------------
-# Root Mutation — merges all app mutations
+# Root Mutation
 # ---------------------------------------------------------------------------
 
-@strawberry.type
-class Mutation(
-    CoreMutations.Mutation,
-    FormsSchema.Mutation,
-    UiSchema.Mutation,
-    OrganizationSchema.Mutation,
-    PushNotificationSchema.Mutation,
-):
-    pass
+Mutation = strawberry.type(
+    type('Mutation', tuple(_mutation_bases), {'__annotations__': {}}),
+)
 
 
 # ---------------------------------------------------------------------------
@@ -61,7 +69,7 @@ schema = strawberry.Schema(
 
 
 # ---------------------------------------------------------------------------
-# Auth schema (limited — login only)
+# Auth schema (limited — login only, no auth required)
 # ---------------------------------------------------------------------------
 
 @strawberry.type
@@ -70,12 +78,13 @@ class AuthQuery:
     def ok(self) -> str:
         return "ok"
 
-    @strawberry.field(description="Get a public form by slug (no auth required).")
-    def public_form(self, slug: str) -> Optional['FormDefinitionType']:
-        from forms.models import FormDefinition, FormStatus
-        return FormDefinition.objects.filter(
-            slug=slug, status=FormStatus.PUBLISHED, is_public=True,
-        ).first()
+    if is_enabled(Feature.FORMS):
+        @strawberry.field(description="Get a public form by slug (no auth required).")
+        def public_form(self, slug: str) -> Optional[FormDefinitionType]:
+            from forms.models import FormDefinition, FormStatus
+            return FormDefinition.objects.filter(
+                slug=slug, status=FormStatus.PUBLISHED, is_public=True,
+            ).first()
 
 
 @strawberry.type
@@ -95,27 +104,27 @@ class AuthMutation:
         logout(info.context.request)
         return True
 
-    @strawberry.mutation(description="Submit data to a public form (no auth required).")
-    def submit_public_form(
-        self, info: strawberry.types.Info, slug: str, payload: strawberry.scalars.JSON,
-    ) -> 'MutationResult':
-        from django.core.exceptions import ValidationError
-        from graphql import GraphQLError
+    if is_enabled(Feature.FORMS):
+        @strawberry.mutation(description="Submit data to a public form (no auth required).")
+        def submit_public_form(
+            self, info: strawberry.types.Info, slug: str, payload: strawberry.scalars.JSON,
+        ) -> MutationResult:
+            from django.core.exceptions import ValidationError
+            from graphql import GraphQLError
 
-        from core.schema.common import MutationResult
-        from forms.models import FormDefinition, FormStatus, FormSubmission
+            from forms.models import FormDefinition, FormStatus, FormSubmission
 
-        form = FormDefinition.objects.filter(
-            slug=slug, status=FormStatus.PUBLISHED, is_public=True,
-        ).first()
-        if not form:
-            raise GraphQLError(f'No public form found with slug "{slug}"')
+            form = FormDefinition.objects.filter(
+                slug=slug, status=FormStatus.PUBLISHED, is_public=True,
+            ).first()
+            if not form:
+                raise GraphQLError(f'No public form found with slug "{slug}"')
 
-        try:
-            FormSubmission.submit(form, payload, user=None)
-            return MutationResult.success()
-        except ValidationError as e:
-            raise GraphQLError(str(e))
+            try:
+                FormSubmission.submit(form, payload, user=None)
+                return MutationResult.success()
+            except ValidationError as e:
+                raise GraphQLError(str(e))
 
 
 schema_auth = strawberry.Schema(
