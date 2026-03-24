@@ -1,5 +1,7 @@
 from core.utils.admin import BaseCoreAdmin
+from core.widgets import JSONEditorWidget
 from django.contrib import admin
+from django.db import models
 from django.utils.html import format_html
 
 from .models import FormDefinition, FormStatus, FormSubmission
@@ -22,6 +24,7 @@ class FormDefinitionAdmin(BaseCoreAdmin):
     list_display = ('name', 'slug', 'version', 'status_badge', 'form_type', 'is_public', 'submission_count', 'published_at', 'created_at')
     list_filter = ('status', 'form_type', 'is_public')
     search_fields = ('name', 'slug')
+    formfield_overrides = {models.JSONField: {'widget': JSONEditorWidget}}
     readonly_fields = ('version', 'published_at', 'published_by', 'created_at', 'created_by', 'updated_at', 'updated_by')
     inlines = [FormSubmissionInline]
     actions = ['publish_forms', 'archive_forms', 'clone_forms']
