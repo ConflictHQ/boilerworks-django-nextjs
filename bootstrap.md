@@ -310,6 +310,7 @@ make test
 | Redis metrics | http://localhost:9121/metrics |
 | MinIO S3 API | http://localhost:9000 |
 | MinIO Console | http://localhost:9001 (minioadmin/minioadmin) |
+| Flower (Celery) | http://localhost:5555 |
 
 ---
 
