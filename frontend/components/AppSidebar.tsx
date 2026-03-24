@@ -97,6 +97,7 @@ export function AppSidebar({ ssrUser, ...props }: AppSidebarProps) {
       icon: <ClipboardListIcon />,
       items: [
         { title: "All Forms", url: "/forms" },
+        { title: "Create New", url: "/forms/new" },
       ],
     },
     {

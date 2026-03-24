@@ -17,6 +17,7 @@ import core.schema.mutations as CoreMutations
 import core_ui.schema as UiSchema
 import organization.schema as OrganizationSchema
 from core.schema.common import MutationResult
+from core.schema.types.audit import AuditLogQuery
 from core.schema.types.permission_analysis import PermissionAnalysisQuery
 from core.schema.types.user import UserType
 
@@ -24,7 +25,7 @@ from core.schema.types.user import UserType
 # ---------------------------------------------------------------------------
 # Feature-gated imports
 # ---------------------------------------------------------------------------
-_query_bases = [PermissionAnalysisQuery, UiSchema.Query, OrganizationSchema.Query]
+_query_bases = [PermissionAnalysisQuery, AuditLogQuery, UiSchema.Query, OrganizationSchema.Query]
 _mutation_bases = [CoreMutations.Mutation, UiSchema.Mutation, OrganizationSchema.Mutation]
 
 if is_enabled(Feature.FORMS):
@@ -61,13 +62,14 @@ Mutation = strawberry.type(
 # Schema instance
 # ---------------------------------------------------------------------------
 
+from core.schema.audit import MutationAuditExtension
 from core.schema.subscriptions import Subscription
 
 schema = strawberry.Schema(
     query=Query,
     mutation=Mutation,
     subscription=Subscription,
-    extensions=[DjangoOptimizerExtension],
+    extensions=[DjangoOptimizerExtension, MutationAuditExtension],
 )
 
 
