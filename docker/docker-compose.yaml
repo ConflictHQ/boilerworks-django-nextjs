@@ -70,6 +70,7 @@ services:
         condition: service_healthy
 
   flower:
+    profiles: ["monitoring"]
     image: mher/flower:latest
     container_name: flower
     command: celery --broker=redis://redis-local:6379/0 flower --port=5555
@@ -147,6 +148,7 @@ services:
       timeout: 5s
 
   postgres-exporter:
+    profiles: ["monitoring"]
     image: prometheuscommunity/postgres-exporter:latest
     container_name: postgres-exporter
     ports:
@@ -158,6 +160,7 @@ services:
         condition: service_healthy
 
   redis-exporter:
+    profiles: ["monitoring"]
     image: oliver006/redis_exporter:latest
     container_name: redis-exporter
     ports:
@@ -169,6 +172,7 @@ services:
         condition: service_healthy
 
   opensearch-local:
+    profiles: ["search"]
     image: opensearchproject/opensearch:2
     container_name: opensearch-local
     environment:
@@ -186,6 +190,7 @@ services:
       retries: 10
 
   minio-local:
+    profiles: ["storage"]
     image: minio/minio:latest
     container_name: minio-local
     ports:
@@ -204,6 +209,7 @@ services:
       retries: 5
 
   minio-init:
+    profiles: ["storage"]
     image: minio/mc:latest
     container_name: minio-init
     depends_on:

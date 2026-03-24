@@ -309,6 +309,10 @@ INSTALLED_APPS = [
     'constance.backends.database',
 ]
 
+# Feature toggles — remove disabled feature apps
+from config.features import filter_installed_apps  # noqa: E402
+INSTALLED_APPS = filter_installed_apps(INSTALLED_APPS)
+
 # Discover and merge domain app configurations
 # Domain apps declare their configuration
 # in boilerworks_config/settings.py files
