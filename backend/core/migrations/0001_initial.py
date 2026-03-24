@@ -9,7 +9,7 @@ import core.models.library.directory
 import django.core.validators
 import django.db.models.deletion
 import django.utils.timezone
-import localflavor.us.models
+import django.db.models
 import phonenumber_field.modelfields
 from django.conf import settings
 from django.db import migrations, models
@@ -722,11 +722,11 @@ class Migration(migrations.Migration):
                 ("address_line_one", models.CharField(blank=True, max_length=250)),
                 ("address_line_two", models.CharField(blank=True, max_length=250)),
                 ("city", models.CharField(blank=True, max_length=256)),
-                ("state", localflavor.us.models.USStateField(blank=True, max_length=2)),
+                ("state", django.db.models.CharField(blank=True, max_length=100)),
                 ("street", models.CharField(blank=True, max_length=500)),
                 (
                     "zipcode",
-                    localflavor.us.models.USZipCodeField(blank=True, max_length=10),
+                    django.db.models.CharField(blank=True, max_length=20),
                 ),
                 (
                     "created_by",

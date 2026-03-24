@@ -4,7 +4,7 @@ import uuid
 
 import django.core.validators
 import django.db.models.deletion
-import localflavor.us.models
+import django.db.models
 import phonenumber_field.modelfields
 import simple_history.models
 from django.conf import settings
@@ -31,9 +31,9 @@ class Migration(migrations.Migration):
                 ('address_line_one', models.CharField(blank=True, max_length=250)),
                 ('address_line_two', models.CharField(blank=True, max_length=250)),
                 ('city', models.CharField(blank=True, max_length=256)),
-                ('state', localflavor.us.models.USStateField(blank=True, max_length=2)),
+                ('state', django.db.models.CharField(blank=True, max_length=100)),
                 ('street', models.CharField(blank=True, max_length=500)),
-                ('zipcode', localflavor.us.models.USZipCodeField(blank=True, max_length=10)),
+                ('zipcode', django.db.models.CharField(blank=True, max_length=20)),
                 ('history_id', models.AutoField(primary_key=True, serialize=False)),
                 ('history_date', models.DateTimeField(db_index=True)),
                 ('history_change_reason', models.CharField(max_length=100, null=True)),
