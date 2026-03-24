@@ -143,4 +143,9 @@ class Mutation:
         submission.status = status
         submission.updated_by = info.context.user
         submission.save()
+
+        # Trigger notification for status change
+        from forms.tasks import send_form_status_change_notification
+        send_form_status_change_notification.delay(submission.pk, status)
+
         return MutationResult.success()

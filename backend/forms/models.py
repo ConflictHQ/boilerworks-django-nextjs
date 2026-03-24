@@ -126,6 +126,15 @@ class FormDefinition(BaseCoreModel):
             '{"field_name": {"source": "user_profile|url_param|previous_submission|static", "key": "..."}}'
         ),
     )
+    notification_config = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text=(
+            'Notification settings. '
+            '{"on_submit": {"notify": ["form_owner"|"submitter"|user_id], "subject_template": "...", "message_template": "..."}, '
+            '"on_status_change": {"notify": [...], "subject_template": "...", "message_template": "..."}}'
+        ),
+    )
     version = models.PositiveIntegerField(default=1)
     published_at = models.DateTimeField(null=True, blank=True)
     published_by = models.ForeignKey(
