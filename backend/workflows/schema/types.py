@@ -14,7 +14,7 @@ from workflows.models import TransitionLog, WorkflowDefinition, WorkflowInstance
 class WorkflowDefinitionType:
     name: str
     slug: str
-    description: str
+    description: Optional[str]
     model_label: str
     states: strawberry.scalars.JSON
     transitions: strawberry.scalars.JSON
