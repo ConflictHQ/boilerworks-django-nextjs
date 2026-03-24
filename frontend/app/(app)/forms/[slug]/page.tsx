@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Loader2Icon, SendIcon } from "lucide-react";
+import { Loader2Icon, SendIcon, PenLineIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -68,6 +69,13 @@ export default function FormDetailPage() {
           <p className="text-muted-foreground mt-1 text-sm">{form.description}</p>
         </div>
         <div className="flex gap-2">
+          {form.status === "published" && (
+            <Button asChild>
+              <Link href={`/forms/${slug}/submit`}>
+                <PenLineIcon className="mr-2 h-4 w-4" /> Fill Out
+              </Link>
+            </Button>
+          )}
           {form.status === "draft" && (
             <Button onClick={handlePublish}>
               <SendIcon className="mr-2 h-4 w-4" /> Publish
