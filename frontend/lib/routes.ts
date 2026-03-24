@@ -20,4 +20,5 @@ export const routeLabels: Record<string, string> = {
   "get-started": "Get Started",
   tutorials: "Tutorials",
   changelog: "Changelog",
+  forms: "Form Engine",
 };
