@@ -71,48 +71,44 @@ class GIDToObjectField(serializers.Field):
             self.return_type = return_type
 
     def __init__(self, model, **kwargs):
-        from graphene_django.registry import get_global_registry
-        registry = get_global_registry()
-        self.schema_type = registry.get_type_for_model(model)
-        self.return_type = self.schema_type
+        self.model = model
         super().__init__(**kwargs)
 
     def to_internal_value(self, data):
-        """
-        Convert the input gid into a model instance.
-        """
-        info = self.Info(self.context['request'], self.return_type)
-        return self.schema_type.get_object(info, data, raise_not_found=True)
+        """Convert the input gid into a model instance."""
+        from core.schema.common import GlobalIDUtils
+        pk = GlobalIDUtils.get_pk_flexible(data)
+        if pk is None:
+            raise serializers.ValidationError(f'Invalid global ID: {data}')
+        instance = self.model.objects.filter(pk=pk).first()
+        if instance is None:
+            raise serializers.ValidationError(f'{self.model.__name__} with ID {data} not found')
+        return instance
 
     def to_representation(self, value):
-        """
-        Convert the model instance back to its gid representation.
-        """
-        return self.schema_type.to_global_id(value)
+        """Convert the model instance back to its gid representation."""
+        from strawberry.relay import to_base64
+        type_name = f'{type(value).__name__}Type'
+        return to_base64(type_name, value.pk)
 
 
 class GIDToPkField(serializers.Field):
-    """
-    Custom field to convert a slug into a model instance.
-    """
-    class Info:
-        def __init__(self, context, return_type):
-            self.context = context
-            self.return_type = return_type
+    """Custom field to convert a global ID to a model PK."""
 
     def __init__(self, model, **kwargs):
-        from graphene_django.registry import get_global_registry
-        registry = get_global_registry()
-        self.schema_type = registry.get_type_for_model(model)
-        self.return_type = self.schema_type
+        self.model = model
         super().__init__(**kwargs)
 
     def to_internal_value(self, data):
-        """
-        Convert the input gid into a model instance.
-        """
-        info = self.Info(self.context['request'], self.return_type)
-        return self.schema_type.get_object(info, data, raise_not_found=True).pk
+        """Convert the input gid into a model PK."""
+        from core.schema.common import GlobalIDUtils
+        pk = GlobalIDUtils.get_pk_flexible(data)
+        if pk is None:
+            raise serializers.ValidationError(f'Invalid global ID: {data}')
+        instance = self.model.objects.filter(pk=pk).first()
+        if instance is None:
+            raise serializers.ValidationError(f'{self.model.__name__} with ID {data} not found')
+        return instance.pk
 
     def to_representation(self, value):
         """
@@ -138,7 +134,7 @@ class BaseModelSerializer(serializers.ModelSerializer):
     links = LinkSerializer(
         required=False,
         many=True,
-        help_text='List of links related to this competency'
+        help_text='List of related links'
     )  # Adding links field
 
     class Meta:

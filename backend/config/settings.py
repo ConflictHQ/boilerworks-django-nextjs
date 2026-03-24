@@ -92,7 +92,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 LANGUAGE_CODE = env_str('DJANGO_LANGUAGE_CODE', 'en')
 TIME_ZONE = env_str('DJANGO_TIME_ZONE', 'UTC')
-COMPANY_TIME_ZONE = env_str('COMPANY_TIME_ZONE', 'US/Mountain')
+SYSTEM_TIME_ZONE = env_str('SYSTEM_TIME_ZONE', 'UTC')
 USE_I18N = env_bool('DJANGO_USE_I18N', True)
 USE_L10N = env_bool('DJANGO_USE_L10N', True)
 USE_TZ = env_bool('DJANGO_USE_TZ', True)
@@ -252,7 +252,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
-    'graphene_django',
+    'strawberry_django',
     'phonenumber_field',
     'core',
     'rolepermissions',
@@ -464,10 +464,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-GRAPHENE = {
-
-}
 
 REST_FRAMEWORK = {
     "DATE_INPUT_FORMATS": [

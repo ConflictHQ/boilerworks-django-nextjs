@@ -1,32 +1,28 @@
 import datetime
+from typing import NewType
 
-import graphene
-import graphql
+import strawberry
+from graphql import GraphQLError
+
+TimeDeltaSeconds = NewType("TimeDeltaSeconds", float)
 
 
-class TimeDeltaScalar(graphene.Scalar):
-    """Custom scalar for representing timedelta in GraphQL."""
+@strawberry.scalar(
+    TimeDeltaSeconds,
+    name="TimeDelta",
+    description="A timedelta value represented as total seconds.",
+)
+class TimeDelta:
+    @staticmethod
+    def serialize(value: datetime.timedelta) -> float:
+        if not isinstance(value, datetime.timedelta):
+            raise GraphQLError(f"TimeDelta cannot represent value: {repr(value)}")
+        return value.total_seconds()
 
     @staticmethod
-    def serialize(date):
-        if not isinstance(date, datetime.timedelta):
-            raise graphql.GraphQLError(f"Date cannot represent value: {repr(date)}")
-        return date.total_seconds()
-
-    @classmethod
-    def parse_literal(cls, node, _variables=None):
-        if not isinstance(node, graphql.IntValueNode):
-            raise graphql.GraphQLError(
-                f"Date cannot represent non-string value: {graphql.print_ast(node)}"
-            )
-        return cls.parse_value(node.value)
-
-    @staticmethod
-    def parse_value(value):
+    def parse_value(value: int | float) -> datetime.timedelta:
         if isinstance(value, datetime.timedelta):
             return value
-
-        if not isinstance(value, int):
-            raise graphql.GraphQLError(f"Seconds value must be int: {repr(value)}")
-
+        if not isinstance(value, (int, float)):
+            raise GraphQLError(f"TimeDelta seconds value must be numeric: {repr(value)}")
         return datetime.timedelta(seconds=value)

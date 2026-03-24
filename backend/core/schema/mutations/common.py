@@ -1,13 +1,15 @@
+"""UtilityForm — Django form utility for nested upsert mutations.
+
+Preserved from the original Graphene implementation, with Graphene-specific
+imports replaced by Strawberry equivalents.
+"""
 import logging
 
-import graphene
-from core.schema.common import DjangoObjectTypeUtils
-from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.forms import FileField, ModelChoiceField, ModelForm
-from graphene_django.forms.mutation import DjangoModelFormMutation
-from graphene_django.types import ErrorType
 from graphql import GraphQLError
+
+from core.schema.common import GlobalIDUtils
 
 logger = logging.getLogger(__name__)
 
@@ -63,10 +65,11 @@ class UtilityForm:
     def get_instance(cls, info, input, key, parent):
         pk = input.get('id', None)
         if pk and isinstance(pk, str):
-            return DjangoObjectTypeUtils.get_instance_from_id(info, input['id'], raise_not_found=True)
+            obj = GlobalIDUtils.find_object_by_global_id(pk, raise_not_found=True)
+            return obj
         elif parent and key:
             attr = getattr(parent, key, None)
-            is_single = getattr(attr, "filter", None) is None  # is it a queryset or a single instance?
+            is_single = getattr(attr, "filter", None) is None
             if is_single:
                 return attr
         elif pk and isinstance(pk, int):
@@ -80,10 +83,8 @@ class UtilityForm:
 
     @classmethod
     def db_key(cls, model, global_id):
-        try:
-            return DjangoObjectTypeUtils.get_model_pk(model, global_id)
-        except Exception:
-            return global_id
+        pk = GlobalIDUtils.get_pk_flexible(global_id)
+        return pk if pk else global_id
 
     def _clean_fields(self):
         for name, bf in self._bound_items():
@@ -112,9 +113,9 @@ class UtilityForm:
                 if (key == 'id' or key == 'pk') and name in self.data:
                     value = self.data[name]
                     if isinstance(value, list):
-                        value = [self.db_key(field.queryset.model, v) for v in value]
+                        value = [cls.db_key(field.queryset.model, v) for v in value]
                     elif isinstance(value, str):
-                        value = self.db_key(field.queryset.model, value)
+                        value = cls.db_key(field.queryset.model, value)
 
                     self.data[name] = value
 
@@ -125,92 +126,3 @@ class UtilityForm:
             return
 
         return super().clean()
-
-
-class UtilityMutations:
-
-    @classmethod
-    def get_form(cls: DjangoModelFormMutation, root, info, **input):
-        form = super(UtilityMutations, cls).get_form(root, info, **input)
-        setattr(form, 'info', info)
-        return form
-
-    @classmethod
-    def get_form_kwargs(cls: DjangoModelFormMutation, root, info, **input):
-        global_id = input.get('id')
-        if global_id:
-            model = cls._meta.form_class.Meta.model
-            input['id'] = UtilityForm.db_key(model, global_id)
-
-            if not model == get_user_model():
-                created_by = model.objects\
-                    .filter(pk=input['id'])\
-                    .values_list('created_by', flat=True)
-
-                if not created_by:
-                    raise ValueError(f'Instance Not Found {global_id}')
-
-                input['created_by'] = created_by[0]
-        elif info.context:
-            input['created_by'] = info.context.user
-
-        input['last_modified_by'] = info.context.user
-        return super(UtilityMutations, cls).get_form_kwargs(root, info, **input)
-
-    def check_errors(self: DjangoModelFormMutation):
-        if any(self.errors):
-            errors = []
-            for e in self.errors:
-                if isinstance(e, ErrorType):
-                    errors.extend([f'{e.field} - {"".join(e.messages)}'])
-                    logger.error(f'Form Error {e.field} - {"".join(e.messages)}', e)
-                else:
-                    errors.append(str(e))
-                    if not isinstance(e, ValidationError):  # log non validation errors
-                        logger.error('Form error', e)
-
-            raise GraphQLError('\n'.join(errors))
-
-
-class UpsertMutation(graphene.Mutation):
-    instance = None  # graphene.Field(lambda: DjangoObjectType(cls.Meta.model))
-
-    @classmethod
-    def mutate(cls, root, info, input_data):
-        instance = UtilityForm.apply_forms(root, info, input_data)
-        return cls(instance=instance)
-
-
-class DeleteMutation(graphene.Mutation):
-    ok = graphene.Boolean()
-
-    class Arguments:
-        gid = graphene.ID(description='Global ID')
-
-    @classmethod
-    def mutate(cls, root, info, gid):
-        obj = DjangoObjectTypeUtils.find_object(gid, raise_not_found=True)
-        if callable(getattr(obj, 'delete_check', None)):
-            obj.delete_check(info)
-        else:
-            raise GraphQLError("Object does not support deletion.")
-
-        return cls(ok=True)
-
-
-class ActivateMutation(graphene.Mutation):
-    ok = graphene.Boolean()
-
-    class Arguments:
-        gid = graphene.ID(description='Global ID')
-        active = graphene.Boolean(description='Set active or inactive', default_value=True)
-
-    @classmethod
-    def mutate(cls, root, info, gid, active=True):
-        obj = DjangoObjectTypeUtils.find_object(gid, raise_not_found=True)
-        if callable(getattr(obj, 'activate', None)):
-            obj.activate(info, active)
-        else:
-            raise GraphQLError("Object does not support activation.")
-
-        return cls(ok=True)

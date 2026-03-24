@@ -5,8 +5,6 @@ import pytz
 from django.conf import settings
 from django_filters.fields import DateRangeField
 from django_filters.widgets import DateRangeWidget
-from graphene import Date
-from graphene_django.forms.converter import List, convert_form_field, get_form_field_description
 
 
 class TimezoneAwareDateRangeWidget(DateRangeWidget):
@@ -22,17 +20,12 @@ class TimezoneAwareDateRangeField(DateRangeField):
     widget = TimezoneAwareDateRangeWidget
 
 
-@convert_form_field.register(TimezoneAwareDateRangeField)
-def convert_form_field_to_timezone_aware_date_range(field):
-    return List(Date, description=get_form_field_description(field), required=field.required)
-
-
 class TimezoneAwareDateMixin:
     @classmethod
     def _replace_date_with_date(cls, date_to_replace):
         date_now = datetime.now()
         return datetime(date_to_replace.year, date_to_replace.month, date_to_replace.day, date_now.hour,
-                        date_now.minute, date_now.second).astimezone(pytz.timezone(settings.COMPANY_TIME_ZONE))
+                        date_now.minute, date_now.second).astimezone(pytz.timezone(settings.SYSTEM_TIME_ZONE))
 
 
 class TimezoneAwareDateRangeFilter(django_filters.DateFromToRangeFilter, TimezoneAwareDateMixin):

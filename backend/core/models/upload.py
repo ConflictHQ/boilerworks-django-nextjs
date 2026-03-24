@@ -271,6 +271,6 @@ class FileUpload(Tracking):
 
     @staticmethod
     @receiver(signals.post_save, sender=Upload)
-    def on_competency_record_save(sender, instance, created, **kwargs):
+    def on_upload_save(sender, instance, created, **kwargs):
         if created:
             FileUpload.objects.get_or_create(upload=instance)
