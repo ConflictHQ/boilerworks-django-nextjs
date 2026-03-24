@@ -200,8 +200,8 @@ class SignRequestMixin:
 
 
 @DeepLink.register(
-    webapp="/competency-signoff-details/%(global_id)s",
-    mobile="boilerworks://app/competency-signoff-details/%(global_id)s",
+    webapp="/sign-request-details/%(global_id)s",
+    mobile="boilerworks://app/sign-request-details/%(global_id)s",
 )
 class SignRequest(Tracking):
     """
@@ -242,7 +242,7 @@ class SignRequest(Tracking):
 
     signed_by = models.ManyToManyField(
         'core.PinTransaction',
-        related_name='competency_logs',
+        related_name='signature_logs',
         blank=True,
         help_text='Pin transactions used to sign this log.'
     )

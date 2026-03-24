@@ -8,8 +8,6 @@ from typing import List
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from localflavor.us.models import USStateField, USZipCodeField
-
 from .common import Tracking
 
 
@@ -29,9 +27,9 @@ class Address(Tracking):
     address_line_one = models.CharField(max_length=250, blank=True)
     address_line_two = models.CharField(max_length=250, blank=True)
     city = models.CharField(max_length=256, blank=True)
-    state = USStateField(blank=True)
+    state = models.CharField(max_length=100, blank=True)
     street = models.CharField(max_length=500, blank=True)
-    zipcode = USZipCodeField(blank=True)
+    zipcode = models.CharField(max_length=20, blank=True)
 
     class Meta:
         permissions = (

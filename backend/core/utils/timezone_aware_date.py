@@ -25,7 +25,7 @@ class TimezoneAwareDateMixin:
     def _replace_date_with_date(cls, date_to_replace):
         date_now = datetime.now()
         return datetime(date_to_replace.year, date_to_replace.month, date_to_replace.day, date_now.hour,
-                        date_now.minute, date_now.second).astimezone(pytz.timezone(settings.COMPANY_TIME_ZONE))
+                        date_now.minute, date_now.second).astimezone(pytz.timezone(settings.SYSTEM_TIME_ZONE))
 
 
 class TimezoneAwareDateRangeFilter(django_filters.DateFromToRangeFilter, TimezoneAwareDateMixin):

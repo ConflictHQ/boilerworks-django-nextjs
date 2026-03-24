@@ -134,7 +134,7 @@ class BaseModelSerializer(serializers.ModelSerializer):
     links = LinkSerializer(
         required=False,
         many=True,
-        help_text='List of links related to this competency'
+        help_text='List of related links'
     )  # Adding links field
 
     class Meta:

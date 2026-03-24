@@ -115,7 +115,7 @@ class Tracking(ModelPermissionsMixin, models.Model):
 
     @cached_classproperty
     def local_timezone(cls) -> timezone:
-        return pytz.timezone(settings.COMPANY_TIME_ZONE)
+        return pytz.timezone(settings.SYSTEM_TIME_ZONE)
 
     @cached_property
     def localized_created_at(self) -> datetime:
