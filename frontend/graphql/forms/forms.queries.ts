@@ -29,6 +29,9 @@ export const GET_FORM_DEFINITION = gql`
       schema
       formType
       isPublic
+      fieldConfig
+      logicRules
+      scoring
       publishedAt
       createdAt
       updatedAt

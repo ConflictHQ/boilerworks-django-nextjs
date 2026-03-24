@@ -21,6 +21,10 @@ class FormDefinitionType:
     schema: strawberry.scalars.JSON
     form_type: str
     is_public: bool
+    field_config: strawberry.scalars.JSON
+    logic_rules: strawberry.scalars.JSON
+    scoring: strawberry.scalars.JSON
+    prefill: strawberry.scalars.JSON
     published_at: Optional[datetime]
     created_at: datetime
     updated_at: datetime
