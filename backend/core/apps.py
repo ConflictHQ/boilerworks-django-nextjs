@@ -14,9 +14,11 @@ class CoreConfig(AppConfig):
         setup_opensearch()
         register_profile_signals()
 
+        from config.health_graphql import GraphQLHealthCheck
         from config.health_opensearch import OpenSearchHealthCheck
         from health_check.plugins import plugin_dir
         plugin_dir.register(OpenSearchHealthCheck)
+        plugin_dir.register(GraphQLHealthCheck)
 
         from config.telemetry import setup as telemetry_setup
         from django.conf import settings
