@@ -266,6 +266,7 @@ INSTALLED_APPS = [
     'django_crontab',
     'import_export',
     'simple_history',
+    'forms',
     # End of Django Standard
 
     # Start of Celery
