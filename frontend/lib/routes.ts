@@ -21,4 +21,5 @@ export const routeLabels: Record<string, string> = {
   tutorials: "Tutorials",
   changelog: "Changelog",
   forms: "Form Engine",
+  submit: "Fill Out",
 };
