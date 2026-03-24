@@ -12,7 +12,7 @@ An agent given this document and a business requirement should be able to genera
 |---|---|
 | Auth | Session-based auth (auth1), admin login, rate limiting on auth endpoints |
 | Data | Postgres, `Tracking` base model (created/updated/deleted by + at, version, soft deletes, audit history on all models) |
-| API | GraphQL (graphene-django), DRF, file upload |
+| API | GraphQL (Strawberry), DRF, file upload (MinIO local / S3 prod) |
 | Permissions | django-role-permissions, per-model/per-field permission checks, GQL middleware |
 | Async | Celery worker + beat, Redis broker, DatabaseScheduler |
 | Search | OpenSearch, ProfileDocument, signals for incremental indexing, `make reindex` |
@@ -22,7 +22,7 @@ An agent given this document and a business requirement should be able to genera
 | Admin | Custom dark theme, BaseCoreAdmin (import/export, tracking fields), DJDT |
 | Rule engine | Conditions + Actions + RuleProviderMixin, Celery-backed evaluation |
 | State machine | DFA model, cron-scheduled transitions via Celery beat |
-| Infra | Docker Compose: postgres, redis, opensearch, celery-worker, celery-beat, mailpit, ui |
+| Infra | Docker Compose: postgres, redis, opensearch, minio (S3), celery-worker, celery-beat, mailpit, ui |
 | CI | GitHub Actions: lint (pre-commit) + tests (postgres + redis services) |
 | Seed | `make seed`, numbered fixtures, `--flush` flag |
 
@@ -72,28 +72,36 @@ Adds: `guid` (UUID, external identifier), `name`, `slug` (auto-generated, unique
 
 ---
 
-### GraphQL
+### GraphQL (Strawberry)
 
-One schema file per app: `appname/schema/__init__.py`
+Each app has: `appname/schema/types.py`, `queries.py`, `mutations.py`, `__init__.py`
 
-**Object types:**
+Schema assembly: `config/schema.py` merges all apps. View: `core/schema/views.py`.
+
+**Types:**
 ```python
-from core.schema.utils import MetaNode, DjangoObjectTypeUtils
-from graphene_django import DjangoObjectType
+import strawberry_django
+from strawberry.types import Info
+from core.schema.common import permission_filtered_queryset
 
-class ProductType(DjangoObjectType, DjangoObjectTypeUtils):
-    class Meta(MetaNode):
-        model = Product
-        # MetaNode adds: interfaces = (Node,), connection_class = CustomConnection
+@strawberry_django.type(Product)
+class ProductType:
+
+    @classmethod
+    def get_queryset(cls, queryset, info: Info):
+        return permission_filtered_queryset(queryset, info)
 ```
 
-**Queries — always return connections (never raw lists):**
+**Queries:**
 ```python
-class Query(graphene.ObjectType):
-    products = DjangoConnectionField(ProductType, search=graphene.String())
+import strawberry
+from strawberry.types import Info
 
-    @staticmethod
-    def resolve_products(root, info, search='', **kwargs):
+@strawberry.type
+class Query:
+
+    @strawberry.field
+    def products(self, info: Info, search: str = '') -> list[ProductType]:
         if not info.context.user.is_authenticated:
             raise GraphQLError('Authentication required')
         qs = Product.objects.all()
@@ -102,29 +110,33 @@ class Query(graphene.ObjectType):
         return qs
 ```
 
-`CustomConnection` (from `core.schema.utils`) adds `total_count` automatically.
-
-**Mutations — always return `ok: Boolean` + `errors: [ErrorType]`:**
+**Mutations — always return `MutationResult` (ok + errors):**
 ```python
-from graphene_django.rest_framework.mutation import SerializerMutation
-from graphene_django.types import ErrorType
+import strawberry
+from strawberry.types import Info
+from core.schema.common import MutationResult
+from core.schema.mutations.base import restricted_serializer_mutate
 
-class CreateProductMutation(SerializerMutation):
-    ok = graphene.Boolean()
-    errors = graphene.List(ErrorType)
+@strawberry.type
+class Mutation:
 
-    class Meta:
-        serializer_class = ProductSerializer
+    @strawberry.mutation
+    def create_product(self, info: Info, name: str, price: str) -> MutationResult:
+        Product.p('model').add.check(info.context.user)
+        return restricted_serializer_mutate(
+            ProductSerializer, Product, info,
+            data={'name': name, 'price': price},
+        )
+```
 
-    @classmethod
-    def mutate_and_get_payload(cls, root, info, **input):
-        if not info.context.user.is_authenticated:
-            raise GraphQLError('Authentication required')
-        serializer = ProductSerializer(data=input)
-        if serializer.is_valid():
-            serializer.save(created_by=info.context.user)
-            return cls(ok=True, errors=[])
-        return cls(ok=False, errors=ErrorType.from_errors(serializer.errors))
+**Context:** Resolvers access user, dataloaders, and permissions via `info.context` (`StrawberryContext` from `core/schema/context.py`):
+```python
+info.context.user                    # authenticated user
+info.context.organization            # user's active org
+info.context.request_language        # preferred language
+info.context.request_timezone        # user timezone or SYSTEM_TIME_ZONE
+info.context.check_permission(...)   # cached permission check
+info.context.get_loader(name, fn)    # get/create dataloader
 ```
 
 **Auth check at the top of every resolver and mutation** — no exceptions.
@@ -207,36 +219,40 @@ Async actions from workflow transitions go through `appname/tasks.py`.
 
 ### Tests
 
-All GraphQL tests extend `BaseTest`:
+Use `schema.execute_sync()` for GraphQL tests:
 ```python
-from core.tests.utils.base_test import BaseTest
+from django.test import TestCase
+from config.schema import schema
+from core.schema.context import StrawberryContext
 
-class ProductTest(BaseTest):
+class ProductTest(TestCase):
+
+    def setUp(self):
+        from organization.models import Organization, OrganizationMember
+        self.org = Organization.objects.create(name='TestOrg')
+        self.user = User.objects.create_superuser(username='test', email='t@t.com', password='x')
+        OrganizationMember.objects.create(organization=self.org, member=self.user, is_active=True)
+        self.user.profile.active_organization = self.org
+        self.user.profile.save()
+
+    def _context(self):
+        from unittest.mock import MagicMock
+        request = MagicMock()
+        request.user = self.user
+        request.session = {}
+        request.headers = {}
+        return StrawberryContext(request)
 
     def test_create_product(self):
-        request = self.request()  # authenticated request as self.user
-        mutation = '''
-          mutation ($name: String!) {
-            createProduct(input: {name: $name}) {
-              ok
-              errors { field messages }
-            }
-          }
-        '''
-        response = self.client.execute(mutation, variables={'name': 'Widget'}, context_value=request)
-        self.assertEqual(0, len(response.get('errors', ())))
-        self.assertTrue(response['data']['createProduct']['ok'])
+        result = schema.execute_sync(
+            'mutation { createProduct(name: "Widget", price: "9.99") { ok errors { field messages } } }',
+            context_value=self._context(),
+        )
+        self.assertIsNone(result.errors)
+        self.assertTrue(result.data['createProduct']['ok'])
 ```
 
-`BaseTest` provides:
-- `self.user` — superuser (username: `testuser`)
-- `self.organization` — `Organization` (slug: `test-org`)
-- `self.profile` — linked to user and org
-- `self.request()` — authenticated request
-- `self.assertQueryResult(query, vars, response)` — asserts no errors + snapshot
-- `self.assertQueryError(query, vars, response, mutation_name)` — asserts errors present
-
-For model-only tests use `django.test.TestCase` directly.
+For model-only tests use `django.test.TestCase` directly. No hardcoded values, no `pass` blocks, no fallback assertions.
 
 ---
 
@@ -292,6 +308,8 @@ make test
 | Django metrics | http://localhost:8000/metrics |
 | Postgres metrics | http://localhost:9187/metrics |
 | Redis metrics | http://localhost:9121/metrics |
+| MinIO S3 API | http://localhost:9000 |
+| MinIO Console | http://localhost:9001 (minioadmin/minioadmin) |
 
 ---
 
@@ -305,6 +323,8 @@ make migrate      # Run migrations
 make migrations   # Create new migrations (add app=<name> to scope)
 make seed         # Load dev fixtures
 make test         # Run tests
+make lint         # Run flake8 + isort checks
+make schema       # Export GraphQL SDL
 make shell        # Shell into Django container
 make logs         # Tail Django logs
 make perms        # Regenerate config/roles_gen.py
