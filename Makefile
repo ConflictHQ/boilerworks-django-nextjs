@@ -1,7 +1,7 @@
 COMPOSE = docker compose -f docker/docker-compose.yaml
 CONTAINER = boilerworks-local
 
-.PHONY: help up down build restart logs logs-worker logs-beat shell manage migrate migrations seed reindex test collectstatic superuser ps
+.PHONY: help up down build restart logs logs-worker logs-beat shell manage migrate migrations seed reindex test lint schema collectstatic superuser ps
 
 help:
 	@echo "Available commands:"
@@ -19,6 +19,8 @@ help:
 	@echo "  seed          Load dev seed fixtures (add flush=1 to truncate first)"
 	@echo "  reindex       Rebuild OpenSearch indices from the database"
 	@echo "  test          Run tests"
+	@echo "  lint          Run flake8 + isort checks"
+	@echo "  schema        Export GraphQL SDL to static/gql/schema.graphql"
 	@echo "  collectstatic Collect static files"
 	@echo "  superuser     Create a Django superuser"
 	@echo "  ps            Show running containers"
@@ -64,6 +66,13 @@ reindex:
 
 test:
 	docker exec $(CONTAINER) python manage.py test
+
+lint:
+	docker exec $(CONTAINER) python -m flake8 --max-line-length=140
+	docker exec $(CONTAINER) python -m isort --check-only .
+
+schema:
+	docker exec $(CONTAINER) python manage.py shell -c "from config.schema import schema; open('static/gql/schema.graphql','w').write(schema.as_str()); print('Schema exported')"
 
 collectstatic:
 	docker exec $(CONTAINER) python manage.py collectstatic --noinput
