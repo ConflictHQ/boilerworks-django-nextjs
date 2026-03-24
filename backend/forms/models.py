@@ -248,6 +248,12 @@ class FormSubmission(Tracking):
         null=True,
         related_name='form_submissions',
     )
+    attachments = models.ManyToManyField(
+        'core.Upload',
+        blank=True,
+        related_name='form_submissions',
+        help_text='File uploads attached to this submission (for file field types)',
+    )
     submitted_at = models.DateTimeField(auto_now_add=True)
     signed_by = models.ForeignKey(
         'core.PinTransaction',
