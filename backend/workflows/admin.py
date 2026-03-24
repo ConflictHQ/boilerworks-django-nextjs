@@ -1,5 +1,7 @@
 from core.utils.admin import BaseCoreAdmin
+from core.widgets import JSONEditorWidget
 from django.contrib import admin
+from django.db import models
 from django.utils.html import format_html
 
 from .models import TransitionLog, WorkflowDefinition, WorkflowInstance
@@ -20,6 +22,7 @@ class WorkflowDefinitionAdmin(BaseCoreAdmin):
     list_display = ('name', 'slug', 'model_label', 'state_count', 'is_enabled', 'instance_count')
     list_filter = ('is_enabled', 'model_label')
     search_fields = ('name', 'slug', 'model_label')
+    formfield_overrides = {models.JSONField: {'widget': JSONEditorWidget}}
 
     def state_count(self, obj):
         return len(obj.states)
