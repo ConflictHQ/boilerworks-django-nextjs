@@ -68,6 +68,11 @@ class FormDefinition(BaseCoreModel):
     # (multiple versions share the same slug, uniqueness is on slug+version)
     slug = models.SlugField(max_length=250, db_index=True, default='')
 
+    is_public = models.BooleanField(
+        default=False,
+        help_text='Allow anonymous/unauthenticated submissions',
+    )
+
     form_type = models.CharField(
         max_length=20,
         choices=FormType.choices,
@@ -253,31 +258,36 @@ class FormSubmission(Tracking):
         ordering = ['-submitted_at']
 
     @classmethod
-    def submit(cls, form, payload, user):
+    def submit(cls, form, payload, user=None):
         """Validate and create a submission.
 
         Raises ValidationError if the form is not published or payload is invalid.
+        For public forms, user can be None (anonymous submission).
         """
         if form.status != FormStatus.PUBLISHED:
             raise ValidationError('Can only submit to published forms.')
+
+        if user is None and not form.is_public:
+            raise ValidationError('This form requires authentication.')
 
         is_valid, errors = form.validate_payload(payload)
         if not is_valid:
             raise ValidationError(errors)
 
         org = None
-        try:
-            org = user.profile.organization()
-        except Exception:
-            pass
+        if user and user.is_authenticated:
+            try:
+                org = user.profile.organization()
+            except Exception:
+                pass
 
         return cls.objects.create(
             form=form,
             payload=payload,
-            submitted_by=user,
+            submitted_by=user if user and user.is_authenticated else None,
             organization=org,
-            created_by=user,
-            updated_by=user,
+            created_by=user if user and user.is_authenticated else None,
+            updated_by=user if user and user.is_authenticated else None,
         )
 
     def __str__(self):

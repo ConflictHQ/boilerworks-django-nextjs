@@ -11,8 +11,12 @@ import core_ui.schema as UiSchema
 import forms.schema as FormsSchema
 import organization.schema as OrganizationSchema
 import pushnotif.schema as PushNotificationSchema
+from typing import Optional
+
+from core.schema.common import MutationResult
 from core.schema.types.permission_analysis import PermissionAnalysisQuery
 from core.schema.types.user import UserType
+from forms.schema.types import FormDefinitionType
 
 
 # ---------------------------------------------------------------------------
@@ -66,6 +70,13 @@ class AuthQuery:
     def ok(self) -> str:
         return "ok"
 
+    @strawberry.field(description="Get a public form by slug (no auth required).")
+    def public_form(self, slug: str) -> Optional['FormDefinitionType']:
+        from forms.models import FormDefinition, FormStatus
+        return FormDefinition.objects.filter(
+            slug=slug, status=FormStatus.PUBLISHED, is_public=True,
+        ).first()
+
 
 @strawberry.type
 class AuthMutation:
@@ -83,6 +94,28 @@ class AuthMutation:
         from django.contrib.auth import logout
         logout(info.context.request)
         return True
+
+    @strawberry.mutation(description="Submit data to a public form (no auth required).")
+    def submit_public_form(
+        self, info: strawberry.types.Info, slug: str, payload: strawberry.scalars.JSON,
+    ) -> 'MutationResult':
+        from django.core.exceptions import ValidationError
+        from graphql import GraphQLError
+
+        from core.schema.common import MutationResult
+        from forms.models import FormDefinition, FormStatus, FormSubmission
+
+        form = FormDefinition.objects.filter(
+            slug=slug, status=FormStatus.PUBLISHED, is_public=True,
+        ).first()
+        if not form:
+            raise GraphQLError(f'No public form found with slug "{slug}"')
+
+        try:
+            FormSubmission.submit(form, payload, user=None)
+            return MutationResult.success()
+        except ValidationError as e:
+            raise GraphQLError(str(e))
 
 
 schema_auth = strawberry.Schema(
