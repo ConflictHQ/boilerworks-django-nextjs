@@ -101,6 +101,14 @@ export function AppSidebar({ ssrUser, ...props }: AppSidebarProps) {
       ],
     },
     {
+      title: "Workflows",
+      url: "/workflows",
+      icon: <ZapIcon />,
+      items: [
+        { title: "All Workflows", url: "/workflows" },
+      ],
+    },
+    {
       title: t("hooks"),
       url: "/hooks",
       icon: <ZapIcon />,

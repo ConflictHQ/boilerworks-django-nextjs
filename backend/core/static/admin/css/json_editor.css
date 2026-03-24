@@ -1,0 +1,17 @@
+.json-editor {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  tab-size: 2 !important;
+  white-space: pre !important;
+  resize: vertical;
+  min-height: 200px;
+  border-radius: 4px;
+  transition: border-color 0.2s;
+}
+
+.json-editor:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}

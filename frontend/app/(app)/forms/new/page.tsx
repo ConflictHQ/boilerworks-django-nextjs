@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { Loader2Icon, PlusIcon } from "lucide-react";
+import { Loader2Icon, PlusIcon, CodeIcon, LayoutIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -11,44 +11,36 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCreateFormDefinition } from "@/graphql/forms/forms.hooks";
+import { FormBuilder } from "@/components/forms/FormBuilder";
 
 type FormValues = {
   name: string;
   slug: string;
   description: string;
-  formType: string;
+};
+
+const DEFAULT_SCHEMA = {
+  type: "object",
+  properties: { name: { type: "string", title: "Name" } },
+  required: ["name"],
 };
 
 export default function NewFormPage() {
   const router = useRouter();
   const [createForm] = useCreateFormDefinition();
-  const [schemaText, setSchemaText] = useState(
-    JSON.stringify(
-      {
-        type: "object",
-        properties: {
-          name: { type: "string", title: "Name" },
-        },
-        required: ["name"],
-      },
-      null,
-      2,
-    ),
-  );
+  const [mode, setMode] = useState<"visual" | "json">("visual");
+  const [schema, setSchema] = useState<Record<string, unknown>>(DEFAULT_SCHEMA);
+  const [jsonText, setJsonText] = useState(JSON.stringify(DEFAULT_SCHEMA, null, 2));
 
   const {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
-    defaultValues: { name: "", slug: "", description: "", formType: "standard" },
+    defaultValues: { name: "", slug: "", description: "" },
   });
-
-  const nameValue = watch("name");
 
   const autoSlug = (name: string) => {
     const slug = name
@@ -59,12 +51,16 @@ export default function NewFormPage() {
   };
 
   const onSubmit = async (data: FormValues) => {
-    let schema: Record<string, unknown>;
-    try {
-      schema = JSON.parse(schemaText);
-    } catch {
-      toast.error("Invalid JSON schema");
-      return;
+    let finalSchema: Record<string, unknown>;
+    if (mode === "json") {
+      try {
+        finalSchema = JSON.parse(jsonText);
+      } catch {
+        toast.error("Invalid JSON schema");
+        return;
+      }
+    } else {
+      finalSchema = schema;
     }
 
     const { data: result } = await createForm({
@@ -73,7 +69,7 @@ export default function NewFormPage() {
           name: data.name,
           slug: data.slug,
           description: data.description,
-          schema,
+          schema: finalSchema,
         },
       },
     });
@@ -99,43 +95,72 @@ export default function NewFormPage() {
       </div>
       <Separator />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-2xl flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="name">Name</Label>
-          <Input
-            {...register("name", { required: "Name is required" })}
-            placeholder="e.g. Expense Report"
-            onChange={(e) => {
-              register("name").onChange(e);
-              autoSlug(e.target.value);
-            }}
-          />
-          {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+        <div className="grid max-w-2xl gap-4">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              {...register("name", { required: "Name is required" })}
+              placeholder="e.g. Expense Report"
+              onChange={(e) => {
+                register("name").onChange(e);
+                autoSlug(e.target.value);
+              }}
+            />
+            {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="slug">Slug</Label>
+              <Input {...register("slug", { required: "Slug is required" })} placeholder="expense-report" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="description">Description</Label>
+              <Input {...register("description")} placeholder="What is this form for?" />
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="slug">Slug</Label>
-          <Input {...register("slug", { required: "Slug is required" })} placeholder="expense-report" />
-          {errors.slug && <p className="text-sm text-red-500">{errors.slug.message}</p>}
-        </div>
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Form Fields</h2>
+            <div className="flex gap-1 rounded-lg border p-0.5">
+              <button
+                type="button"
+                onClick={() => {
+                  if (mode === "json") {
+                    try { setSchema(JSON.parse(jsonText)); } catch { /* keep current */ }
+                  }
+                  setMode("visual");
+                }}
+                className={`flex items-center gap-1 rounded-md px-3 py-1 text-sm ${mode === "visual" ? "bg-primary text-primary-foreground" : ""}`}
+              >
+                <LayoutIcon className="h-3 w-3" /> Visual
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setJsonText(JSON.stringify(schema, null, 2));
+                  setMode("json");
+                }}
+                className={`flex items-center gap-1 rounded-md px-3 py-1 text-sm ${mode === "json" ? "bg-primary text-primary-foreground" : ""}`}
+              >
+                <CodeIcon className="h-3 w-3" /> JSON
+              </button>
+            </div>
+          </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="description">Description</Label>
-          <Input {...register("description")} placeholder="What is this form for?" />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label>Schema (JSON)</Label>
-          <Textarea
-            value={schemaText}
-            onChange={(e) => setSchemaText(e.target.value)}
-            rows={12}
-            className="font-mono text-sm"
-            placeholder='{"type": "object", "properties": {...}}'
-          />
-          <p className="text-muted-foreground text-xs">
-            Define form fields using JSON Schema. Each property becomes a form field.
-          </p>
+          {mode === "visual" ? (
+            <FormBuilder schema={schema} onSave={(s) => setSchema(s)} />
+          ) : (
+            <Textarea
+              value={jsonText}
+              onChange={(e) => setJsonText(e.target.value)}
+              rows={16}
+              className="font-mono text-sm"
+            />
+          )}
         </div>
 
         <Button type="submit" disabled={isSubmitting} className="self-start">

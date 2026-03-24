@@ -22,4 +22,6 @@ export const routeLabels: Record<string, string> = {
   changelog: "Changelog",
   forms: "Form Engine",
   submit: "Fill Out",
+  workflows: "Workflows",
+  builder: "Builder",
 };
