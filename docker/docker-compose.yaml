@@ -25,6 +25,12 @@ services:
       - DJANGO_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
       - EMAIL_HOST=mailpit-local
       - EMAIL_PORT=1025
+      - USE_S3=true
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_STORAGE_BUCKET_NAME=boilerworks
+      - AWS_S3_ENDPOINT_URL=http://minio-local:9000
+      - AWS_S3_CUSTOM_DOMAIN=
     volumes:
       - ../backend:/boilerworks
     depends_on:
@@ -169,6 +175,38 @@ services:
       timeout: 5s
       retries: 10
 
+  minio-local:
+    image: minio/minio:latest
+    container_name: minio-local
+    ports:
+      - '9000:9000'   # S3 API
+      - '9001:9001'   # Console UI
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: minio-init
+    depends_on:
+      minio-local:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio-local:9000 minioadmin minioadmin;
+      mc mb --ignore-existing local/boilerworks;
+      mc anonymous set download local/boilerworks/public;
+      echo 'MinIO bucket ready';
+      "
+
   mailpit-local:
     image: axllent/mailpit:latest
     container_name: mailpit-local
@@ -230,3 +268,4 @@ volumes:
   static_volume:
   media_volume:
   opensearch-data:
+  minio-data:
