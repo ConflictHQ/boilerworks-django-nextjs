@@ -13,8 +13,12 @@ from workflows.schema.types import WorkflowDefinitionType, WorkflowInstanceType
 class Query:
 
     @strawberry.field(description="List all workflow definitions.")
-    def workflow_definitions(self, info: Info, model_label: Optional[str] = None) -> list[WorkflowDefinitionType]:
-        qs = WorkflowDefinition.objects.filter(is_enabled=True)
+    def workflow_definitions(
+        self, info: Info, model_label: Optional[str] = None, include_disabled: bool = True,
+    ) -> list[WorkflowDefinitionType]:
+        qs = WorkflowDefinition.objects.all()
+        if not include_disabled:
+            qs = qs.filter(is_enabled=True)
         if model_label:
             qs = qs.filter(model_label=model_label)
         return qs

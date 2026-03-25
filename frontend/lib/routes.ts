@@ -24,4 +24,5 @@ export const routeLabels: Record<string, string> = {
   submit: "Fill Out",
   workflows: "Workflows",
   builder: "Builder",
+  new: "Create New",
 };

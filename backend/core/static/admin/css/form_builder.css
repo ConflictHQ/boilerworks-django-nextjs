@@ -1,0 +1,367 @@
+.form-builder-wrapper {
+  max-width: 960px;
+}
+
+.fb-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #ddd;
+}
+
+.fb-tab {
+  padding: 8px 20px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.fb-tab:hover {
+  color: #333;
+}
+
+.fb-tab.active {
+  color: #417690;
+  border-bottom-color: #417690;
+}
+
+/* Visual builder panel */
+.fb-visual {
+  display: block;
+}
+
+.fb-fields-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Individual field card */
+.fb-field-card {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  transition: box-shadow 0.15s;
+}
+
+.fb-field-card:hover {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.fb-field-card.dragging {
+  opacity: 0.5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.fb-field-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.fb-drag-handle {
+  cursor: grab;
+  color: #999;
+  font-size: 16px;
+  padding: 0 4px;
+}
+
+.fb-drag-handle:active {
+  cursor: grabbing;
+}
+
+.fb-field-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: #333;
+  flex: 1;
+}
+
+.fb-field-type-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #e8f0fe;
+  color: #1a56db;
+  font-weight: 500;
+}
+
+.fb-field-required-badge {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.fb-field-display-badge {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: #f0fdf4;
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.fb-field-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.fb-field-actions button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 14px;
+  color: #999;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.fb-field-actions button:hover {
+  background: #f3f4f6;
+  color: #333;
+}
+
+.fb-field-actions button.fb-delete-btn:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* Collapsible config panel */
+.fb-field-config {
+  display: none;
+  padding: 12px 16px;
+  border-top: 1px solid #eee;
+  background: #fafafa;
+  border-radius: 0 0 6px 6px;
+}
+
+.fb-field-config.open {
+  display: block;
+}
+
+.fb-config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.fb-config-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.fb-config-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.fb-config-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.fb-config-field input[type="text"],
+.fb-config-field input[type="number"],
+.fb-config-field select,
+.fb-config-field textarea {
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.fb-config-field input:focus,
+.fb-config-field select:focus,
+.fb-config-field textarea:focus {
+  outline: none;
+  border-color: #417690;
+  box-shadow: 0 0 0 2px rgba(65, 118, 144, 0.15);
+}
+
+.fb-config-field textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.fb-checkbox-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.fb-checkbox-field input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+/* Options editor (for select, multi_select, radio) */
+.fb-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fb-option-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.fb-option-row input {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.fb-option-row button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #999;
+  font-size: 16px;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.fb-option-row button:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.fb-add-option-btn {
+  border: 1px dashed #d1d5db;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #666;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.fb-add-option-btn:hover {
+  border-color: #417690;
+  color: #417690;
+}
+
+/* Add field button */
+.fb-add-field-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.fb-add-field-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 2px dashed #d1d5db;
+  background: #fff;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #417690;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.fb-add-field-btn:hover {
+  border-color: #417690;
+  background: #f0f7fa;
+}
+
+/* Add field type picker dropdown */
+.fb-type-picker {
+  position: relative;
+  display: inline-block;
+}
+
+.fb-type-picker-menu {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 4px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 8px;
+  z-index: 100;
+  width: 320px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.fb-type-picker-menu.open {
+  display: block;
+}
+
+.fb-type-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 8px 2px;
+}
+
+.fb-type-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  border-radius: 4px;
+}
+
+.fb-type-option:hover {
+  background: #f0f7fa;
+  color: #417690;
+}
+
+/* Empty state */
+.fb-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 14px;
+  border: 2px dashed #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.fb-empty-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+/* JSON panel textarea override */
+.fb-json .json-editor {
+  display: block !important;
+}

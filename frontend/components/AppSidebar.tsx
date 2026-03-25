@@ -106,6 +106,7 @@ export function AppSidebar({ ssrUser, ...props }: AppSidebarProps) {
       icon: <ZapIcon />,
       items: [
         { title: "All Workflows", url: "/workflows" },
+        { title: "New Workflow", url: "/workflows/new" },
       ],
     },
     {

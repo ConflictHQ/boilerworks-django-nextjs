@@ -1,41 +1,22 @@
 "use client";
 
-import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
-import { useQuery, useMutation } from "@apollo/client/react";
-import { gql } from "@apollo/client";
 
 import { Separator } from "@/components/ui/separator";
 import { WorkflowBuilder } from "@/components/workflows/WorkflowBuilder";
-
-const GET_WORKFLOW = gql`
-  query GetWorkflow($slug: String!) {
-    workflowDefinition(slug: $slug) {
-      name
-      slug
-      states
-      transitions
-    }
-  }
-`;
-
-// For now, use a simple mutation — TODO: add proper updateWorkflow mutation
-const UPDATE_WORKFLOW = gql`
-  mutation UpdateWorkflow($slug: String!, $states: JSON!, $transitions: JSON!) {
-    __typename
-  }
-`;
+import { useWorkflow, useUpdateWorkflow } from "@/graphql/workflows/workflows.hooks";
+import { useFormDefinitions } from "@/graphql/forms/forms.hooks";
+import type { WorkflowState, WorkflowTransition } from "@/graphql/workflows/workflows.types";
 
 export default function WorkflowBuilderPage() {
   const { slug } = useParams<{ slug: string }>();
-  const { data, loading, error } = useQuery(GET_WORKFLOW, {
-    variables: { slug },
-    fetchPolicy: "cache-and-network",
-  });
+  const { workflow, loading, error, refetch } = useWorkflow(slug);
+  const [updateWorkflow] = useUpdateWorkflow();
+  const { forms } = useFormDefinitions("published");
 
-  if (loading) {
+  if (loading && !workflow) {
     return (
       <div className="flex flex-1 items-center justify-center p-6">
         <Loader2Icon className="text-muted-foreground h-6 w-6 animate-spin" />
@@ -43,7 +24,6 @@ export default function WorkflowBuilderPage() {
     );
   }
 
-  const workflow = data?.workflowDefinition;
   if (error || !workflow) {
     return (
       <div className="flex flex-1 flex-col gap-6 p-6">
@@ -54,12 +34,26 @@ export default function WorkflowBuilderPage() {
     );
   }
 
-  const handleSave = (states: unknown[], transitions: unknown[]) => {
-    // TODO: wire to real mutation when updateWorkflow is added
-    toast.success("Workflow saved", {
-      description: `${(states as unknown[]).length} states, ${(transitions as unknown[]).length} transitions`,
+  const handleSave = async (states: WorkflowState[], transitions: WorkflowTransition[]) => {
+    const { data } = await updateWorkflow({
+      variables: { slug, states, transitions },
     });
-    console.log("Workflow output:", { states, transitions });
+
+    if (data?.updateWorkflowDefinition?.ok) {
+      toast.success("Workflow saved", {
+        description: `${states.length} states, ${transitions.length} transitions`,
+      });
+      refetch();
+    } else {
+      const errors = data?.updateWorkflowDefinition?.errors ?? [];
+      if (errors.length > 0) {
+        for (const e of errors) {
+          toast.error(`${e.field}: ${e.messages.join(", ")}`);
+        }
+      } else {
+        toast.error("Failed to save workflow");
+      }
+    }
   };
 
   return (
@@ -75,6 +69,7 @@ export default function WorkflowBuilderPage() {
         states={workflow.states || []}
         transitions={workflow.transitions || []}
         onSave={handleSave}
+        availableForms={(forms ?? []).map((f: { slug: string; name: string }) => ({ slug: f.slug, name: f.name }))}
       />
     </div>
   );

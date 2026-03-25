@@ -1,5 +1,5 @@
 from core.utils.admin import BaseCoreAdmin
-from core.widgets import JSONEditorWidget
+from core.widgets import FormBuilderWidget, JSONEditorWidget
 from django.contrib import admin
 from django.db import models
 from django.utils.html import format_html
@@ -26,6 +26,12 @@ class FormDefinitionAdmin(BaseCoreAdmin):
     search_fields = ('name', 'slug')
     formfield_overrides = {models.JSONField: {'widget': JSONEditorWidget}}
     readonly_fields = ('version', 'published_at', 'published_by', 'created_at', 'created_by', 'updated_at', 'updated_by')
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == 'schema':
+            kwargs['widget'] = FormBuilderWidget
+            return db_field.formfield(**kwargs)
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
     inlines = [FormSubmissionInline]
     actions = ['publish_forms', 'archive_forms', 'clone_forms']
 

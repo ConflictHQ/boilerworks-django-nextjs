@@ -10,12 +10,21 @@ from graphql import GraphQLError
 from strawberry.types import Info
 
 from core.schema.common import MutationResult
+from core.schema.common import ValidationError as GQLValidationError
 from workflows.models import WorkflowDefinition, WorkflowInstance
 
 
 @strawberry.type
 class StartWorkflowResult(MutationResult):
     instance_id: Optional[strawberry.ID] = None
+
+
+def _require_staff(user):
+    """Raise GraphQLError if user is not authenticated staff/superuser."""
+    if not user or not user.is_authenticated:
+        raise GraphQLError('Authentication required')
+    if not (user.is_staff or user.is_superuser):
+        raise GraphQLError('Staff or superuser access required')
 
 
 @strawberry.type
@@ -87,5 +96,120 @@ class Mutation:
             transitioned_by=user,
             note=f'[ADMIN OVERRIDE] {note}',
         )
+
+        return MutationResult.success()
+
+    @strawberry.mutation(description="Create a new workflow definition (staff only).")
+    def create_workflow_definition(
+        self, info: Info,
+        name: str,
+        slug: str,
+        model_label: str,
+        states: strawberry.scalars.JSON,
+        transitions: strawberry.scalars.JSON,
+        description: Optional[str] = None,
+        is_enabled: bool = False,
+    ) -> MutationResult:
+        user = info.context.user
+        _require_staff(user)
+
+        workflow = WorkflowDefinition(
+            name=name,
+            slug=slug,
+            model_label=model_label,
+            states=states,
+            transitions=transitions,
+            description=description or '',
+            is_enabled=is_enabled,
+            created_by=user,
+            updated_by=user,
+        )
+
+        # Only validate if states are provided — empty workflows are valid
+        # during creation (user will add states in the builder)
+        if states:
+            errors = workflow.validate_definition()
+            if errors:
+                return MutationResult(
+                    ok=False,
+                    errors=[GQLValidationError(field='definition', messages=errors)],
+                )
+
+        try:
+            workflow.save()
+        except Exception as e:
+            raise GraphQLError(f'Failed to create workflow definition: {e}')
+
+        return MutationResult.success()
+
+    @strawberry.mutation(description="Update an existing workflow definition (staff only).")
+    def update_workflow_definition(
+        self, info: Info,
+        slug: str,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        model_label: Optional[str] = None,
+        states: Optional[strawberry.scalars.JSON] = None,
+        transitions: Optional[strawberry.scalars.JSON] = None,
+        is_enabled: Optional[bool] = None,
+    ) -> MutationResult:
+        user = info.context.user
+        _require_staff(user)
+
+        workflow = WorkflowDefinition.objects.filter(slug=slug).first()
+        if not workflow:
+            raise GraphQLError(f'Workflow definition "{slug}" not found')
+
+        if name is not None:
+            workflow.name = name
+        if description is not None:
+            workflow.description = description
+        if model_label is not None:
+            workflow.model_label = model_label
+        if states is not None:
+            workflow.states = states
+        if transitions is not None:
+            workflow.transitions = transitions
+        if is_enabled is not None:
+            workflow.is_enabled = is_enabled
+
+        workflow.updated_by = user
+
+        errors = workflow.validate_definition()
+        if errors:
+            return MutationResult(
+                ok=False,
+                errors=[GQLValidationError(field='definition', messages=errors)],
+            )
+
+        try:
+            workflow.save()
+        except Exception as e:
+            raise GraphQLError(f'Failed to update workflow definition: {e}')
+
+        return MutationResult.success()
+
+    @strawberry.mutation(description="Delete a workflow definition by slug (staff only).")
+    def delete_workflow_definition(
+        self, info: Info,
+        slug: str,
+    ) -> MutationResult:
+        user = info.context.user
+        _require_staff(user)
+
+        workflow = WorkflowDefinition.objects.filter(slug=slug).first()
+        if not workflow:
+            raise GraphQLError(f'Workflow definition "{slug}" not found')
+
+        if workflow.instances.exists():
+            raise GraphQLError(
+                f'Cannot delete workflow "{slug}" — it has {workflow.instances.count()} existing instance(s). '
+                f'Disable it instead.'
+            )
+
+        try:
+            workflow.delete()
+        except Exception as e:
+            raise GraphQLError(f'Failed to delete workflow definition: {e}')
 
         return MutationResult.success()
