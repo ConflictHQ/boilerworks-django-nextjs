@@ -4,8 +4,6 @@ from typing import Optional
 
 import strawberry
 import strawberry_django
-from strawberry.types import Info
-
 from organization.models import Organization
 from organization.models.organization import OrganizationMember
 from organization.schema.types import (
@@ -16,6 +14,7 @@ from organization.schema.types import (
     OrganizationMemberType,
     OrganizationType,
 )
+from strawberry.types import Info
 
 
 @strawberry.type

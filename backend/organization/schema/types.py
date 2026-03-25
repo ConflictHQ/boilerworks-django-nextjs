@@ -6,12 +6,11 @@ from uuid import UUID
 
 import strawberry
 import strawberry_django
-from strawberry.types import Info
-
 from core.schema.common import permission_filtered_queryset
 from core.schema.dataloaders import batch_load_users
 from organization.models import Organization
 from organization.models.organization import OrganizationMember
+from strawberry.types import Info
 
 
 @strawberry_django.type(Organization)
