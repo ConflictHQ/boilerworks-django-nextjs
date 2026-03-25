@@ -31,6 +31,36 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
     formState: { errors, isSubmitting },
   } = useForm<FieldValues>();
 
+  // ALL HOOKS MUST BE ABOVE ANY EARLY RETURNS
+  const watchedValues = useWatch({ control });
+
+  const schema = (formDef?.schema ?? { properties: {}, required: [] }) as {
+    type?: string;
+    properties?: Record<string, Record<string, unknown>>;
+    required?: string[];
+  };
+  const properties = schema.properties || {};
+  const schemaRequired = new Set(schema.required || []);
+  const fieldNames = Object.keys(properties);
+
+  const logicRules = ((formDef as Record<string, unknown> | null)?.logicRules ?? []) as LogicRule[];
+  const fieldConfig = ((formDef as Record<string, unknown> | null)?.fieldConfig ?? {}) as Record<string, Record<string, unknown>>;
+
+  const logicState: LogicState = useMemo(
+    () => evaluateLogicRules(logicRules, fieldConfig, watchedValues ?? {}, fieldNames),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(watchedValues), JSON.stringify(logicRules), JSON.stringify(fieldConfig), fieldNames.join(",")],
+  );
+
+  useEffect(() => {
+    for (const [field, value] of Object.entries(logicState.calculated)) {
+      if (value !== undefined) {
+        setValue(field, value);
+      }
+    }
+  }, [logicState.calculated, setValue]);
+
+  // NOW safe to do early returns
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
@@ -57,40 +87,9 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
     );
   }
 
-  const schema = formDef.schema as {
-    type: string;
-    properties?: Record<string, Record<string, unknown>>;
-    required?: string[];
-  };
-  const properties = schema.properties || {};
-  const schemaRequired = new Set(schema.required || []);
-  const fieldNames = Object.keys(properties);
-
-  // Logic rules from the form definition
-  const logicRules = ((formDef as Record<string, unknown>).logicRules ?? []) as LogicRule[];
-  const fieldConfig = ((formDef as Record<string, unknown>).fieldConfig ?? {}) as Record<string, Record<string, unknown>>;
-
-  // Watch all field values for logic evaluation
-  const watchedValues = useWatch({ control });
-  const logicState: LogicState = useMemo(
-    () => evaluateLogicRules(logicRules, fieldConfig, watchedValues ?? {}, fieldNames),
-    [watchedValues, logicRules, fieldConfig, fieldNames],
-  );
-
-  // Apply calculated values back to the form
-  useEffect(() => {
-    for (const [field, value] of Object.entries(logicState.calculated)) {
-      if (value !== undefined) {
-        setValue(field, value);
-      }
-    }
-  }, [logicState.calculated, setValue]);
-
   const onSubmit = async (data: FieldValues) => {
-    // Strip empty optional fields and hidden fields
     const payload: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
-      // Skip hidden fields
       if (logicState.visibility[key] === false) continue;
       if (value !== "" && value !== undefined && value !== null) {
         payload[key] = value;
@@ -143,7 +142,6 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
             fieldSchema.title = title + " *";
           }
 
-          // Show calculated value as read-only display
           if (fieldName in logicState.calculated && logicState.calculated[fieldName] !== undefined) {
             return (
               <div key={fieldName} className={`flex flex-col gap-1.5 ${isHidden ? "hidden" : ""}`}>
@@ -159,13 +157,13 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
 
           return (
             <div key={fieldName} className={isHidden ? "hidden" : ""}>
-            <DynamicField
-              name={fieldName}
-              schema={fieldSchema}
-              register={register}
-              control={control}
-              errors={errors}
-            />
+              <DynamicField
+                name={fieldName}
+                schema={fieldSchema}
+                register={register}
+                control={control}
+                errors={errors}
+              />
             </div>
           );
         })}
