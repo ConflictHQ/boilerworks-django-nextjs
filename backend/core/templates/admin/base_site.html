@@ -1,0 +1,15 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block userlinks %}
+<span style="margin-right: 15px; font-size: 11px;">
+  <a href="/health/" target="_blank" style="color: #81d4fa;">Health</a> |
+  <a href="/app/metrics/" target="_blank" style="color: #81d4fa;">Metrics</a> |
+  <a href="http://localhost:3000" target="_blank" style="color: #81d4fa;">Frontend</a> |
+  <a href="http://localhost:9001" target="_blank" style="color: #81d4fa;">MinIO</a> |
+  <a href="http://localhost:5555" target="_blank" style="color: #81d4fa;">Flower</a> |
+  <a href="http://localhost:8025" target="_blank" style="color: #81d4fa;">Mailpit</a> |
+  <a href="http://localhost:8233" target="_blank" style="color: #81d4fa;">Temporal</a>
+</span>
+{{ block.super }}
+{% endblock %}

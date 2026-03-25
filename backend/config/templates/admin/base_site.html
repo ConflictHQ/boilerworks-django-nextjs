@@ -22,9 +22,11 @@
         <a target="_blank" href="/app/">App</a>
         <a target="_blank" href="/health/">Health</a>
         <a target="_blank" href="/app/gql/config/">GQL</a>
-        <a target="_blank" href="/metrics">Metrics</a>
-        <a target="_blank" href="http://localhost:9187/metrics">PG</a>
-        <a target="_blank" href="http://localhost:9121/metrics">Redis</a>
+        <a target="_blank" href="/app/metrics/">Metrics</a>
+        <a target="_blank" href="http://localhost:9001">MinIO</a>
+        <a target="_blank" href="http://localhost:5555">Flower</a>
+        <a target="_blank" href="http://localhost:8025">Mailpit</a>
+        <a target="_blank" href="http://localhost:8233">Temporal</a>
     </span>
     {% if user.has_usable_password %}
     <a href="{% url 'admin:password_change' %}">PWD</a> /

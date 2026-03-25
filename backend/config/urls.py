@@ -33,9 +33,9 @@ def trigger_error(request):
 admin.autodiscover()
 admin.site.login_form = AuthAdminForm
 admin.site.login_template = 'admin/auth1_login.html'
-admin.site.site_header = "App"
-admin.site.site_title = f"Backend Portal. {settings.VERSION}"
-admin.site.index_title = "Welcome to App Portal"
+admin.site.site_header = "Boilerworks"
+admin.site.site_title = f"Boilerworks Admin {settings.VERSION}"
+admin.site.index_title = "Welcome to Boilerworks"
 
 urls = [
     path('', app_root_view),
@@ -72,6 +72,7 @@ urlpatterns = [
 
     re_path(r'^favicon\.ico$', favicon_view),
     path(f'{base}metrics/', metrics_view, name='metrics'),
+    path('health/', include('health_check.urls')),
 ]
 
 if settings.DEBUG:
