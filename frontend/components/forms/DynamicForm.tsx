@@ -87,10 +87,20 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
     );
   }
 
+  // Display-only widget types that should not be included in payload
+  const DISPLAY_WIDGETS = new Set(["text_block", "section_header", "page_break", "image"]);
+
   const onSubmit = async (data: FieldValues) => {
     const payload: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
+      // Skip hidden fields
       if (logicState.visibility[key] === false) continue;
+      // Skip display-only widgets
+      const fieldSchema = properties[key];
+      if (fieldSchema && DISPLAY_WIDGETS.has(fieldSchema["x-widget"] as string)) continue;
+      // Skip File objects (can't serialize to JSON)
+      if (value instanceof File || (Array.isArray(value) && value[0] instanceof File)) continue;
+
       if (value !== "" && value !== undefined && value !== null) {
         payload[key] = value;
       } else if (schemaRequired.has(key) || logicState.required[key]) {

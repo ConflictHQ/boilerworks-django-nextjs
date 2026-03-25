@@ -294,23 +294,33 @@ function SignatureWidget({ name, control }: FieldWidgetProps) {
       name={name}
       control={control}
       render={({ field }) => {
+        const getCanvasPos = (e: React.MouseEvent<HTMLCanvasElement>) => {
+          const canvas = canvasRef.current!;
+          const rect = canvas.getBoundingClientRect();
+          const scaleX = canvas.width / rect.width;
+          const scaleY = canvas.height / rect.height;
+          return {
+            x: (e.clientX - rect.left) * scaleX,
+            y: (e.clientY - rect.top) * scaleY,
+          };
+        };
         const startDraw = (e: React.MouseEvent<HTMLCanvasElement>) => {
           setDrawing(true);
           const ctx = canvasRef.current?.getContext("2d");
           if (ctx) {
-            const rect = canvasRef.current!.getBoundingClientRect();
+            const pos = getCanvasPos(e);
             ctx.beginPath();
-            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.moveTo(pos.x, pos.y);
           }
         };
         const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
           if (!drawing) return;
           const ctx = canvasRef.current?.getContext("2d");
           if (ctx) {
-            const rect = canvasRef.current!.getBoundingClientRect();
+            const pos = getCanvasPos(e);
             ctx.lineWidth = 2;
             ctx.strokeStyle = "#000";
-            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.lineTo(pos.x, pos.y);
             ctx.stroke();
           }
         };
@@ -430,6 +440,7 @@ function resolveWidget(schema: Record<string, unknown>): React.FC<FieldWidgetPro
   if (xWidget === "file") return FileWidget;
   if (xWidget === "signature") return SignatureWidget;
   if (xWidget === "pin") return PinWidget;
+  if (xWidget === "time") return DateWidget;
   if (xWidget === "text_block") return TextBlockWidget;
   if (xWidget === "section_header") return SectionHeaderWidget;
   if (xWidget === "page_break") return PageBreakWidget;
