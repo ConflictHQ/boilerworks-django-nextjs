@@ -160,6 +160,18 @@ See [bootstrap.md](bootstrap.md) for the full pattern.
 
 ---
 
+## History
+
+Boilerworks has been built and battle-tested in production at [Conflict](https://conflict.com) for 5 years. Git history was scrubbed for open-source publication.
+
+---
+
+## Contributing
+
+We'd love for people to use Boilerworks, extend it, and make it better. File issues, open PRs, or start a discussion. See [CONTRIBUTING.md](CONTRIBUTING.md) if it exists, or just jump in.
+
+---
+
 ## License
 
 MIT
