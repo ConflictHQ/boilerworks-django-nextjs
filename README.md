@@ -1,6 +1,6 @@
 # Boilerworks
 
-Django + Next.js platform boilerplate. Session auth, GraphQL, Celery, OpenSearch, role-based permissions, audit trails, rule engine, and state machine — all wired up and ready to extend.
+Production-ready Django + Next.js boilerplate for building enterprise applications. Forms engine, workflow engine, visual builders, session auth, GraphQL, Celery, role-based permissions, audit trails, and more — all wired up and ready to extend.
 
 See [`bootstrap.md`](bootstrap.md) for conventions, patterns, and how to add new features.
 
@@ -10,17 +10,78 @@ See [`bootstrap.md`](bootstrap.md) for conventions, patterns, and how to add new
 
 | Layer | Tech |
 |---|---|
-| Backend | Django, graphene-django, DRF, Celery, Postgres, Redis, OpenSearch |
-| Frontend | Next.js (static), Apollo Client, TypeScript |
+| Backend | Django 5, Strawberry GraphQL, DRF, Celery, Postgres, Redis, OpenSearch |
+| Frontend | Next.js 16 (App Router), Apollo Client, TypeScript, Tailwind CSS, shadcn/ui |
 | Infra | Docker Compose — all services containerised |
 
 ---
 
-## Getting started
+## Features
+
+### Forms Engine
+- **JSON Schema-based** form definitions with 21+ field types
+- Visual form builder in **Django admin** (drag-and-drop, per-type config, JSON toggle)
+- Visual form builder in **Next.js** (React, live preview, @dnd-kit)
+- Dynamic renderer (`DynamicForm`) that generates forms from schema at runtime
+- Field types: text, textarea, number, date, time, email, URL, select, multi-select, radio, file upload, signature, rating, scale, PIN, percentage split, section headers, page breaks, images
+- Conditional logic engine (show/hide/require/calculate based on field values)
+- Versioned definitions with publish/archive lifecycle
+- Form submissions with validation, scoring, and prefill
+
+### Workflow Engine
+- **DB-configurable state machines** (states, transitions, conditions, actions)
+- Visual workflow builder in **Django admin** (state/transition editor with validation)
+- Visual workflow builder in **Next.js** (ReactFlow canvas with drag-and-drop)
+- State config: attached forms, assigned roles, colors, initial/final flags
+- Transition conditions: role checks, field comparisons, auth checks
+- Transition actions: notifications, emails, webhooks, field updates
+- Async action execution via **Celery** (Temporal.io integration planned)
+- GenericForeignKey — attach workflows to any Django model
+- Immutable audit trail (TransitionLog)
+
+### Auth & Permissions
+- Django session auth via `auth1` app (Auth0 SSO flow)
+- Frontend auth gate with entry-point redirects (frontend login → frontend, admin login → admin)
+- Group-based permissions (never assigned directly to users)
+- Field-level permission filtering on GraphQL types
+- Permission guard components (server + client)
+
+### GraphQL API
+- **Strawberry GraphQL** with strawberry-graphql-django
+- Async dataloaders with `sync_to_async`
+- Relay-style connections with `total_count`
+- Mutation audit logging via schema extension
+- Rate limiting on GraphQL endpoints
+
+### Frontend
+- Next.js 16 App Router with server + client components
+- Apollo Client with SSR hydration (`@apollo/client-integration-nextjs`)
+- shadcn/ui component library + Tailwind CSS
+- Dashboard with chart components (Recharts — area, bar, donut)
+- Data tables with server-side pagination, filtering, sorting
+- 7-language i18n (next-intl)
+- Dark mode, breadcrumbs, sidebar navigation
+- Sentry error tracking, global error boundary
+
+### Infrastructure
+- Docker Compose with all services (Django, Postgres, Redis, Next.js, Celery, Flower, OpenSearch, MinIO, Mailpit)
+- Feature toggle system (`config/features.py`) with Docker Compose profiles
+- Health check endpoint (`/health/`)
+- Prometheus metrics endpoint (`/metrics`)
+- OpenTelemetry tracing (configurable exporter)
+- S3-compatible file storage via MinIO
+
+---
+
+## Getting Started
 
 **Requirements:** Docker Desktop only. Python, pipenv, and Node run inside containers.
 
 ```shell
+# Clone and start
+git clone https://github.com/ConflictHQ/boilerworks-django-nextjs.git
+cd boilerworks-django-nextjs
+
 # First time
 ./bootstrap.sh
 
@@ -37,16 +98,18 @@ See [`bootstrap.md`](bootstrap.md) for conventions, patterns, and how to add new
 
 | Service | URL |
 |---|---|
-| App | http://localhost:8000/app/ |
-| Admin | http://localhost:8000/app/admin/ |
-| GraphQL | http://localhost:8000/app/gql/config/ |
-| Health | http://localhost:8000/health/ |
+| Frontend | http://localhost:3000 |
+| Django Admin | http://localhost:8000/app/admin/ |
+| GraphQL Playground | http://localhost:8000/app/gql/config/ |
+| Health Check | http://localhost:8000/health/ |
+| Flower (Celery) | http://localhost:5555 |
 | Mailpit | http://localhost:8025 |
-| Django metrics | http://localhost:8000/metrics |
+| MinIO Console | http://localhost:9001 |
+| Metrics | http://localhost:8000/app/metrics/ |
 
 ---
 
-## Common commands
+## Common Commands
 
 ```shell
 ./run.sh migrate               # run migrations
@@ -68,20 +131,19 @@ make reindex    # rebuild OpenSearch indices
 
 ---
 
-## Code quality
+## Code Quality
 
-This project enforces **PEP 8** via flake8 and isort pre-commit hooks (max line length: 140).
+Backend enforces **PEP 8** via flake8 and isort (max line length: 140).
+Frontend uses **Prettier** with `prettier-plugin-tailwindcss`.
 
 ```shell
-# Fix import order
-pipenv run isort .
-
-# Check everything
+# Backend
 make lint
-# or: pipenv run pre-commit run --all-files
-```
 
-Run `make lint` before pushing. The CI pipeline will reject non-compliant code.
+# Frontend
+npm run format:check
+npm run format
+```
 
 ---
 
@@ -98,11 +160,6 @@ See [bootstrap.md](bootstrap.md) for the full pattern.
 
 ---
 
-## Frontend
+## License
 
-```shell
-# Compile GraphQL types (backend must be running)
-npm run compile
-```
-
-The frontend is compiled to a static app (no SSR). Auth is handled by Django session via the `auth1` app.
+MIT
