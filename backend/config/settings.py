@@ -68,6 +68,7 @@ DEFAULT_USER_TEST = env_str('DJANGO_DEFAULT_USER_TEST', 'admin')  # only for loc
 
 # The default user to execute automatic system operations. i.e. scheduled tasks, automatic signatures...
 # The default set of permissions available for the system user(s). For instance, the permission to sign documents.
+FRONTEND_URL = env_str('FRONTEND_URL', 'http://localhost:3000')
 API_SYSTEM_USER = env_str('API_SYSTEM_USER', 'system')
 API_SYSTEM_PERMISSION_GROUP = env_str('API_SYSTEM_PERMISSION_GROUP', 'boilerworks_automatic_system_operations')
 

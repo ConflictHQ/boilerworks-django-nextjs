@@ -325,8 +325,16 @@ class Auth1SessionWorkflow:
                 separator = '&' if '?' in next_url else '?'
                 url = f"{next_url}{separator}token={quote_plus(token)}"
             else:
-                url = request.build_absolute_uri(reverse(cls.landing))
-                url = cls._fix_proxy_pass(request, url)
+                # If FRONTEND_URL is set, redirect there with the session token
+                # so the frontend can complete its auth flow
+                from django.conf import settings
+                frontend_url = getattr(settings, 'FRONTEND_URL', None)
+                if frontend_url:
+                    token = f"Session {request.session.session_key}"
+                    url = f"{frontend_url}/auth/callback?token={quote_plus(token)}"
+                else:
+                    url = request.build_absolute_uri(reverse(cls.landing))
+                    url = cls._fix_proxy_pass(request, url)
 
             return HttpResponseRedirect(url)
         except EmailNotVerifiedException as e:
