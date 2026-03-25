@@ -8,62 +8,71 @@ export default function GetStartedPage() {
 
       <section className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <h2 className="text-lg font-medium">Step 1 — Create an account</h2>
+          <h2 className="text-lg font-medium">Step 1 — Start the stack</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Sign up at the login page. Once authenticated, you will land on the dashboard. Your
-            account comes with a free-tier allowance so you can explore the API without adding a
-            payment method.
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <h2 className="text-lg font-medium">Step 2 — Obtain your API key</h2>
-          <p className="text-muted-foreground text-sm leading-relaxed">
-            Navigate to <strong>Settings → Billing</strong> and click <em>Generate API key</em>.
-            Store it securely — it will not be shown again. Treat it like a password.
+            The entire platform runs in Docker Compose. A single command brings up Postgres, Redis,
+            OpenSearch, MinIO, Celery workers, the Django API, and the Next.js frontend.
           </p>
           <pre className="bg-muted overflow-x-auto rounded-md p-4 text-xs leading-relaxed">
-            <code>{`export API_KEY="sk-platform-xxxxxxxxxxxxxxxxxxxxxxxx"`}</code>
+            <code>{`make up        # start all containers
+make build     # rebuild and start (after Dockerfile changes)
+make ps        # check container status`}</code>
           </pre>
         </div>
 
         <div className="flex flex-col gap-2">
-          <h2 className="text-lg font-medium">Step 3 — Install the SDK</h2>
+          <h2 className="text-lg font-medium">Step 2 — Run migrations</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            The official SDK is available on npm and supports both Node.js and browser environments.
+            Apply database migrations to set up the schema. If this is a fresh clone, you will also
+            want to create a superuser for the admin panel.
           </p>
           <pre className="bg-muted overflow-x-auto rounded-md p-4 text-xs leading-relaxed">
-            <code>{`npm install @anthropic-ai/sdk`}</code>
+            <code>{`make migrate
+make superuser`}</code>
           </pre>
         </div>
 
         <div className="flex flex-col gap-2">
-          <h2 className="text-lg font-medium">Step 4 — Send your first message</h2>
+          <h2 className="text-lg font-medium">Step 3 — Seed development data</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            The snippet below sends a single user message and prints the assistant reply.
+            Load numbered fixtures to populate the database with sample organizations, users,
+            profiles, and permissions. Use the --flush flag to reset first.
           </p>
           <pre className="bg-muted overflow-x-auto rounded-md p-4 text-xs leading-relaxed">
-            <code>{`import { Anthropic } from "@anthropic-ai/sdk";
-
-const client = new Anthropic({ apiKey: process.env.API_KEY });
-
-const msg = await client.messages.create({
-  model: "genesis-1",
-  max_tokens: 256,
-  messages: [{ role: "user", content: "What can you help me with?" }],
-});
-
-console.log(msg.content[0].text);`}</code>
+            <code>{`make seed`}</code>
           </pre>
         </div>
 
         <div className="flex flex-col gap-2">
-          <h2 className="text-lg font-medium">Step 5 — Explore the Playground</h2>
+          <h2 className="text-lg font-medium">Step 4 — Explore the services</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Before committing to a model and prompt, use the <strong>Playground</strong> to iterate
-            interactively. You can star prompts that work well and revisit them from the Starred
-            page.
+            With the stack running, all services are accessible on localhost. The Django admin
+            includes a custom dark theme with import/export on every model.
           </p>
+          <pre className="bg-muted overflow-x-auto rounded-md p-4 text-xs leading-relaxed">
+            <code>{`Django API        http://localhost:8000
+Next.js UI        http://localhost:3000
+Django Admin      http://localhost:8000/app/admin/
+GraphQL           http://localhost:8000/app/gql/config/
+Mailpit           http://localhost:8025
+MinIO Console     http://localhost:9001  (minioadmin/minioadmin)
+Flower (Celery)   http://localhost:5555
+OpenSearch        http://localhost:9200`}</code>
+          </pre>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <h2 className="text-lg font-medium">Step 5 — Run the checks</h2>
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            Before committing any code, run the linter and test suite. The linter enforces PEP 8
+            with a 140-character line limit via flake8 and isort. Tests run against a real Postgres
+            and Redis.
+          </p>
+          <pre className="bg-muted overflow-x-auto rounded-md p-4 text-xs leading-relaxed">
+            <code>{`make lint      # flake8 + isort checks
+make test      # run Django test suite
+make schema    # export GraphQL SDL`}</code>
+          </pre>
         </div>
       </section>
     </article>
