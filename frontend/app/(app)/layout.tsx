@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { PreloadQuery, getClient } from "@/lib/apollo";
@@ -14,6 +15,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     ssrUser = data?.me ?? null;
   } catch {
     // unauthenticated or network error
+  }
+
+  if (!ssrUser) {
+    redirect("/auth/login");
   }
 
   return (
