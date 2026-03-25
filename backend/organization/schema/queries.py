@@ -8,7 +8,14 @@ from strawberry.types import Info
 
 from organization.models import Organization
 from organization.models.organization import OrganizationMember
-from organization.schema.types import OrganizationMemberType, OrganizationType
+from organization.schema.types import (
+    EmployeeEdge,
+    EmployeeNode,
+    EmployeesConnection,
+    EmployeesPageInfo,
+    OrganizationMemberType,
+    OrganizationType,
+)
 
 
 @strawberry.type
@@ -38,3 +45,57 @@ class Query:
     def members(self, info: Info) -> list[OrganizationMemberType]:
         """List organization members."""
         return OrganizationMember.objects.all()
+
+    @strawberry.field
+    def employees(
+        self,
+        info: Info,
+        first: Optional[int] = 10,
+        offset: Optional[int] = 0,
+        search: Optional[str] = None,
+        show_deactivated: Optional[bool] = None,
+        departments_department_name_icontains: Optional[str] = None,
+        departments_position_name_icontains: Optional[str] = None,
+    ) -> EmployeesConnection:
+        """Paginated list of organization members (employees)."""
+        from graphql import GraphQLError
+
+        if not info.context.user.is_authenticated:
+            raise GraphQLError('Authentication required')
+
+        qs = OrganizationMember.objects.select_related('member', 'member__profile', 'organization').filter(
+            deleted_at__isnull=True,
+        )
+
+        if show_deactivated is True:
+            qs = qs.filter(is_active=False)
+        elif show_deactivated is False:
+            qs = qs.filter(is_active=True)
+
+        if search:
+            from django.db.models import Q
+            qs = qs.filter(
+                Q(member__first_name__icontains=search)
+                | Q(member__last_name__icontains=search)
+                | Q(member__email__icontains=search)
+                | Q(member__profile__display_name__icontains=search)
+            )
+
+        total_count = qs.count()
+        page = qs.order_by('member__last_name', 'member__first_name')[offset:offset + first]
+
+        edges = [
+            EmployeeEdge(
+                cursor=str(offset + i),
+                node=EmployeeNode.from_membership(m),
+            )
+            for i, m in enumerate(page)
+        ]
+
+        return EmployeesConnection(
+            total_count=total_count,
+            edges=edges,
+            page_info=EmployeesPageInfo(
+                has_next_page=(offset + first) < total_count,
+            ),
+        )

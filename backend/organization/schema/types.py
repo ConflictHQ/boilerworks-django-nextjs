@@ -33,6 +33,91 @@ class OrganizationType:
         return permission_filtered_queryset(queryset, info)
 
 
+# ---------------------------------------------------------------------------
+# Employee connection types (for paginated employees query)
+# ---------------------------------------------------------------------------
+
+@strawberry.type
+class EmployeeAvatarType:
+    public_permanent_url: Optional[str]
+
+
+@strawberry.type
+class EmployeeProfileType:
+    id: strawberry.ID
+    display_name: Optional[str]
+    first_name: Optional[str]
+    last_name: Optional[str]
+    avatar: Optional[EmployeeAvatarType]
+
+
+@strawberry.type
+class EmployeeUserType:
+    id: strawberry.ID
+    first_name: str
+    last_name: str
+    email: str
+    is_active: bool
+    profile: Optional[EmployeeProfileType]
+
+
+@strawberry.type
+class EmployeeNode:
+    id: strawberry.ID
+    user: EmployeeUserType
+
+    @classmethod
+    def from_membership(cls, membership: OrganizationMember) -> EmployeeNode:
+        user = membership.member
+        profile = getattr(user, 'profile', None)
+        avatar = None
+        if profile and profile.avatar_id:
+            from core.models import Upload
+            upload = Upload.objects.filter(id=profile.avatar_id).first()
+            if upload:
+                avatar = EmployeeAvatarType(public_permanent_url=getattr(upload, 'public_permanent_url', None))
+
+        profile_type = None
+        if profile:
+            profile_type = EmployeeProfileType(
+                id=strawberry.ID(str(profile.pk)),
+                display_name=profile.display_name,
+                first_name=profile.first_name,
+                last_name=profile.last_name,
+                avatar=avatar,
+            )
+
+        return cls(
+            id=strawberry.ID(str(membership.pk)),
+            user=EmployeeUserType(
+                id=strawberry.ID(str(user.pk)),
+                first_name=user.first_name,
+                last_name=user.last_name,
+                email=user.email,
+                is_active=user.is_active,
+                profile=profile_type,
+            ),
+        )
+
+
+@strawberry.type
+class EmployeeEdge:
+    cursor: str
+    node: EmployeeNode
+
+
+@strawberry.type
+class EmployeesPageInfo:
+    has_next_page: bool
+
+
+@strawberry.type
+class EmployeesConnection:
+    total_count: int
+    edges: list[EmployeeEdge]
+    page_info: EmployeesPageInfo
+
+
 @strawberry_django.type(OrganizationMember)
 class OrganizationMemberType:
     """A membership linking a user to an organization."""
