@@ -132,9 +132,7 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
 
       <div className="grid gap-4">
         {fieldNames.map((fieldName) => {
-          // Skip hidden fields
-          if (logicState.visibility[fieldName] === false) return null;
-
+          const isHidden = logicState.visibility[fieldName] === false;
           const fieldSchema = { ...properties[fieldName] };
           const isRequired = schemaRequired.has(fieldName) || logicState.required[fieldName];
           if (isRequired) {
@@ -148,7 +146,7 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
           // Show calculated value as read-only display
           if (fieldName in logicState.calculated && logicState.calculated[fieldName] !== undefined) {
             return (
-              <div key={fieldName} className="flex flex-col gap-1.5">
+              <div key={fieldName} className={`flex flex-col gap-1.5 ${isHidden ? "hidden" : ""}`}>
                 <label className="text-sm font-medium">
                   {(fieldSchema.title as string) || fieldName}
                 </label>
@@ -160,14 +158,15 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
           }
 
           return (
+            <div key={fieldName} className={isHidden ? "hidden" : ""}>
             <DynamicField
-              key={fieldName}
               name={fieldName}
               schema={fieldSchema}
               register={register}
               control={control}
               errors={errors}
             />
+            </div>
           );
         })}
       </div>
