@@ -18,12 +18,30 @@ def add_session_to_request(request):
     request.session.save()
 
 
+class StrawberryTestClient:
+    """Thin wrapper around schema.execute_sync() that returns dict results,
+    matching the interface the legacy Graphene test Client provided."""
+
+    def __init__(self, schema):
+        self.schema = schema
+
+    def execute(self, query, variables=None, context_value=None):
+        result = self.schema.execute_sync(query, variable_values=variables, context_value=context_value)
+        response = {'data': result.data}
+        if result.errors:
+            response['errors'] = [
+                {'message': str(e), 'locations': e.locations, 'path': e.path}
+                for e in result.errors
+            ]
+        return response
+
+
 @dataclasses.dataclass
 class QueryTest:
     query: str = None
     variables: dict = dataclasses.field(default_factory=dict)
-    client: Client = dataclasses.field(
-        default_factory=lambda: Client(ConfigSchema.schema, execution_context_class=DeferredExecutionContext)
+    client: StrawberryTestClient = dataclasses.field(
+        default_factory=lambda: StrawberryTestClient(ConfigSchema.schema)
     )
     factory: RequestFactory = dataclasses.field(default_factory=RequestFactory)
     user: User = dataclasses.field(default_factory=lambda: User.objects.get_or_create(username='testuser')[0])
@@ -34,7 +52,7 @@ class QueryTest:
         request = self.factory.get('/')
         request.user = self.user
         add_session_to_request(request)
-        self.request = DataLoaderContext(request=request)
+        self.request = StrawberryContext(request=request)
 
     def add_variable(self, **kwargs):
         self.variables.update(kwargs)
@@ -104,8 +122,7 @@ class QueryTest:
 class BaseTest(TestCase):
 
     def setUp(self):
-        # settings.DEBUG = True
-        self.client = Client(ConfigSchema.schema, execution_context_class=DeferredExecutionContext)
+        self.client = StrawberryTestClient(ConfigSchema.schema)
         self.factory = RequestFactory()
         self.user, _ = User.objects.get_or_create(username='testuser')
         self.user.is_superuser = True
@@ -122,7 +139,7 @@ class BaseTest(TestCase):
         request = self.factory.get('/')
         request.user = self.user
         add_session_to_request(request)
-        context = DataLoaderContext(request=request)
+        context = StrawberryContext(request=request)
         return context
 
     def get_function(self, index=2):
