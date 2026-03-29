@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Question or discussion
-    url: https://github.com/ConflictHQ/boilerworks-django/discussions
+    url: https://github.com/ConflictHQ/boilerworks-django-nextjs/discussions
     about: Ask questions and discuss ideas here
   - name: Security vulnerability
-    url: https://github.com/ConflictHQ/boilerworks-django/security/advisories/new
+    url: https://github.com/ConflictHQ/boilerworks-django-nextjs/security/advisories/new
     about: Report security issues privately

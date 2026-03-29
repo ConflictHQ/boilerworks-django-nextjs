@@ -175,3 +175,7 @@ We'd love for people to use Boilerworks, extend it, and make it better. File iss
 ## License
 
 MIT
+
+---
+
+Boilerworks is a [Conflict](https://weareconflict.com) brand. CONFLICT is a registered trademark of Conflict LLC.
