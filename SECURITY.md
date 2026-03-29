@@ -1,27 +1,33 @@
 # Security Policy
 
-## Reporting a vulnerability
+## Reporting a Vulnerability
 
-Please do not report security vulnerabilities through public GitHub issues.
+If you discover a security vulnerability in Boilerworks, please report it responsibly.
 
-Report vulnerabilities by opening a [GitHub Security Advisory](https://github.com/ConflictHQ/boilerworks-django/security/advisories/new). We will respond within 5 business days.
+**Do not open a public issue.**
 
-Please include:
+Instead, email **security@weareconflict.com** with:
 
-- A description of the vulnerability and its potential impact
-- Steps to reproduce or a proof-of-concept
-- Any suggested remediation if you have one
+- Description of the vulnerability
+- Steps to reproduce
+- Potential impact
+- Suggested fix (if any)
 
-We will acknowledge receipt, keep you informed of progress, and credit you in the fix unless you prefer otherwise.
+We will acknowledge your report within 48 hours and aim to release a fix within 7 days for critical issues.
 
-## Scope
+## Supported Versions
 
-- Backend Django application (`backend/`)
-- Frontend Next.js application (`frontend/`)
-- Docker/infrastructure configuration (`docker/`)
+| Version | Supported |
+| ------- | --------- |
+| latest  | Yes       |
 
-## Out of scope
+## Security Best Practices
 
-- Vulnerabilities in third-party dependencies (report those upstream)
-- Issues requiring physical access to the server
-- Social engineering attacks
+When deploying Boilerworks:
+
+- Change all default credentials (database, MinIO, session secret)
+- Use HTTPS in production
+- Set `NODE_ENV=production`
+- Configure `CORS_ORIGINS` to your domain only
+- Use strong Auth0 credentials
+- Review the security hardening in `bootstrap.md`
