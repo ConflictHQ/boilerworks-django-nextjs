@@ -57,7 +57,9 @@ case "$CMD" in
         banner "Starting Boilerworks"
         $COMPOSE up -d
         info "Waiting for services to be healthy..."
-        sleep 4
+        sleep 5
+        info "Running migrations..."
+        docker exec -T "$CONTAINER" python manage.py migrate --noinput 2>&1 | tail -3
         echo ""
         $COMPOSE ps
         _urls
@@ -213,6 +215,7 @@ PYEOF
     seed)
         banner "Loading seed data"
         _require_running
+        docker exec -T "$CONTAINER" python manage.py migrate --noinput 2>&1 | tail -3
         docker exec -it "$CONTAINER" python manage.py seed "$@"
         ok "Seed data loaded"
         ;;
