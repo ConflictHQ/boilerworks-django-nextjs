@@ -162,7 +162,7 @@ See [bootstrap.md](bootstrap.md) for the full pattern.
 
 ## History
 
-Boilerworks has been built and battle-tested in production at [Conflict](https://conflict.com) for 5 years. Git history was scrubbed for open-source publication.
+Boilerworks has been built and battle-tested in production at [CONFLICT](https://weareconflict.com) for 5 years. Git history was scrubbed for open-source publication.
 
 ---
 
@@ -178,4 +178,4 @@ MIT
 
 ---
 
-Boilerworks is a [Conflict](https://weareconflict.com) brand. CONFLICT is a registered trademark of Conflict LLC.
+Boilerworks is a [CONFLICT](https://weareconflict.com) brand. CONFLICT is a registered trademark of CONFLICT LLC.
