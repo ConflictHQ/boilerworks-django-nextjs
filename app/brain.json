@@ -14,6 +14,7 @@
    "title": "Auth engine (auth1)",
    "text": "Auth0 OIDC server-side flow -> backend-issued JWT in httpOnly cookie; session exchange at /app/auth1/session.",
    "source": "scripts/gen_brain_node.py",
+   "derived": true,
    "durability": "durable-logic",
    "labels": [
     "engine",
@@ -26,6 +27,7 @@
    "title": "Form engine",
    "text": "JSON-schema form definitions with visual builder (FormBuilder), dynamic renderer (DynamicForm), per-type config panels, conditional logic engine, and GraphQL submit pipeline.",
    "source": "scripts/gen_brain_node.py",
+   "derived": true,
    "durability": "durable-logic",
    "labels": [
     "engine",
@@ -38,6 +40,7 @@
    "title": "Upload engine",
    "text": "File uploads to MinIO/S3 with drag-and-drop frontend widget.",
    "source": "scripts/gen_brain_node.py",
+   "derived": true,
    "durability": "durable-logic",
    "labels": [
     "engine",
@@ -50,6 +53,7 @@
    "title": "Workflow engine",
    "text": "State-machine workflows with visual builder (xyflow), conditions/actions, and GraphQL API.",
    "source": "scripts/gen_brain_node.py",
+   "derived": true,
    "durability": "durable-logic",
    "labels": [
     "engine",
@@ -62,6 +66,7 @@
    "title": "Celery",
    "text": "Async task queue \u2014 worker + beat containers, Redis broker.",
    "source": "scripts/gen_brain_node.py",
+   "derived": true,
    "durability": "durable-logic",
    "labels": [
     "stack"
@@ -73,6 +78,7 @@
    "title": "Django 6",
    "text": "Backend web framework \u2014 ORM, admin, auth, migrations.",
    "source": "scripts/gen_brain_node.py",
+   "derived": true,
    "durability": "durable-logic",
    "labels": [
     "stack"
@@ -84,6 +90,7 @@
    "title": "MinIO",
    "text": "S3-compatible object storage for uploads.",
    "source": "scripts/gen_brain_node.py",
+   "derived": true,
    "durability": "durable-logic",
    "labels": [
     "stack"
@@ -95,6 +102,7 @@
    "title": "Next.js 16",
    "text": "Frontend App Router + TypeScript + Apollo Client 4 + Tailwind/shadcn.",
    "source": "scripts/gen_brain_node.py",
+   "derived": true,
    "durability": "durable-logic",
    "labels": [
     "stack"
@@ -106,6 +114,7 @@
    "title": "OpenSearch",
    "text": "Full-text search indices rebuilt from the database (make reindex).",
    "source": "scripts/gen_brain_node.py",
+   "derived": true,
    "durability": "durable-logic",
    "labels": [
     "stack"
@@ -117,6 +126,7 @@
    "title": "PostgreSQL",
    "text": "Primary relational database.",
    "source": "scripts/gen_brain_node.py",
+   "derived": true,
    "durability": "durable-logic",
    "labels": [
     "stack"
@@ -128,6 +138,7 @@
    "title": "Redis",
    "text": "Cache and Celery broker.",
    "source": "scripts/gen_brain_node.py",
+   "derived": true,
    "durability": "durable-logic",
    "labels": [
     "stack"
@@ -139,6 +150,7 @@
    "title": "Strawberry GraphQL",
    "text": "Code-first GraphQL layer (strawberry-graphql-django); schema assembled in config/schema.py, served at /gql/config/.",
    "source": "scripts/gen_brain_node.py",
+   "derived": true,
    "durability": "durable-logic",
    "labels": [
     "stack"
@@ -150,6 +162,7 @@
    "title": "boilerworks-django-nextjs",
    "text": "Full-stack template: Django 6 + Strawberry GraphQL backend, Next.js 16 frontend, Celery workers, Postgres/Redis/OpenSearch/MinIO services. A boilerworks metarepo submodule and federable brain node.",
    "source": "scripts/gen_brain_node.py",
+   "derived": true,
    "durability": "durable-logic",
    "labels": [
     "template",

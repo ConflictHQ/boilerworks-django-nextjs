@@ -56,6 +56,7 @@ def build() -> dict:
             "title": "boilerworks-django-nextjs",
             "text": "Full-stack template: Django 6 + Strawberry GraphQL backend, Next.js 16 frontend, Celery workers, Postgres/Redis/OpenSearch/MinIO services. A boilerworks metarepo submodule and federable brain node.",
             "source": "scripts/gen_brain_node.py",
+            "derived": True,
             "durability": "durable-logic",
             "labels": ["template", "boilerworks"],
         }
@@ -71,6 +72,7 @@ def build() -> dict:
                 "title": title,
                 "text": text,
                 "source": "scripts/gen_brain_node.py",
+                "derived": True,
                 "durability": "durable-logic",
                 "labels": ["stack"],
             }
@@ -86,6 +88,7 @@ def build() -> dict:
                 "title": title,
                 "text": text,
                 "source": "scripts/gen_brain_node.py",
+                "derived": True,
                 "durability": "durable-logic",
                 "labels": ["engine", "feature"],
             }
