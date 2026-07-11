@@ -10,6 +10,7 @@ export type UserProfile = {
 
 export type CurrentUser = {
   id: string;
+  email?: string | null;
   profile: UserProfile | null;
 };
 

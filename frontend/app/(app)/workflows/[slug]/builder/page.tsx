@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Separator } from "@/components/ui/separator";
 import { WorkflowBuilder } from "@/components/workflows/WorkflowBuilder";
+import type { ComponentProps } from "react";
 import { useWorkflow, useUpdateWorkflow } from "@/graphql/workflows/workflows.hooks";
 import { useFormDefinitions } from "@/graphql/forms/forms.hooks";
 import type { WorkflowState, WorkflowTransition } from "@/graphql/workflows/workflows.types";
@@ -67,9 +68,14 @@ export default function WorkflowBuilderPage() {
       <Separator />
       <WorkflowBuilder
         states={workflow.states || []}
-        transitions={workflow.transitions || []}
+        transitions={
+          (workflow.transitions || []) as ComponentProps<typeof WorkflowBuilder>["transitions"]
+        }
         onSave={handleSave}
-        availableForms={(forms ?? []).map((f: { slug: string; name: string }) => ({ slug: f.slug, name: f.name }))}
+        availableForms={(forms ?? []).map((f: { slug: string; name: string }) => ({
+          slug: f.slug,
+          name: f.name,
+        }))}
       />
     </div>
   );

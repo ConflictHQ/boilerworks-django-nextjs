@@ -5,7 +5,13 @@ import type { FieldValues, UseFormRegister, FieldErrors, Control } from "react-h
 import { Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { UploadIcon, XIcon } from "lucide-react";
@@ -65,11 +71,23 @@ function BooleanWidget({ name, schema, register }: FieldWidgetProps) {
 }
 
 function EmailWidget({ name, schema, register }: FieldWidgetProps) {
-  return <Input {...register(name)} type="email" placeholder={(schema.placeholder as string) || "Enter email"} />;
+  return (
+    <Input
+      {...register(name)}
+      type="email"
+      placeholder={(schema.placeholder as string) || "Enter email"}
+    />
+  );
 }
 
 function UrlWidget({ name, schema, register }: FieldWidgetProps) {
-  return <Input {...register(name)} type="url" placeholder={(schema.placeholder as string) || "Enter URL"} />;
+  return (
+    <Input
+      {...register(name)}
+      type="url"
+      placeholder={(schema.placeholder as string) || "Enter URL"}
+    />
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -102,7 +120,9 @@ function SelectWidget({ name, schema, control }: FieldWidgetProps) {
           </SelectTrigger>
           <SelectContent>
             {options.map((opt) => (
-              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+              <SelectItem key={opt} value={opt}>
+                {opt}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -120,7 +140,7 @@ function RadioWidget({ name, schema, control }: FieldWidgetProps) {
       render={({ field }) => (
         <div className="flex flex-col gap-2">
           {options.map((opt) => (
-            <label key={opt} className="flex items-center gap-2 cursor-pointer">
+            <label key={opt} className="flex cursor-pointer items-center gap-2">
               <input
                 type="radio"
                 value={opt}
@@ -154,7 +174,7 @@ function MultiSelectWidget({ name, schema, control }: FieldWidgetProps) {
         return (
           <div className="flex flex-col gap-2 rounded-md border p-3">
             {options.map((opt) => (
-              <label key={opt} className="flex items-center gap-2 cursor-pointer">
+              <label key={opt} className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
                   checked={selected.includes(opt)}
@@ -164,7 +184,9 @@ function MultiSelectWidget({ name, schema, control }: FieldWidgetProps) {
                 <span className="text-sm">{opt}</span>
               </label>
             ))}
-            {options.length === 0 && <span className="text-muted-foreground text-xs">No options defined</span>}
+            {options.length === 0 && (
+              <span className="text-muted-foreground text-xs">No options defined</span>
+            )}
           </div>
         );
       }}
@@ -221,7 +243,7 @@ function ScaleWidget({ name, schema, control }: FieldWidgetProps) {
           />
           <div className="text-muted-foreground flex justify-between text-xs">
             <span>{minLabel || min}</span>
-            <span className="font-medium text-foreground">{field.value ?? min}</span>
+            <span className="text-foreground font-medium">{field.value ?? min}</span>
             <span>{maxLabel || max}</span>
           </div>
         </div>
@@ -251,9 +273,16 @@ function FileWidget({ name, schema, control }: FieldWidgetProps) {
         return (
           <div>
             <div
-              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
               onDragLeave={() => setDragOver(false)}
-              onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragOver(false);
+                handleFiles(e.dataTransfer.files);
+              }}
               onClick={() => inputRef.current?.click()}
               className={`flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed p-6 transition-colors ${dragOver ? "border-primary bg-primary/5" : "border-gray-300 hover:border-gray-400"}`}
             >
@@ -261,13 +290,27 @@ function FileWidget({ name, schema, control }: FieldWidgetProps) {
               <span className="text-sm text-gray-500">Drag files here or click to browse</span>
               {accept && <span className="text-xs text-gray-400">Accepted: {accept}</span>}
             </div>
-            <input ref={inputRef} type="file" accept={accept} multiple className="hidden" onChange={(e) => e.target.files && handleFiles(e.target.files)} />
+            <input
+              ref={inputRef}
+              type="file"
+              accept={accept}
+              multiple
+              className="hidden"
+              onChange={(e) => e.target.files && handleFiles(e.target.files)}
+            />
             {files.length > 0 && (
               <div className="mt-2 flex flex-col gap-1">
                 {files.map((f: File, i: number) => (
-                  <div key={i} className="flex items-center justify-between rounded bg-muted px-2 py-1 text-xs">
+                  <div
+                    key={i}
+                    className="bg-muted flex items-center justify-between rounded px-2 py-1 text-xs"
+                  >
                     <span>{f.name}</span>
-                    <button type="button" onClick={() => field.onChange(files.filter((_: File, j: number) => j !== i))} className="text-red-400 hover:text-red-600">
+                    <button
+                      type="button"
+                      onClick={() => field.onChange(files.filter((_: File, j: number) => j !== i))}
+                      className="text-red-400 hover:text-red-600"
+                    >
                       <XIcon className="h-3 w-3" />
                     </button>
                   </div>
@@ -347,7 +390,11 @@ function SignatureWidget({ name, control }: FieldWidgetProps) {
               onMouseLeave={endDraw}
               className="cursor-crosshair rounded-md border bg-white"
             />
-            <button type="button" onClick={clear} className="self-start text-xs text-gray-500 hover:text-gray-700">
+            <button
+              type="button"
+              onClick={clear}
+              className="self-start text-xs text-gray-500 hover:text-gray-700"
+            >
               Clear signature
             </button>
           </div>
@@ -382,7 +429,7 @@ function PinWidget({ name, register }: FieldWidgetProps) {
 function TextBlockWidget({ schema }: FieldWidgetProps) {
   const content = (schema.description as string) || (schema.title as string) || "";
   return (
-    <div className="text-muted-foreground rounded-md bg-muted/50 p-4 text-sm">
+    <div className="text-muted-foreground bg-muted/50 rounded-md p-4 text-sm">
       {content.split("\n").map((line, i) => (
         <p key={i}>{line}</p>
       ))}
@@ -394,7 +441,9 @@ function SectionHeaderWidget({ schema }: FieldWidgetProps) {
   return (
     <div className="pt-2">
       <h3 className="text-base font-semibold">{(schema.title as string) || "Section"}</h3>
-      {schema.description && <p className="text-muted-foreground mt-1 text-sm">{schema.description as string}</p>}
+      {schema.description ? (
+        <p className="text-muted-foreground mt-1 text-sm">{schema.description as string}</p>
+      ) : null}
       <Separator className="mt-2" />
     </div>
   );
@@ -404,7 +453,9 @@ function PageBreakWidget({ schema }: FieldWidgetProps) {
   return (
     <div className="flex items-center gap-3 py-2">
       <Separator className="flex-1" />
-      <span className="text-xs font-medium text-muted-foreground uppercase">{(schema.title as string) || "Next Page"}</span>
+      <span className="text-muted-foreground text-xs font-medium uppercase">
+        {(schema.title as string) || "Next Page"}
+      </span>
       <Separator className="flex-1" />
     </div>
   );
@@ -413,14 +464,17 @@ function PageBreakWidget({ schema }: FieldWidgetProps) {
 function ImageWidget({ schema }: FieldWidgetProps) {
   const src = (schema["x-src"] as string) || (schema.default as string) || "";
   const alt = (schema.title as string) || "Image";
-  if (!src) return <div className="text-muted-foreground rounded border border-dashed p-4 text-center text-xs">Image URL not set</div>;
+  if (!src)
+    return (
+      <div className="text-muted-foreground rounded border border-dashed p-4 text-center text-xs">
+        Image URL not set
+      </div>
+    );
   return <img src={src} alt={alt} className="max-h-64 rounded-md" />;
 }
 
 function FallbackWidget({ name, schema, register }: FieldWidgetProps) {
-  return (
-    <Input {...register(name)} placeholder={`Enter ${(schema.title as string) || name}`} />
-  );
+  return <Input {...register(name)} placeholder={`Enter ${(schema.title as string) || name}`} />;
 }
 
 // ---------------------------------------------------------------------------
@@ -473,7 +527,8 @@ export function DynamicField(props: FieldWidgetProps) {
   const Widget = resolveWidget(schema);
   const error = errors[name];
   const isDisplay = NON_INPUT_WIDGETS.has(xWidget || "");
-  const title = (schema.title as string) || name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const title =
+    (schema.title as string) || name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
   if (isDisplay) {
     return <Widget {...props} />;
@@ -484,9 +539,9 @@ export function DynamicField(props: FieldWidgetProps) {
       <Label htmlFor={name}>{title}</Label>
       <Widget {...props} />
       {error && <p className="text-sm text-red-500">{error.message as string}</p>}
-      {schema.description && !isDisplay && (
+      {schema.description && !isDisplay ? (
         <p className="text-muted-foreground text-xs">{schema.description as string}</p>
-      )}
+      ) : null}
     </div>
   );
 }
