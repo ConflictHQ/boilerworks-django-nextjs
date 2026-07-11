@@ -8,7 +8,7 @@ async-timeout = "*"
 django = "~=6.0"
 django-configurations = "*"
 psycopg2-binary = "*"
-redis = "<8" # redis-py 8 is a deliberate major bump; defer
+redis = "<9" # redis-py 8 is a deliberate major bump; defer
 celery = "~=5.6"
 requests = "*"
 setuptools = "*" # config/settings.py imports distutils; Python 3.12 venvs no longer bundle it
