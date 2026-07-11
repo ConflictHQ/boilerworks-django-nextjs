@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "conflict:schema/brain-edge/v1",
+  "title": "Brain edge (compiled brain envelope)",
+  "description": "A single edge of the compiled brain (app/brain.json / D1). READ-ONLY: emitted by scripts/gen-brain.py; source/target reference brain-node ids. `rel` is the relationship the adapter stamps (e.g. raised_in, decided_in, relates_to).",
+  "x-conflict": { "version": "1", "editable": false, "source": "app/brain.json#/edges", "readonly_reason": "compiled artifact — author the source, recompile the brain" },
+  "type": "object",
+  "required": ["source", "target"],
+  "additionalProperties": false,
+  "properties": {
+    "source": { "type": "string", "minLength": 1 },
+    "target": { "type": "string", "minLength": 1 },
+    "rel": { "type": "string" },
+    "class": { "type": "string", "enum": ["structural", "semantic"] },
+    "data": { "type": "object" }
+  }
+}

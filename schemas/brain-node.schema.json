@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "conflict:schema/brain-node/v1",
+  "title": "Brain node (compiled brain envelope)",
+  "description": "A single node of the compiled brain (app/brain.json / D1). READ-ONLY: emitted by scripts/gen-brain.py adapters (memory, decisions, open-questions, sessions, specs, KG); writes go through the granular authoring tools, never by hand-editing the envelope. `kind` is the node category the adapter stamps; `data` carries the kind-specific payload (the source artifact row).",
+  "x-conflict": { "version": "1", "editable": false, "source": "app/brain.json#/nodes", "readonly_reason": "compiled artifact — author the source, recompile the brain" },
+  "type": "object",
+  "required": ["id", "kind"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "kind": {
+      "type": "string",
+      "enum": ["Memory", "Decision", "OpenQuestion", "ActionItem", "Session", "Spec", "Concept", "Risk", "Deliverable", "Roadmap", "Story", "Stakeholder", "Dependency", "Term", "Source", "Entity", "Field", "Artifact", "Catalog"]
+    },
+    "title": { "type": "string" },
+    "text": { "type": "string" },
+    "source": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "properties": {
+            "path": { "type": "string" },
+            "locator": { "type": "string" }
+          },
+          "required": ["path"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "derived": { "type": "boolean" },
+    "durability": { "type": "string", "enum": ["durable-logic", "point-in-time", "ephemeral"] },
+    "status": { "type": "string" },
+    "owner": { "type": "string" },
+    "labels": { "type": "array", "items": { "type": "string" } },
+    "data": { "type": "object" }
+  }
+}

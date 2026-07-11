@@ -34,6 +34,21 @@ jobs:
           fi
           pre-commit run --from-ref "$BASE" --to-ref "${{ github.sha }}"
 
+  brain:
+    name: Brain node
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install jsonschema
+        run: pip install jsonschema
+      - name: Validate app/brain.json against schemas
+        run: python3 scripts/validate_brain.py
+
   frontend:
     name: Frontend
     runs-on: ubuntu-latest

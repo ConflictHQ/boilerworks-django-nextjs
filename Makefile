@@ -1,7 +1,7 @@
 COMPOSE = docker compose -f docker/docker-compose.yaml
 CONTAINER = boilerworks-local
 
-.PHONY: help up down build restart logs logs-worker logs-beat shell manage migrate migrations seed reindex test lint schema collectstatic superuser ps
+.PHONY: help up down build restart logs logs-worker logs-beat shell manage migrate migrations seed reindex test lint schema collectstatic superuser ps navegador-ingest brain check-brain
 
 help:
 	@echo "Available commands:"
@@ -24,6 +24,9 @@ help:
 	@echo "  collectstatic Collect static files"
 	@echo "  superuser     Create a Django superuser"
 	@echo "  ps            Show running containers"
+	@echo "  navegador-ingest  Build the code KG (.navegador/graph.db) and export app/code-kg.json"
+	@echo "  brain         Compile the brain node envelope app/brain.json (committed)"
+	@echo "  check-brain   Validate app/brain.json against schemas/ (jsonschema) + freshness"
 
 up:
 	$(COMPOSE) up -d
@@ -82,3 +85,16 @@ superuser:
 
 ps:
 	$(COMPOSE) ps
+
+# --- Navegador + brain node (see bootstrap.md "Process & brain") -------------
+
+navegador-ingest:  ## Ingest code into the Navegador graph, enrich for Django, export conflict-kg/v1
+	navegador ingest .
+	navegador enrich --framework django
+	navegador export --format conflict-kg app/code-kg.json
+
+brain:  ## Compile the brain node envelope (deterministic, committed)
+	python3 scripts/gen_brain_node.py
+
+check-brain:  ## Validate app/brain.json against schemas/ + freshness (needs: pip install jsonschema)
+	python3 scripts/validate_brain.py

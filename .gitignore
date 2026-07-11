@@ -9,3 +9,7 @@ backend/static/app/
 backend/.coverage
 backend/Pipfile.bak
 docker/runtime/
+.navegador/graph.db
+.navegador/.env
+app/code-kg.json
+__pycache__/

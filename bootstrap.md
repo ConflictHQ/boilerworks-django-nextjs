@@ -333,3 +333,36 @@ make reindex      # Rebuild OpenSearch indices
 make superuser    # Create Django superuser
 make ps           # Show container status
 ```
+
+---
+
+## Process & brain
+
+**Process mandate.** This template is a submodule of the boilerworks metarepo
+([ConflictHQ/boilerworks](https://github.com/ConflictHQ/boilerworks)); its
+`primers/PROCESS.md` is the full development process mandate for all template
+work, and `primers/RELEASE_CHECKLIST.md` gates what ships.
+
+**Navegador (code knowledge graph).** `.navegador/config.toml` configures the
+[Navegador](https://github.com/ConflictHQ/navegador) graph for this repo
+(local sqlite backend; `.navegador/graph.db` and `.navegador/.env` are
+gitignored — the graph is a build artifact, rebuild it any time):
+
+```bash
+make navegador-ingest   # ingest . + enrich --framework django + export app/code-kg.json (conflict-kg/v1)
+```
+
+The exported `app/code-kg.json` is what the metarepo's
+`aggregate-brains.py --code-kg` slot consumes.
+
+**Brain node contract.** This repo is a federable brain node: `app/brain.json`
+is the `{meta, nodes, edges}` envelope (version "1") defined by
+`schemas/brain-envelope.schema.json` (nodes/edges conform to `brain-node` /
+`brain-edge`). It is deterministic — nodes sorted by id, edges deduped and
+sorted, `indent=1` — and **committed**, so the metarepo's `make aggregate-brain`
+consumes it at the pinned SHA without running anything here.
+
+```bash
+make brain         # scripts/gen_brain_node.py -> app/brain.json (commit the result)
+make check-brain   # validate against schemas/ + freshness (CI runs the same)
+```

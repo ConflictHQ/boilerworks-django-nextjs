@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "conflict:schema/brain-envelope/v1",
+  "title": "Brain envelope (compiled brain)",
+  "description": "The top-level compiled-brain document (app/brain.json / D1 export). READ-ONLY: emitted by scripts/gen-brain.py (single repo) or scripts/aggregate-brains.py (metarepo). `meta` self-describes the format — meta.version is the authoritative schema version a stale brain is migrated against (scripts/migrate-brain.py, #25). meta is OPTIONAL so a brand-new or hand-aggregated brain without a header still validates; nodes/edges $ref the per-record schemas.",
+  "x-conflict": { "version": "1", "editable": false, "source": "app/brain.json", "readonly_reason": "compiled artifact — author the source, recompile the brain" },
+  "type": "object",
+  "required": ["nodes", "edges"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["version"],
+      "additionalProperties": true,
+      "properties": {
+        "version": { "type": "string", "minLength": 1 },
+        "generator": { "type": "string" },
+        "counts": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "nodes": { "type": "integer", "minimum": 0 },
+            "edges": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "items": { "$ref": "brain-node.schema.json" }
+    },
+    "edges": {
+      "type": "array",
+      "items": { "$ref": "brain-edge.schema.json" }
+    }
+  }
+}

@@ -1,0 +1,234 @@
+{
+ "meta": {
+  "version": "1",
+  "generator": "gen-brain-node",
+  "counts": {
+   "nodes": 13,
+   "edges": 12
+  }
+ },
+ "nodes": [
+  {
+   "id": "engine:auth1",
+   "kind": "Concept",
+   "title": "Auth engine (auth1)",
+   "text": "Auth0 OIDC server-side flow -> backend-issued JWT in httpOnly cookie; session exchange at /app/auth1/session.",
+   "source": "scripts/gen_brain_node.py",
+   "durability": "durable-logic",
+   "labels": [
+    "engine",
+    "feature"
+   ]
+  },
+  {
+   "id": "engine:forms",
+   "kind": "Concept",
+   "title": "Form engine",
+   "text": "JSON-schema form definitions with visual builder (FormBuilder), dynamic renderer (DynamicForm), per-type config panels, conditional logic engine, and GraphQL submit pipeline.",
+   "source": "scripts/gen_brain_node.py",
+   "durability": "durable-logic",
+   "labels": [
+    "engine",
+    "feature"
+   ]
+  },
+  {
+   "id": "engine:uploads",
+   "kind": "Concept",
+   "title": "Upload engine",
+   "text": "File uploads to MinIO/S3 with drag-and-drop frontend widget.",
+   "source": "scripts/gen_brain_node.py",
+   "durability": "durable-logic",
+   "labels": [
+    "engine",
+    "feature"
+   ]
+  },
+  {
+   "id": "engine:workflows",
+   "kind": "Concept",
+   "title": "Workflow engine",
+   "text": "State-machine workflows with visual builder (xyflow), conditions/actions, and GraphQL API.",
+   "source": "scripts/gen_brain_node.py",
+   "durability": "durable-logic",
+   "labels": [
+    "engine",
+    "feature"
+   ]
+  },
+  {
+   "id": "stack:celery",
+   "kind": "Dependency",
+   "title": "Celery",
+   "text": "Async task queue \u2014 worker + beat containers, Redis broker.",
+   "source": "scripts/gen_brain_node.py",
+   "durability": "durable-logic",
+   "labels": [
+    "stack"
+   ]
+  },
+  {
+   "id": "stack:django",
+   "kind": "Dependency",
+   "title": "Django 6",
+   "text": "Backend web framework \u2014 ORM, admin, auth, migrations.",
+   "source": "scripts/gen_brain_node.py",
+   "durability": "durable-logic",
+   "labels": [
+    "stack"
+   ]
+  },
+  {
+   "id": "stack:minio",
+   "kind": "Dependency",
+   "title": "MinIO",
+   "text": "S3-compatible object storage for uploads.",
+   "source": "scripts/gen_brain_node.py",
+   "durability": "durable-logic",
+   "labels": [
+    "stack"
+   ]
+  },
+  {
+   "id": "stack:nextjs",
+   "kind": "Dependency",
+   "title": "Next.js 16",
+   "text": "Frontend App Router + TypeScript + Apollo Client 4 + Tailwind/shadcn.",
+   "source": "scripts/gen_brain_node.py",
+   "durability": "durable-logic",
+   "labels": [
+    "stack"
+   ]
+  },
+  {
+   "id": "stack:opensearch",
+   "kind": "Dependency",
+   "title": "OpenSearch",
+   "text": "Full-text search indices rebuilt from the database (make reindex).",
+   "source": "scripts/gen_brain_node.py",
+   "durability": "durable-logic",
+   "labels": [
+    "stack"
+   ]
+  },
+  {
+   "id": "stack:postgres",
+   "kind": "Dependency",
+   "title": "PostgreSQL",
+   "text": "Primary relational database.",
+   "source": "scripts/gen_brain_node.py",
+   "durability": "durable-logic",
+   "labels": [
+    "stack"
+   ]
+  },
+  {
+   "id": "stack:redis",
+   "kind": "Dependency",
+   "title": "Redis",
+   "text": "Cache and Celery broker.",
+   "source": "scripts/gen_brain_node.py",
+   "durability": "durable-logic",
+   "labels": [
+    "stack"
+   ]
+  },
+  {
+   "id": "stack:strawberry",
+   "kind": "Dependency",
+   "title": "Strawberry GraphQL",
+   "text": "Code-first GraphQL layer (strawberry-graphql-django); schema assembled in config/schema.py, served at /gql/config/.",
+   "source": "scripts/gen_brain_node.py",
+   "durability": "durable-logic",
+   "labels": [
+    "stack"
+   ]
+  },
+  {
+   "id": "template:django-nextjs",
+   "kind": "Artifact",
+   "title": "boilerworks-django-nextjs",
+   "text": "Full-stack template: Django 6 + Strawberry GraphQL backend, Next.js 16 frontend, Celery workers, Postgres/Redis/OpenSearch/MinIO services. A boilerworks metarepo submodule and federable brain node.",
+   "source": "scripts/gen_brain_node.py",
+   "durability": "durable-logic",
+   "labels": [
+    "template",
+    "boilerworks"
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "source": "template:django-nextjs",
+   "target": "engine:auth1",
+   "rel": "provides",
+   "class": "structural"
+  },
+  {
+   "source": "template:django-nextjs",
+   "target": "engine:forms",
+   "rel": "provides",
+   "class": "structural"
+  },
+  {
+   "source": "template:django-nextjs",
+   "target": "engine:uploads",
+   "rel": "provides",
+   "class": "structural"
+  },
+  {
+   "source": "template:django-nextjs",
+   "target": "engine:workflows",
+   "rel": "provides",
+   "class": "structural"
+  },
+  {
+   "source": "template:django-nextjs",
+   "target": "stack:celery",
+   "rel": "uses",
+   "class": "structural"
+  },
+  {
+   "source": "template:django-nextjs",
+   "target": "stack:django",
+   "rel": "uses",
+   "class": "structural"
+  },
+  {
+   "source": "template:django-nextjs",
+   "target": "stack:minio",
+   "rel": "uses",
+   "class": "structural"
+  },
+  {
+   "source": "template:django-nextjs",
+   "target": "stack:nextjs",
+   "rel": "uses",
+   "class": "structural"
+  },
+  {
+   "source": "template:django-nextjs",
+   "target": "stack:opensearch",
+   "rel": "uses",
+   "class": "structural"
+  },
+  {
+   "source": "template:django-nextjs",
+   "target": "stack:postgres",
+   "rel": "uses",
+   "class": "structural"
+  },
+  {
+   "source": "template:django-nextjs",
+   "target": "stack:redis",
+   "rel": "uses",
+   "class": "structural"
+  },
+  {
+   "source": "template:django-nextjs",
+   "target": "stack:strawberry",
+   "rel": "uses",
+   "class": "structural"
+  }
+ ]
+}
