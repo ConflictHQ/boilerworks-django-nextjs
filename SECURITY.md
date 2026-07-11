@@ -4,7 +4,7 @@
 
 Please do not report security vulnerabilities through public GitHub issues.
 
-Report vulnerabilities by opening a [GitHub Security Advisory](https://github.com/ConflictHQ/boilerworks-django/security/advisories/new). We will respond within 5 business days.
+Report vulnerabilities by opening a [GitHub Security Advisory](https://github.com/ConflictHQ/boilerworks-django-nextjs/security/advisories/new). We will respond within 5 business days.
 
 Please include:
 

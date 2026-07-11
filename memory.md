@@ -16,8 +16,8 @@ Multi-tenant SaaS platform. Django backend + Next.js frontend. Organisations are
 
 | Decision | Why |
 |---|---|
-| GraphQL (graphene-django) as primary API | Chosen for flexible querying from the Next.js frontend; REST (DRF) exists for specific endpoints (file upload, webhooks) |
-| Session auth, not JWT | Simplicity + security; avoids token-refresh complexity; auth is handled by the `auth1` app |
+| GraphQL (Strawberry) as primary API | `strawberry-graphql` + `strawberry-graphql-django` (migrated from graphene in #14); schema assembled in `config/schema.py`, served at `/gql/config/`; REST (DRF) exists for specific endpoints (file upload, webhooks) |
+| Auth0 OIDC handled by the backend | The `auth1` app drives the Auth0 login flow server-side (authlib); the backend issues its own token, and `Auth0SessionMiddleware` accepts it via `Authorization: Bearer`/`Session` headers. The frontend never talks to Auth0 directly |
 | `Tracking` on all business models | Audit trail is a hard requirement; `simple_history` provides row-level history |
 | Soft deletes via `deleted_at/by` | Compliance requirement; never hard-delete business objects |
 | `guid` (UUID) as external identifier | Integer PKs are never exposed in APIs; use `guid` or relay global ID |
@@ -73,10 +73,10 @@ Permissions are defined in `config/permissions.py` as `ModelPermissions` subclas
 
 ## Frontend notes
 
-- Next.js compiled to static app (no SSR).
-- Apollo Client for GraphQL; unauthenticated responses redirect to login.
+- Next.js 16 App Router with SSR/RSC (no static export). Server Components query GraphQL via `getClient()`; client components use hooks.
+- Apollo Client 4 with `@apollo/client-integration-nextjs` (separate server and client Apollo clients); unauthenticated responses redirect to login.
 - 7 supported languages via i18n.
-- Auth0 has been removed; auth is Django session via `auth1`.
+- Auth: login redirects to the backend's `/app/auth1/login` (Auth0 OIDC happens server-side); the callback returns a backend-issued token stored in `localStorage` (`jwt`) and an `httpOnly` cookie (`backend_jwt`) for SSR reads. `lib/auth/auth0.ts` is intentionally a null stub — the `@auth0/nextjs-auth0` package is not used at runtime.
 
 ---
 

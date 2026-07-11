@@ -13,13 +13,13 @@ repos:
     -   id: trailing-whitespace
         files: ^backend/.*$
 -   repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+    rev: 8.0.1
     hooks:
       - id: isort
         files: ^backend/.*$
         stages: [ pre-commit ]
 -   repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
+    rev: 7.3.0
     hooks:
       - id: flake8
         files: ^backend/.*$

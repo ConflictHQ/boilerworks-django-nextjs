@@ -10,7 +10,7 @@ See [`bootstrap.md`](bootstrap.md) for conventions, patterns, and how to add new
 
 | Layer | Tech |
 |---|---|
-| Backend | Django 5, Strawberry GraphQL, DRF, Celery, Postgres, Redis, OpenSearch |
+| Backend | Django 6, Strawberry GraphQL, DRF, Celery, Postgres, Redis, OpenSearch |
 | Frontend | Next.js 16 (App Router), Apollo Client, TypeScript, Tailwind CSS, shadcn/ui |
 | Infra | Docker Compose — all services containerised |
 
