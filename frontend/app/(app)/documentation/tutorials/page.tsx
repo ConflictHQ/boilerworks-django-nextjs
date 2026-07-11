@@ -20,7 +20,7 @@ export default function TutorialsPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         {tutorials.map((t) => (
           <Link key={t.slug} href={`/documentation/tutorials/${t.slug}`} className="group">
-            <Card className="flex h-full flex-col transition-colors group-hover:border-foreground/20">
+            <Card className="group-hover:border-foreground/20 flex h-full flex-col transition-colors">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between gap-2">
                   <Badge variant={levelVariant(t.level)}>{t.level}</Badge>

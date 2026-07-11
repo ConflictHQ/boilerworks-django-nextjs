@@ -12,13 +12,19 @@ type TagInputProps = {
   className?: string;
 };
 
-export function TagInput({ value, onChange, suggestions = [], placeholder, className }: TagInputProps) {
+export function TagInput({
+  value,
+  onChange,
+  suggestions = [],
+  placeholder,
+  className,
+}: TagInputProps) {
   const [input, setInput] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const filtered = suggestions.filter(
-    (s) => s.toLowerCase().includes(input.toLowerCase()) && !value.includes(s),
+    (s) => s.toLowerCase().includes(input.toLowerCase()) && !value.includes(s)
   );
 
   const addTag = (tag: string) => {
@@ -51,7 +57,7 @@ export function TagInput({ value, onChange, suggestions = [], placeholder, class
   return (
     <div className={`relative ${className || ""}`}>
       <div
-        className="flex min-h-[32px] flex-wrap items-center gap-1 rounded-md border px-2 py-1 text-xs focus-within:ring-1 focus-within:ring-ring"
+        className="focus-within:ring-ring flex min-h-[32px] flex-wrap items-center gap-1 rounded-md border px-2 py-1 text-xs focus-within:ring-1"
         onClick={() => inputRef.current?.focus()}
       >
         {value.map((tag) => (
@@ -72,7 +78,7 @@ export function TagInput({ value, onChange, suggestions = [], placeholder, class
         <input
           ref={inputRef}
           type="text"
-          className="min-w-[80px] flex-1 border-none bg-transparent text-xs outline-none placeholder:text-muted-foreground"
+          className="placeholder:text-muted-foreground min-w-[80px] flex-1 border-none bg-transparent text-xs outline-none"
           placeholder={value.length === 0 ? placeholder : ""}
           value={input}
           onChange={(e) => {

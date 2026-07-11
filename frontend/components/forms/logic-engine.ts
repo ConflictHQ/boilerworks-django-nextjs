@@ -14,7 +14,18 @@
 
 export type LogicCondition = {
   field: string;
-  op: "eq" | "neq" | "gt" | "lt" | "gte" | "lte" | "in" | "not_in" | "contains" | "is_empty" | "is_not_empty";
+  op:
+    | "eq"
+    | "neq"
+    | "gt"
+    | "lt"
+    | "gte"
+    | "lte"
+    | "in"
+    | "not_in"
+    | "contains"
+    | "is_empty"
+    | "is_not_empty";
   value?: unknown;
 };
 
@@ -75,7 +86,7 @@ function evaluateCondition(condition: LogicCondition, values: Record<string, unk
  */
 function evaluateCalculation(
   calc: { op: string; fields?: string[]; expr?: string; field?: string },
-  values: Record<string, unknown>,
+  values: Record<string, unknown>
 ): unknown {
   if (calc.op === "display_from") {
     return values[calc.field ?? ""];
@@ -86,7 +97,7 @@ function evaluateCalculation(
       // Simple expression eval — only numeric payload values
       const fn = new Function(
         ...Object.keys(values).filter((k) => typeof values[k] === "number"),
-        `return ${calc.expr}`,
+        `return ${calc.expr}`
       );
       const numericValues = Object.entries(values)
         .filter(([, v]) => typeof v === "number")
@@ -131,7 +142,7 @@ export function evaluateLogicRules(
   rules: LogicRule[],
   fieldConfig: Record<string, Record<string, unknown>>,
   values: Record<string, unknown>,
-  allFieldNames: string[],
+  allFieldNames: string[]
 ): LogicState {
   // Start with all fields visible, only schema-required fields required
   const visibility: FieldVisibility = {};

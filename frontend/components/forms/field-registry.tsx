@@ -531,12 +531,14 @@ export function DynamicField(props: FieldWidgetProps) {
     (schema.title as string) || name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
   if (isDisplay) {
+    // eslint-disable-next-line react-hooks/static-components -- resolveWidget returns statically-defined module-level components, never new ones
     return <Widget {...props} />;
   }
 
   return (
     <div className="flex flex-col gap-1.5">
       <Label htmlFor={name}>{title}</Label>
+      {/* eslint-disable-next-line react-hooks/static-components -- resolveWidget returns statically-defined module-level components, never new ones */}
       <Widget {...props} />
       {error && <p className="text-sm text-red-500">{error.message as string}</p>}
       {schema.description && !isDisplay ? (

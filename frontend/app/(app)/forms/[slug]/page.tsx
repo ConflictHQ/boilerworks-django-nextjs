@@ -6,7 +6,12 @@ import { Loader2Icon, SendIcon, PenLineIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useFormDefinition, useFormSubmissions, usePublishForm, useArchiveForm } from "@/graphql/forms/forms.hooks";
+import {
+  useFormDefinition,
+  useFormSubmissions,
+  usePublishForm,
+  useArchiveForm,
+} from "@/graphql/forms/forms.hooks";
 import { toast } from "sonner";
 
 export default function FormDetailPage() {
@@ -52,7 +57,9 @@ export default function FormDetailPage() {
     }
   };
 
-  const schemaProperties = (form.schema as Record<string, unknown>)?.properties as Record<string, unknown> | undefined;
+  const schemaProperties = (form.schema as Record<string, unknown>)?.properties as
+    | Record<string, unknown>
+    | undefined;
   const fieldCount = schemaProperties ? Object.keys(schemaProperties).length : 0;
 
   return (
@@ -82,7 +89,9 @@ export default function FormDetailPage() {
             </Button>
           )}
           {form.status === "published" && (
-            <Button variant="outline" onClick={handleArchive}>Archive</Button>
+            <Button variant="outline" onClick={handleArchive}>
+              Archive
+            </Button>
           )}
         </div>
       </div>

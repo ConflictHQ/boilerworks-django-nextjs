@@ -62,7 +62,10 @@ export default function FormsPage() {
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <span className="font-medium">{form.name}</span>
-                <Badge variant="secondary" className={`text-white ${statusColors[form.status] ?? "bg-gray-500"}`}>
+                <Badge
+                  variant="secondary"
+                  className={`text-white ${statusColors[form.status] ?? "bg-gray-500"}`}
+                >
                   {form.status}
                 </Badge>
                 {form.isPublic && <Badge variant="outline">Public</Badge>}

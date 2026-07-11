@@ -3,9 +3,7 @@ export default function IntroductionPage() {
     <article className="flex max-w-2xl flex-1 flex-col gap-6 p-6">
       <div>
         <h1 className="text-2xl font-semibold">Introduction</h1>
-        <p className="text-muted-foreground mt-2 text-sm">
-          Welcome to the platform documentation.
-        </p>
+        <p className="text-muted-foreground mt-2 text-sm">Welcome to the platform documentation.</p>
       </div>
 
       <section className="flex flex-col gap-3">

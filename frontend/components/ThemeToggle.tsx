@@ -21,6 +21,7 @@ export const ThemeToggle = ({ variant = "sidebar" }: ThemeToggleProps) => {
   const { theme, resolvedTheme, setTheme } = useTheme();
   const t = useTranslations("settings.theme");
   const [mounted, setMounted] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- standard next-themes hydration guard; must flip after mount to avoid SSR mismatch
   useEffect(() => setMounted(true), []);
   const isDark = mounted && resolvedTheme === "dark";
 

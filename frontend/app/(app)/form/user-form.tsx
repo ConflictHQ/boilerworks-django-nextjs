@@ -63,8 +63,8 @@ export const UserForm = () => {
         <div className="col-span-full md:col-span-2">
           <FieldGroup>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field data-invalid={!!errors.username}>f
-                <FieldLabel htmlFor="username">Username</FieldLabel>
+              <Field data-invalid={!!errors.username}>
+                f<FieldLabel htmlFor="username">Username</FieldLabel>
                 <Input
                   id="username"
                   placeholder="johndoe"

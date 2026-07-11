@@ -171,7 +171,6 @@ export const NavUser = ({ ssrUser }: { ssrUser: CurrentUser | null }) => {
               <Row label="me.profile.id" value={meData?.me?.profile?.id ?? "—"} />
               <Row label="me.profile.username" value={meData?.me?.profile?.username ?? "—"} />
             </section>
-
           </div>
         </SheetContent>
       </Sheet>

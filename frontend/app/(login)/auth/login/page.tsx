@@ -9,7 +9,5 @@ export default function LoginPage() {
     window.location.href = `${apiRoot}/app/auth1/login?next=${next}`;
   }, []);
 
-  return (
-    <div className="text-muted-foreground text-sm">Redirecting to login…</div>
-  );
+  return <div className="text-muted-foreground text-sm">Redirecting to login…</div>;
 }

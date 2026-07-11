@@ -70,8 +70,7 @@ export const useArchiveForm = () =>
     refetchQueries: [GET_FORM_DEFINITIONS],
   });
 
-export const useSubmitForm = () =>
-  useMutation<SubmitFormData>(SUBMIT_FORM);
+export const useSubmitForm = () => useMutation<SubmitFormData>(SUBMIT_FORM);
 
 export const useUpdateSubmissionStatus = () =>
   useMutation<MutationResultData>(UPDATE_SUBMISSION_STATUS);

@@ -55,18 +55,53 @@ const FIELD_TYPES = [
   { value: "select", label: "Dropdown", icon: "▼", hint: "Choose one from a list of options" },
   { value: "multi_select", label: "Multi-Select", icon: "☰", hint: "Choose multiple from a list" },
   { value: "rating", label: "Rating (Stars)", icon: "★", hint: "Star rating (1-5 by default)" },
-  { value: "scale", label: "Scale (Slider)", icon: "─●─", hint: "Numeric slider (0-10 by default)" },
-  { value: "radio", label: "Radio Buttons", icon: "◉", hint: "Choose one, displayed as radio group" },
+  {
+    value: "scale",
+    label: "Scale (Slider)",
+    icon: "─●─",
+    hint: "Numeric slider (0-10 by default)",
+  },
+  {
+    value: "radio",
+    label: "Radio Buttons",
+    icon: "◉",
+    hint: "Choose one, displayed as radio group",
+  },
   { value: "file", label: "File Upload", icon: "📎", hint: "Drag-and-drop file upload" },
   { value: "signature", label: "Signature", icon: "✍", hint: "Draw a signature on a canvas" },
   { value: "pin", label: "PIN Input", icon: "🔑", hint: "Masked numeric PIN entry" },
-  { value: "text_block", label: "Text Block", icon: "📝", hint: "Static text, instructions, or intro paragraph" },
-  { value: "section_header", label: "Section Header", icon: "═", hint: "Section title with separator" },
-  { value: "page_break", label: "Page Break", icon: "⏎", hint: "Start a new page in multi-step forms" },
+  {
+    value: "text_block",
+    label: "Text Block",
+    icon: "📝",
+    hint: "Static text, instructions, or intro paragraph",
+  },
+  {
+    value: "section_header",
+    label: "Section Header",
+    icon: "═",
+    hint: "Section title with separator",
+  },
+  {
+    value: "page_break",
+    label: "Page Break",
+    icon: "⏎",
+    hint: "Start a new page in multi-step forms",
+  },
   { value: "image", label: "Image", icon: "🖼", hint: "Display an image from URL" },
   { value: "time", label: "Time Only", icon: "⏰", hint: "Time picker (HH:MM)" },
-  { value: "repeatable", label: "Repeatable Section", icon: "⟳", hint: "Add multiple rows of the same fields" },
-  { value: "percentage_split", label: "Percentage Split", icon: "%", hint: "Allocate percentages across categories" },
+  {
+    value: "repeatable",
+    label: "Repeatable Section",
+    icon: "⟳",
+    hint: "Add multiple rows of the same fields",
+  },
+  {
+    value: "percentage_split",
+    label: "Percentage Split",
+    icon: "%",
+    hint: "Allocate percentages across categories",
+  },
 ];
 
 type FieldDef = {
@@ -141,23 +176,46 @@ function TextConfig({ field, onUpdate }: { field: FieldDef; onUpdate: (f: FieldD
     <div className="grid grid-cols-3 gap-2">
       <div>
         <Label className="text-xs">Placeholder</Label>
-        <Input value={field.placeholder} onChange={(e) => onUpdate({ ...field, placeholder: e.target.value })} className="text-xs" />
+        <Input
+          value={field.placeholder}
+          onChange={(e) => onUpdate({ ...field, placeholder: e.target.value })}
+          className="text-xs"
+        />
       </div>
       <div>
         <Label className="text-xs">Min length</Label>
-        <Input value={field.minLength} onChange={(e) => onUpdate({ ...field, minLength: e.target.value })} type="number" className="text-xs" />
+        <Input
+          value={field.minLength}
+          onChange={(e) => onUpdate({ ...field, minLength: e.target.value })}
+          type="number"
+          className="text-xs"
+        />
       </div>
       <div>
         <Label className="text-xs">Max length</Label>
-        <Input value={field.maxLength} onChange={(e) => onUpdate({ ...field, maxLength: e.target.value })} type="number" className="text-xs" />
+        <Input
+          value={field.maxLength}
+          onChange={(e) => onUpdate({ ...field, maxLength: e.target.value })}
+          type="number"
+          className="text-xs"
+        />
       </div>
       <div className="col-span-2">
         <Label className="text-xs">Regex pattern</Label>
-        <Input value={field.pattern} onChange={(e) => onUpdate({ ...field, pattern: e.target.value })} placeholder="e.g. ^[A-Z].*" className="text-xs" />
+        <Input
+          value={field.pattern}
+          onChange={(e) => onUpdate({ ...field, pattern: e.target.value })}
+          placeholder="e.g. ^[A-Z].*"
+          className="text-xs"
+        />
       </div>
       <div>
         <Label className="text-xs">Default value</Label>
-        <Input value={field.defaultValue} onChange={(e) => onUpdate({ ...field, defaultValue: e.target.value })} className="text-xs" />
+        <Input
+          value={field.defaultValue}
+          onChange={(e) => onUpdate({ ...field, defaultValue: e.target.value })}
+          className="text-xs"
+        />
       </div>
     </div>
   );
@@ -168,35 +226,67 @@ function NumberConfig({ field, onUpdate }: { field: FieldDef; onUpdate: (f: Fiel
     <div className="grid grid-cols-3 gap-2">
       <div>
         <Label className="text-xs">Min</Label>
-        <Input value={field.min} onChange={(e) => onUpdate({ ...field, min: e.target.value })} type="number" className="text-xs" />
+        <Input
+          value={field.min}
+          onChange={(e) => onUpdate({ ...field, min: e.target.value })}
+          type="number"
+          className="text-xs"
+        />
       </div>
       <div>
         <Label className="text-xs">Max</Label>
-        <Input value={field.max} onChange={(e) => onUpdate({ ...field, max: e.target.value })} type="number" className="text-xs" />
+        <Input
+          value={field.max}
+          onChange={(e) => onUpdate({ ...field, max: e.target.value })}
+          type="number"
+          className="text-xs"
+        />
       </div>
       <div>
         <Label className="text-xs">Step</Label>
-        <Input value={field.step} onChange={(e) => onUpdate({ ...field, step: e.target.value })} type="number" className="text-xs" />
+        <Input
+          value={field.step}
+          onChange={(e) => onUpdate({ ...field, step: e.target.value })}
+          type="number"
+          className="text-xs"
+        />
       </div>
       <div>
         <Label className="text-xs">Prefix</Label>
-        <Input value={field.prefix} onChange={(e) => onUpdate({ ...field, prefix: e.target.value })} placeholder="$" className="text-xs" />
+        <Input
+          value={field.prefix}
+          onChange={(e) => onUpdate({ ...field, prefix: e.target.value })}
+          placeholder="$"
+          className="text-xs"
+        />
       </div>
       <div>
         <Label className="text-xs">Suffix</Label>
-        <Input value={field.suffix} onChange={(e) => onUpdate({ ...field, suffix: e.target.value })} placeholder="%" className="text-xs" />
+        <Input
+          value={field.suffix}
+          onChange={(e) => onUpdate({ ...field, suffix: e.target.value })}
+          placeholder="%"
+          className="text-xs"
+        />
       </div>
       <div>
         <Label className="text-xs">Default</Label>
-        <Input value={field.defaultValue} onChange={(e) => onUpdate({ ...field, defaultValue: e.target.value })} type="number" className="text-xs" />
+        <Input
+          value={field.defaultValue}
+          onChange={(e) => onUpdate({ ...field, defaultValue: e.target.value })}
+          type="number"
+          className="text-xs"
+        />
       </div>
     </div>
   );
 }
 
 function SelectConfig({ field, onUpdate }: { field: FieldDef; onUpdate: (f: FieldDef) => void }) {
-  const addOption = () => onUpdate({ ...field, options: [...field.options, `Option ${field.options.length + 1}`] });
-  const removeOption = (i: number) => onUpdate({ ...field, options: field.options.filter((_, j) => j !== i) });
+  const addOption = () =>
+    onUpdate({ ...field, options: [...field.options, `Option ${field.options.length + 1}`] });
+  const removeOption = (i: number) =>
+    onUpdate({ ...field, options: field.options.filter((_, j) => j !== i) });
   const updateOption = (i: number, val: string) => {
     const opts = [...field.options];
     opts[i] = val;
@@ -208,13 +298,25 @@ function SelectConfig({ field, onUpdate }: { field: FieldDef; onUpdate: (f: Fiel
       <Label className="text-xs">Options</Label>
       {field.options.map((opt, i) => (
         <div key={i} className="flex gap-1">
-          <Input value={opt} onChange={(e) => updateOption(i, e.target.value)} className="text-xs" />
-          <button type="button" onClick={() => removeOption(i)} className="text-red-400 hover:text-red-600 px-1">
+          <Input
+            value={opt}
+            onChange={(e) => updateOption(i, e.target.value)}
+            className="text-xs"
+          />
+          <button
+            type="button"
+            onClick={() => removeOption(i)}
+            className="px-1 text-red-400 hover:text-red-600"
+          >
             <TrashIcon className="h-3 w-3" />
           </button>
         </div>
       ))}
-      <button type="button" onClick={addOption} className="text-xs text-blue-500 hover:text-blue-700 self-start">
+      <button
+        type="button"
+        onClick={addOption}
+        className="self-start text-xs text-blue-500 hover:text-blue-700"
+      >
         + Add option
       </button>
     </div>
@@ -226,11 +328,21 @@ function RatingConfig({ field, onUpdate }: { field: FieldDef; onUpdate: (f: Fiel
     <div className="grid grid-cols-2 gap-2">
       <div>
         <Label className="text-xs">Max stars</Label>
-        <Input value={field.max || "5"} onChange={(e) => onUpdate({ ...field, max: e.target.value })} type="number" className="text-xs" />
+        <Input
+          value={field.max || "5"}
+          onChange={(e) => onUpdate({ ...field, max: e.target.value })}
+          type="number"
+          className="text-xs"
+        />
       </div>
       <div>
         <Label className="text-xs">Default</Label>
-        <Input value={field.defaultValue} onChange={(e) => onUpdate({ ...field, defaultValue: e.target.value })} type="number" className="text-xs" />
+        <Input
+          value={field.defaultValue}
+          onChange={(e) => onUpdate({ ...field, defaultValue: e.target.value })}
+          type="number"
+          className="text-xs"
+        />
       </div>
     </div>
   );
@@ -241,19 +353,39 @@ function ScaleConfig({ field, onUpdate }: { field: FieldDef; onUpdate: (f: Field
     <div className="grid grid-cols-2 gap-2">
       <div>
         <Label className="text-xs">Min</Label>
-        <Input value={field.min || "0"} onChange={(e) => onUpdate({ ...field, min: e.target.value })} type="number" className="text-xs" />
+        <Input
+          value={field.min || "0"}
+          onChange={(e) => onUpdate({ ...field, min: e.target.value })}
+          type="number"
+          className="text-xs"
+        />
       </div>
       <div>
         <Label className="text-xs">Max</Label>
-        <Input value={field.max || "10"} onChange={(e) => onUpdate({ ...field, max: e.target.value })} type="number" className="text-xs" />
+        <Input
+          value={field.max || "10"}
+          onChange={(e) => onUpdate({ ...field, max: e.target.value })}
+          type="number"
+          className="text-xs"
+        />
       </div>
       <div>
         <Label className="text-xs">Min label</Label>
-        <Input value={field.scaleMinLabel} onChange={(e) => onUpdate({ ...field, scaleMinLabel: e.target.value })} placeholder="Not at all" className="text-xs" />
+        <Input
+          value={field.scaleMinLabel}
+          onChange={(e) => onUpdate({ ...field, scaleMinLabel: e.target.value })}
+          placeholder="Not at all"
+          className="text-xs"
+        />
       </div>
       <div>
         <Label className="text-xs">Max label</Label>
-        <Input value={field.scaleMaxLabel} onChange={(e) => onUpdate({ ...field, scaleMaxLabel: e.target.value })} placeholder="Extremely" className="text-xs" />
+        <Input
+          value={field.scaleMaxLabel}
+          onChange={(e) => onUpdate({ ...field, scaleMaxLabel: e.target.value })}
+          placeholder="Extremely"
+          className="text-xs"
+        />
       </div>
     </div>
   );
@@ -264,23 +396,49 @@ function FileConfig({ field, onUpdate }: { field: FieldDef; onUpdate: (f: FieldD
     <div className="grid grid-cols-2 gap-2">
       <div>
         <Label className="text-xs">Accepted types</Label>
-        <Input value={field.acceptedFileTypes} onChange={(e) => onUpdate({ ...field, acceptedFileTypes: e.target.value })} placeholder=".pdf,.jpg,.png" className="text-xs" />
+        <Input
+          value={field.acceptedFileTypes}
+          onChange={(e) => onUpdate({ ...field, acceptedFileTypes: e.target.value })}
+          placeholder=".pdf,.jpg,.png"
+          className="text-xs"
+        />
       </div>
       <div>
         <Label className="text-xs">Max size (MB)</Label>
-        <Input value={field.maxFileSize} onChange={(e) => onUpdate({ ...field, maxFileSize: e.target.value })} type="number" className="text-xs" />
+        <Input
+          value={field.maxFileSize}
+          onChange={(e) => onUpdate({ ...field, maxFileSize: e.target.value })}
+          type="number"
+          className="text-xs"
+        />
       </div>
-      <label className="flex items-center gap-1 text-xs col-span-2">
-        <input type="checkbox" checked={field.allowMultiple} onChange={(e) => onUpdate({ ...field, allowMultiple: e.target.checked })} className="h-3 w-3" />
+      <label className="col-span-2 flex items-center gap-1 text-xs">
+        <input
+          type="checkbox"
+          checked={field.allowMultiple}
+          onChange={(e) => onUpdate({ ...field, allowMultiple: e.target.checked })}
+          className="h-3 w-3"
+        />
         Allow multiple files
       </label>
     </div>
   );
 }
 
-function PercentageSplitConfig({ field, onUpdate }: { field: FieldDef; onUpdate: (f: FieldDef) => void }) {
-  const addCategory = () => onUpdate({ ...field, categories: [...field.categories, `Category ${field.categories.length + 1}`] });
-  const removeCategory = (i: number) => onUpdate({ ...field, categories: field.categories.filter((_, j) => j !== i) });
+function PercentageSplitConfig({
+  field,
+  onUpdate,
+}: {
+  field: FieldDef;
+  onUpdate: (f: FieldDef) => void;
+}) {
+  const addCategory = () =>
+    onUpdate({
+      ...field,
+      categories: [...field.categories, `Category ${field.categories.length + 1}`],
+    });
+  const removeCategory = (i: number) =>
+    onUpdate({ ...field, categories: field.categories.filter((_, j) => j !== i) });
   const updateCategory = (i: number, val: string) => {
     const cats = [...field.categories];
     cats[i] = val;
@@ -292,13 +450,25 @@ function PercentageSplitConfig({ field, onUpdate }: { field: FieldDef; onUpdate:
       <Label className="text-xs">Categories (must sum to 100%)</Label>
       {field.categories.map((cat, i) => (
         <div key={i} className="flex gap-1">
-          <Input value={cat} onChange={(e) => updateCategory(i, e.target.value)} className="text-xs" />
-          <button type="button" onClick={() => removeCategory(i)} className="text-red-400 hover:text-red-600 px-1">
+          <Input
+            value={cat}
+            onChange={(e) => updateCategory(i, e.target.value)}
+            className="text-xs"
+          />
+          <button
+            type="button"
+            onClick={() => removeCategory(i)}
+            className="px-1 text-red-400 hover:text-red-600"
+          >
             <TrashIcon className="h-3 w-3" />
           </button>
         </div>
       ))}
-      <button type="button" onClick={addCategory} className="text-xs text-blue-500 hover:text-blue-700 self-start">
+      <button
+        type="button"
+        onClick={addCategory}
+        className="self-start text-xs text-blue-500 hover:text-blue-700"
+      >
         + Add category
       </button>
     </div>
@@ -347,7 +517,9 @@ function SortableField({
   onDuplicate: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: field.id });
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: field.id,
+  });
   const typeInfo = FIELD_TYPES.find((t) => t.value === field.type);
 
   const style = { transform: CSS.Transform.toString(transform), transition };
@@ -355,10 +527,17 @@ function SortableField({
   return (
     <div ref={setNodeRef} style={style} className="rounded-lg border bg-white dark:bg-gray-900">
       <div className="flex items-center gap-2 p-3">
-        <button type="button" {...attributes} {...listeners} className="cursor-grab text-gray-400 hover:text-gray-600">
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          className="cursor-grab text-gray-400 hover:text-gray-600"
+        >
           <GripVerticalIcon className="h-4 w-4" />
         </button>
-        <span className="w-6 text-center text-xs text-gray-400" title={typeInfo?.hint}>{typeInfo?.icon}</span>
+        <span className="w-6 text-center text-xs text-gray-400" title={typeInfo?.hint}>
+          {typeInfo?.icon}
+        </span>
         <Input
           value={field.title}
           onChange={(e) => onUpdate({ ...field, title: e.target.value })}
@@ -373,14 +552,20 @@ function SortableField({
             {FIELD_TYPES.map((ft) => (
               <SelectItem key={ft.value} value={ft.value}>
                 <div className="flex flex-col">
-                  <span><span className="mr-2">{ft.icon}</span>{ft.label}</span>
-                  <span className="text-[10px] text-muted-foreground">{ft.hint}</span>
+                  <span>
+                    <span className="mr-2">{ft.icon}</span>
+                    {ft.label}
+                  </span>
+                  <span className="text-muted-foreground text-[10px]">{ft.hint}</span>
                 </div>
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <Select value={field.width} onValueChange={(v) => onUpdate({ ...field, width: v as FieldDef["width"] })}>
+        <Select
+          value={field.width}
+          onValueChange={(v) => onUpdate({ ...field, width: v as FieldDef["width"] })}
+        >
           <SelectTrigger className="w-20">
             <SelectValue />
           </SelectTrigger>
@@ -399,7 +584,11 @@ function SortableField({
           />
           Req
         </label>
-        <button type="button" onClick={() => setExpanded(!expanded)} className="text-gray-400 hover:text-gray-600">
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="text-gray-400 hover:text-gray-600"
+        >
           {expanded ? <ChevronUpIcon className="h-4 w-4" /> : <SettingsIcon className="h-4 w-4" />}
         </button>
         <button type="button" onClick={onDuplicate} className="text-gray-400 hover:text-gray-600">
@@ -411,27 +600,37 @@ function SortableField({
       </div>
 
       {!expanded && typeInfo?.hint && (
-        <div className="px-3 pb-2 text-[11px] text-muted-foreground">{typeInfo.hint}</div>
+        <div className="text-muted-foreground px-3 pb-2 text-[11px]">{typeInfo.hint}</div>
       )}
 
       {expanded && (
-        <div className="border-t px-3 pb-3 pt-3">
+        <div className="border-t px-3 pt-3 pb-3">
           <div className="mb-3 grid grid-cols-3 gap-2">
             <div>
               <Label className="text-xs">Field name (slug)</Label>
               <Input
                 value={field.name}
-                onChange={(e) => onUpdate({ ...field, name: e.target.value.replace(/\s/g, "_").toLowerCase() })}
+                onChange={(e) =>
+                  onUpdate({ ...field, name: e.target.value.replace(/\s/g, "_").toLowerCase() })
+                }
                 className="text-xs"
               />
             </div>
             <div>
               <Label className="text-xs">Help text</Label>
-              <Input value={field.description} onChange={(e) => onUpdate({ ...field, description: e.target.value })} className="text-xs" />
+              <Input
+                value={field.description}
+                onChange={(e) => onUpdate({ ...field, description: e.target.value })}
+                className="text-xs"
+              />
             </div>
             <div>
               <Label className="text-xs">Placeholder</Label>
-              <Input value={field.placeholder} onChange={(e) => onUpdate({ ...field, placeholder: e.target.value })} className="text-xs" />
+              <Input
+                value={field.placeholder}
+                onChange={(e) => onUpdate({ ...field, placeholder: e.target.value })}
+                className="text-xs"
+              />
             </div>
           </div>
           <TypeConfig field={field} onUpdate={onUpdate} />
@@ -453,11 +652,13 @@ function schemaToFields(schema: Record<string, unknown>): FieldDef[] {
     id: `field-${i}`,
     name,
     type: resolveType(def),
-    title: (def.title as string) || name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+    title:
+      (def.title as string) || name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
     required: required.has(name),
     description: (def.description as string) || "",
     placeholder: (def.placeholder as string) || "",
-    options: (def.enum as string[]) || ((def.items as Record<string, unknown>)?.enum as string[]) || [],
+    options:
+      (def.enum as string[]) || ((def.items as Record<string, unknown>)?.enum as string[]) || [],
     min: def.minimum != null ? String(def.minimum) : "",
     max: def.maximum != null ? String(def.maximum) : "",
   }));
@@ -488,16 +689,41 @@ function fieldsToSchema(fields: FieldDef[]): Record<string, unknown> {
     const prop: Record<string, unknown> = {};
 
     switch (field.type) {
-      case "text": case "textarea": case "email": case "url": case "date": case "datetime": case "signature":
-        prop.type = "string"; break;
-      case "number": prop.type = "number"; break;
-      case "integer": case "rating": case "scale": prop.type = "integer"; break;
-      case "boolean": prop.type = "boolean"; break;
-      case "select": prop.type = "string"; break;
-      case "multi_select": case "repeatable": prop.type = "array"; break;
-      case "percentage_split": prop.type = "object"; break;
-      case "file": prop.type = "string"; break;
-      default: prop.type = "string";
+      case "text":
+      case "textarea":
+      case "email":
+      case "url":
+      case "date":
+      case "datetime":
+      case "signature":
+        prop.type = "string";
+        break;
+      case "number":
+        prop.type = "number";
+        break;
+      case "integer":
+      case "rating":
+      case "scale":
+        prop.type = "integer";
+        break;
+      case "boolean":
+        prop.type = "boolean";
+        break;
+      case "select":
+        prop.type = "string";
+        break;
+      case "multi_select":
+      case "repeatable":
+        prop.type = "array";
+        break;
+      case "percentage_split":
+        prop.type = "object";
+        break;
+      case "file":
+        prop.type = "string";
+        break;
+      default:
+        prop.type = "string";
     }
 
     if (field.type === "email") prop.format = "email";
@@ -505,14 +731,27 @@ function fieldsToSchema(fields: FieldDef[]): Record<string, unknown> {
     if (field.type === "date") prop.format = "date";
     if (field.type === "datetime") prop.format = "date-time";
     if (field.type === "textarea") prop["x-widget"] = "textarea";
-    if (field.type === "rating") { prop["x-widget"] = "rating"; prop.minimum = 1; prop.maximum = parseInt(field.max) || 5; }
-    if (field.type === "scale") { prop["x-widget"] = "scale"; prop.minimum = parseInt(field.min) || 0; prop.maximum = parseInt(field.max) || 10; }
+    if (field.type === "rating") {
+      prop["x-widget"] = "rating";
+      prop.minimum = 1;
+      prop.maximum = parseInt(field.max) || 5;
+    }
+    if (field.type === "scale") {
+      prop["x-widget"] = "scale";
+      prop.minimum = parseInt(field.min) || 0;
+      prop.maximum = parseInt(field.max) || 10;
+    }
     if (field.type === "signature") prop["x-widget"] = "signature";
-    if (field.type === "file") { prop.format = "uri"; prop["x-widget"] = "file"; }
+    if (field.type === "file") {
+      prop.format = "uri";
+      prop["x-widget"] = "file";
+    }
     if (field.type === "percentage_split") prop["x-widget"] = "percentage_split";
 
-    if (field.min && !["rating", "scale"].includes(field.type)) prop.minimum = parseFloat(field.min);
-    if (field.max && !["rating", "scale"].includes(field.type)) prop.maximum = parseFloat(field.max);
+    if (field.min && !["rating", "scale"].includes(field.type))
+      prop.minimum = parseFloat(field.min);
+    if (field.max && !["rating", "scale"].includes(field.type))
+      prop.maximum = parseFloat(field.max);
     if (field.minLength) prop.minLength = parseInt(field.minLength);
     if (field.maxLength) prop.maxLength = parseInt(field.maxLength);
     if (field.pattern) prop.pattern = field.pattern;
@@ -552,7 +791,7 @@ export function FormBuilder({ schema, onSave, onChange }: FormBuilderProps) {
 
   const sensors = useSensors(
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -601,8 +840,17 @@ export function FormBuilder({ schema, onSave, onChange }: FormBuilderProps) {
           <Button type="button" variant="outline" size="sm" onClick={addField}>
             <PlusIcon className="mr-1 h-3 w-3" /> Add Field
           </Button>
-          <Button type="button" variant="ghost" size="sm" onClick={() => setAllExpanded(!allExpanded)}>
-            {allExpanded ? <ChevronUpIcon className="mr-1 h-3 w-3" /> : <ChevronDownIcon className="mr-1 h-3 w-3" />}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setAllExpanded(!allExpanded)}
+          >
+            {allExpanded ? (
+              <ChevronUpIcon className="mr-1 h-3 w-3" />
+            ) : (
+              <ChevronDownIcon className="mr-1 h-3 w-3" />
+            )}
             {allExpanded ? "Collapse All" : "Expand All"}
           </Button>
         </div>
@@ -637,7 +885,9 @@ export function FormBuilder({ schema, onSave, onChange }: FormBuilderProps) {
         Drag to reorder. Click ⚙ to configure type-specific settings.
         {fields.length > 0 && (
           <span>
-            {" "}{fields.length} field{fields.length !== 1 ? "s" : ""}, {fields.filter((f) => f.required).length} required.
+            {" "}
+            {fields.length} field{fields.length !== 1 ? "s" : ""},{" "}
+            {fields.filter((f) => f.required).length} required.
           </span>
         )}
       </div>
