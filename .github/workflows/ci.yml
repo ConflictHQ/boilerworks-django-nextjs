@@ -191,15 +191,18 @@ jobs:
         # healthchecks; the backend then runs migrations before serving.
         run: docker compose -f docker/docker-compose.yaml up -d --wait boilerworks-local
       - name: GraphQL endpoint serves (non-500)
+        # The backend runs the full migration set against the fresh postgres
+        # before runserver comes up, so poll for up to 5 minutes.
         run: |
-          for i in $(seq 1 36); do
+          for i in $(seq 1 60); do
             code=$(curl -s -o /tmp/gql-response -w '%{http_code}' \
               -X POST http://localhost:8000/app/gql/config/ \
               -H 'Content-Type: application/json' \
-              -d '{"query":"{ __typename }"}' || echo 000)
+              -d '{"query":"{ __typename }"}') || code=000
             echo "attempt $i: HTTP $code"
-            if [ "$code" != "000" ] && [ "$code" -lt 500 ]; then
-              cat /tmp/gql-response; echo; exit 0
+            if [ "$code" -ge 100 ] && [ "$code" -lt 500 ]; then
+              cat /tmp/gql-response || true; echo
+              exit 0
             fi
             sleep 5
           done
