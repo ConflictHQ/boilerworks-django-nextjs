@@ -172,3 +172,48 @@ jobs:
         with:
           name: schema-sdl
           path: backend/schema.graphql
+
+  smoke:
+    name: Fresh-clone smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - uses: actions/checkout@v6
+      - name: Bootstrap as a pristine user
+        # Exactly what a fresh clone runs: creates backend/config/local.env
+        # from example.env, generates a secret key, builds the backend image.
+        run: ./bootstrap.sh
+      - name: Start core stack (backend + postgres + redis)
+        # Only the core services; ui/minio/opensearch/celery are omitted to
+        # stay inside the time budget. --wait blocks on the postgres/redis
+        # healthchecks; the backend then runs migrations before serving.
+        run: docker compose -f docker/docker-compose.yaml up -d --wait boilerworks-local
+      - name: GraphQL endpoint serves (non-500)
+        run: |
+          for i in $(seq 1 36); do
+            code=$(curl -s -o /tmp/gql-response -w '%{http_code}' \
+              -X POST http://localhost:8000/app/gql/config/ \
+              -H 'Content-Type: application/json' \
+              -d '{"query":"{ __typename }"}' || echo 000)
+            echo "attempt $i: HTTP $code"
+            if [ "$code" != "000" ] && [ "$code" -lt 500 ]; then
+              cat /tmp/gql-response; echo; exit 0
+            fi
+            sleep 5
+          done
+          echo "GraphQL endpoint never returned a non-5xx response"
+          exit 1
+      - name: Compose services healthy
+        run: |
+          docker compose -f docker/docker-compose.yaml ps
+          test "$(docker inspect -f '{{.State.Health.Status}}' postgres-local)" = "healthy"
+          test "$(docker inspect -f '{{.State.Health.Status}}' redis-local)" = "healthy"
+          test "$(docker inspect -f '{{.State.Running}}' boilerworks-local)" = "true"
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose -f docker/docker-compose.yaml logs --tail=200
+      - name: Teardown
+        if: always()
+        run: docker compose -f docker/docker-compose.yaml down -v
