@@ -1,3 +1,20 @@
+type AuditLogEntry {
+  operation: String!
+  variables: JSON!
+  success: Boolean!
+  errors: [String!]!
+  ipAddress: String
+  timestamp: DateTime!
+  username: String
+}
+
+type AvailableTransition {
+  fromState: String!
+  toState: String!
+  label: String!
+  conditionsMet: Boolean!
+}
+
 input ComponentChildInput {
   childComponent: ID!
   sortOrder: Int!
@@ -20,6 +37,16 @@ type ComponentMutationResult {
   ok: Boolean!
   errors: [ValidationError!]!
   id: ID
+}
+
+type ComponentTreeNode {
+  name: String!
+  slug: String!
+  path: String
+  icon: String
+  isActive: Boolean!
+  properties: JSON!
+  children: [ComponentTreeNode!]!
 }
 
 type ComponentType {
@@ -100,6 +127,47 @@ type DjangoModelType {
   pk: ID!
 }
 
+type EmployeeAvatarType {
+  publicPermanentUrl: String
+}
+
+type EmployeeEdge {
+  cursor: String!
+  node: EmployeeNode!
+}
+
+type EmployeeNode {
+  id: ID!
+  user: EmployeeUserType!
+}
+
+type EmployeeProfileType {
+  id: ID!
+  displayName: String
+  firstName: String
+  lastName: String
+  avatar: EmployeeAvatarType
+}
+
+type EmployeeUserType {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  isActive: Boolean!
+  profile: EmployeeProfileType
+}
+
+type EmployeesConnection {
+  totalCount: Int!
+  edges: [EmployeeEdge!]!
+  pageInfo: EmployeesPageInfo!
+}
+
+type EmployeesPageInfo {
+  hasNextPage: Boolean!
+}
+
 enum EntityType {
   EMPLOYEE
   FIELDFLO
@@ -114,6 +182,14 @@ type FileUploadResult {
   id: ID
 }
 
+type FormAnalyticsType {
+  totalSubmissions: Int!
+  submissionsToday: Int!
+  avgSubmissionsPerDay: Float!
+  completionRate: Float!
+  statusBreakdown: JSON!
+}
+
 input FormDefinitionInput {
   name: String!
   slug: String!
@@ -124,7 +200,7 @@ input FormDefinitionInput {
 type FormDefinitionType {
   name: String!
   slug: String!
-  description: String!
+  description: String
   status: String!
   version: Int!
   schema: JSON!
@@ -337,6 +413,24 @@ type Mutation {
   updateSubmissionStatus(submissionId: ID!, status: String!): MutationResult!
   deviceToken(input: DeviceTokenInput!): MutationResult!
   notificationConfig(input: NotificationConfigInput!): MutationResult!
+
+  """Start a workflow for an object."""
+  startWorkflow(workflowSlug: String!, modelLabel: String!, objectId: Int!): StartWorkflowResult!
+
+  """Transition a workflow instance to a new state."""
+  transitionWorkflow(instanceId: ID!, toState: String!, note: String! = ""): MutationResult!
+
+  """Force a workflow instance to a specific state (admin override)."""
+  overrideWorkflowState(instanceId: ID!, toState: String!, note: String! = ""): MutationResult!
+
+  """Create a new workflow definition (staff only)."""
+  createWorkflowDefinition(name: String!, slug: String!, modelLabel: String!, states: JSON!, transitions: JSON!, description: String = null, isEnabled: Boolean! = false): MutationResult!
+
+  """Update an existing workflow definition (staff only)."""
+  updateWorkflowDefinition(slug: String!, name: String = null, description: String = null, modelLabel: String = null, states: JSON = null, transitions: JSON = null, isEnabled: Boolean = null): MutationResult!
+
+  """Delete a workflow definition by slug (staff only)."""
+  deleteWorkflowDefinition(slug: String!): MutationResult!
 }
 
 """Standard mutation result with ok flag and validation errors."""
@@ -485,6 +579,9 @@ type ProfileType {
 }
 
 type Query {
+  """The currently authenticated user, or null when anonymous."""
+  me: UserType
+
   """
   List all effective permissions for a user, with the groups that grant each one.
   """
@@ -495,13 +592,25 @@ type Query {
 
   """Compare effective permissions between two users."""
   permissionCompare(userIdA: ID!, userIdB: ID!): PermissionComparison
+
+  """Query mutation audit logs. Admin only."""
+  auditLogs(operation: String = null, userId: String = null, limit: Int! = 50): [AuditLogEntry!]!
   components: [ComponentType!]!
   component(slug: String!): ComponentType
+
+  """Get a component tree starting from a root slug."""
+  componentTree(rootSlug: String!): ComponentTreeNode
+
+  """Export component configuration as JSON (for seeding/sharing)."""
+  componentExport(slugs: [String!]!): JSON!
   organization(id: ID!): OrganizationType
   organizations(query: String = null): [OrganizationType!]!
   members: [OrganizationMemberType!]!
+  employees(first: Int = 10, offset: Int = 0, search: String = null, showDeactivated: Boolean = null, departmentsDepartmentNameIcontains: String = null, departmentsPositionNameIcontains: String = null): EmployeesConnection!
 
-  """Get the currently published version of a form by slug."""
+  """
+  Get a form by slug. Returns published version if available, otherwise latest.
+  """
   formDefinition(slug: String!): FormDefinitionType
 
   """List all form definitions, optionally filtered by status."""
@@ -512,8 +621,23 @@ type Query {
 
   """Available field types for form schema building."""
   formFieldTypes: [String!]!
+
+  """Aggregated analytics for a form by slug."""
+  formAnalytics(slug: String!): FormAnalyticsType
   devices: [DeviceTokenType!]!
   deliveryMethodTemplates: [DeliveryMethodNotificationTemplateType!]!
+
+  """List all workflow definitions."""
+  workflowDefinitions(modelLabel: String = null, includeDisabled: Boolean! = true): [WorkflowDefinitionType!]!
+
+  """Get a workflow definition by slug."""
+  workflowDefinition(slug: String!): WorkflowDefinitionType
+
+  """Get a workflow instance by ID."""
+  workflowInstance(id: ID!): WorkflowInstanceType
+
+  """List workflow instances for a specific object."""
+  workflowInstances(objectId: Int!, modelLabel: String = null): [WorkflowInstanceType!]!
 }
 
 type SharedDirectoryType {
@@ -521,8 +645,27 @@ type SharedDirectoryType {
   directoryCount: Int!
 }
 
+type StartWorkflowResult {
+  ok: Boolean!
+  errors: [ValidationError!]!
+  instanceId: ID
+}
+
+type Subscription {
+  notificationReceived: String!
+  formSubmissionReceived(slug: String!): String!
+}
+
 type SwitchUserResult {
   user: UserType
+}
+
+type TransitionLogEntry {
+  fromState: String!
+  toState: String!
+  note: String!
+  timestamp: DateTime!
+  username: String
 }
 
 scalar UUID
@@ -565,6 +708,7 @@ input UserInput {
 type UserType {
   isAnonymous: Boolean!
   email: String!
+  id: ID!
   isNewUser: Boolean!
   firstName: String!
   lastName: String!
@@ -578,4 +722,30 @@ type UserType {
 type ValidationError {
   field: String!
   messages: [String!]!
+}
+
+type WorkflowDefinitionType {
+  name: String!
+  slug: String!
+  description: String
+  modelLabel: String!
+  states: JSON!
+  transitions: JSON!
+  isEnabled: Boolean!
+  createdAt: DateTime!
+  instanceCount: Int!
+  activeInstanceCount: Int!
+}
+
+type WorkflowInstanceType {
+  currentState: String!
+  startedAt: DateTime!
+  completedAt: DateTime
+  objectId: Int!
+  workflowName: String!
+  workflowSlug: String!
+  isCompleted: Boolean!
+  stateLabel: String!
+  availableTransitions: [AvailableTransition!]!
+  history: [TransitionLogEntry!]!
 }

@@ -6,19 +6,12 @@ from uuid import UUID
 
 import strawberry
 import strawberry_django
+from core.models import PinTransaction, Profile, SignRequest, UserSwitchGroup
+from core.schema.dataloaders import batch_load_first_names, batch_load_last_names, batch_load_profiles_by_user_id, batch_load_uploads
+from core.schema.types.upload import UploadType
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from strawberry.types import Info
-
-from core.models import PinTransaction, Profile, SignRequest, UserSwitchGroup
-from core.schema.common import permission_filtered_queryset
-from core.schema.dataloaders import (
-    batch_load_first_names,
-    batch_load_last_names,
-    batch_load_profiles_by_user_id,
-    batch_load_uploads,
-)
-from core.schema.types.upload import UploadType
 
 try:
     from domain_app.models import DepartmentEmployee, Employee
@@ -155,6 +148,16 @@ class UserType:
     email: str
 
     @strawberry_django.field
+    def id(self, info: Info) -> strawberry.ID:
+        """Relay global id — the identifier user-targeting mutations accept.
+
+        Never the integer pk (house rule); matches the ids consumed by
+        switchUser, pinTransaction, signRequestUser, etc.
+        """
+        from core.schema.common import GlobalIDUtils
+        return strawberry.ID(GlobalIDUtils.to_global_id('UserType', self.pk))
+
+    @strawberry_django.field
     def is_new_user(self, info: Info) -> bool:
         return self.profile.is_new_user()
 
@@ -204,3 +207,18 @@ class UserType:
             return None
         employee = Employee.objects.first_user(self)
         return employee.global_id() if employee else None
+
+
+# ---------------------------------------------------------------------------
+# UserQuery — current-user lookup
+# ---------------------------------------------------------------------------
+
+@strawberry.type
+class UserQuery:
+
+    @strawberry.field(description="The currently authenticated user, or null when anonymous.")
+    def me(self, info: Info) -> Optional[UserType]:
+        user = info.context.user
+        if not user or not user.is_authenticated:
+            return None
+        return user

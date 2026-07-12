@@ -3,12 +3,7 @@
 Merges Query and Mutation types from all apps into a single schema.
 Disabled features are automatically excluded via config.features.
 """
-import strawberry
-from strawberry_django.optimizer import DjangoOptimizerExtension
-
 from typing import Optional
-
-from config.features import Feature, is_enabled
 
 # ---------------------------------------------------------------------------
 # Always-on imports (core infrastructure)
@@ -16,16 +11,18 @@ from config.features import Feature, is_enabled
 import core.schema.mutations as CoreMutations
 import core_ui.schema as UiSchema
 import organization.schema as OrganizationSchema
+import strawberry
+from config.features import Feature, is_enabled
 from core.schema.common import MutationResult
 from core.schema.types.audit import AuditLogQuery
 from core.schema.types.permission_analysis import PermissionAnalysisQuery
-from core.schema.types.user import UserType
-
+from core.schema.types.user import UserQuery, UserType
+from strawberry_django.optimizer import DjangoOptimizerExtension
 
 # ---------------------------------------------------------------------------
 # Feature-gated imports
 # ---------------------------------------------------------------------------
-_query_bases = [PermissionAnalysisQuery, AuditLogQuery, UiSchema.Query, OrganizationSchema.Query]
+_query_bases = [UserQuery, PermissionAnalysisQuery, AuditLogQuery, UiSchema.Query, OrganizationSchema.Query]
 _mutation_bases = [CoreMutations.Mutation, UiSchema.Mutation, OrganizationSchema.Mutation]
 
 if is_enabled(Feature.FORMS):
@@ -67,8 +64,9 @@ Mutation = strawberry.type(
 # Schema instance
 # ---------------------------------------------------------------------------
 
-from core.schema.audit import MutationAuditExtension
-from core.schema.subscriptions import Subscription
+# These must import after the Query/Mutation assembly to avoid circular imports.
+from core.schema.audit import MutationAuditExtension  # noqa: E402
+from core.schema.subscriptions import Subscription  # noqa: E402
 
 schema = strawberry.Schema(
     query=Query,
@@ -120,9 +118,8 @@ class AuthMutation:
             self, info: strawberry.types.Info, slug: str, payload: strawberry.scalars.JSON,
         ) -> MutationResult:
             from django.core.exceptions import ValidationError
-            from graphql import GraphQLError
-
             from forms.models import FormDefinition, FormStatus, FormSubmission
+            from graphql import GraphQLError
 
             form = FormDefinition.objects.filter(
                 slug=slug, status=FormStatus.PUBLISHED, is_public=True,
