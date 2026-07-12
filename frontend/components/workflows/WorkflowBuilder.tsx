@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ReactFlow,
   addEdge,
@@ -414,6 +414,8 @@ export function WorkflowBuilder({
   const [selectedStateName, setSelectedStateName] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
 
+  const removeStateRef = useRef<(name: string) => void>(() => {});
+
   const buildNodes = useCallback(
     (states: WorkflowState[], existingNodes: Node[]): Node[] => {
       return states.map((state, i) => {
@@ -426,7 +428,7 @@ export function WorkflowBuilder({
           data: {
             ...state,
             onSelect: () => setSelectedStateName(state.name),
-            onDelete: () => removeState(state.name),
+            onDelete: () => removeStateRef.current(state.name),
           },
         };
       });
@@ -517,6 +519,9 @@ export function WorkflowBuilder({
     if (selectedStateName === name) setSelectedStateName(null);
     refreshNodes(updated);
   };
+  useEffect(() => {
+    removeStateRef.current = removeState;
+  });
 
   const updateState = (name: string, updates: Partial<WorkflowState>) => {
     const updated = workflowStates.map((s) => {

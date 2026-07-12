@@ -232,6 +232,7 @@ export function usePaginatedQuery<
   useEffect(() => {
     if (loading) return;
     const safe = sanitizePage(page, totalPageCount);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- deliberate: the clamp must wait for fresh data (see comment above); render-time clamping would fire on the transient totalPageCount=1
     if (safe !== page) setPage(safe);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalPageCount, loading]);
