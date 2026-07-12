@@ -138,7 +138,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           coverage run --source='core/schema,core_ui/schema,organization/schema,pushnotif/schema,forms,workflows' manage.py test
-          coverage report --fail-under=60
+          coverage report --fail-under=75
           coverage xml -o coverage.xml
       - name: Export GraphQL schema SDL
         run: python manage.py shell -c "from config.schema import schema; print(schema.as_str())" > schema.graphql

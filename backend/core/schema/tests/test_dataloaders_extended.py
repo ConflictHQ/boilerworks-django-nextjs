@@ -1,11 +1,14 @@
-"""Extended dataloader tests — remaining sync batch loaders."""
+"""Extended dataloader tests — batch-contract coverage for the sync loaders.
+
+These loaders back async GraphQL fields (ProfileType.avatar, member
+resolution), which schema.execute_sync() cannot drive — the sync batch
+functions are the testable unit. The former trivial empty-keys tests were
+dropped (#69); only the meaningful batch contracts remain: positional
+results and None for missing keys.
+"""
+from core.schema.dataloaders import batch_load_profiles_by_gid_sync, batch_load_uploads_sync
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-
-from core.schema.dataloaders import (
-    batch_load_profiles_by_gid_sync,
-    batch_load_uploads_sync,
-)
 
 User = get_user_model()
 
@@ -17,21 +20,14 @@ class BatchLoadProfilesByGidTest(TestCase):
         from core.models import Profile
         self.profile = Profile.objects.get(user=self.user)
 
-    def test_loads_by_gid(self):
+    def test_loads_by_gid_and_preserves_key_order(self):
         # Profile.gid is a UUID primary key — must pass UUID objects, not strings
         from uuid import UUID
-        gid = self.profile.gid  # UUID object
-        results = batch_load_profiles_by_gid_sync([gid])
-        self.assertEqual(len(results), 1)
-        self.assertIsNotNone(results[0])
-        self.assertEqual(results[0].user_id, self.user.id)
-
-    def test_returns_none_for_missing_gid(self):
-        results = batch_load_profiles_by_gid_sync(['00000000-0000-0000-0000-000000000000'])
+        missing = UUID('00000000-0000-0000-0000-000000000000')
+        results = batch_load_profiles_by_gid_sync([missing, self.profile.gid])
+        self.assertEqual(len(results), 2)
         self.assertIsNone(results[0])
-
-    def test_empty_keys(self):
-        self.assertEqual(batch_load_profiles_by_gid_sync([]), [])
+        self.assertEqual(results[1].user_id, self.user.id)
 
 
 class BatchLoadUploadsTest(TestCase):
@@ -44,14 +40,8 @@ class BatchLoadUploadsTest(TestCase):
             created_by=self.user, updated_by=self.user,
         )
 
-    def test_loads_by_id(self):
-        results = batch_load_uploads_sync([self.upload.id])
-        self.assertEqual(results[0].name, 'test_file.png')
-
-    def test_returns_none_for_missing(self):
-        results = batch_load_uploads_sync([99999])
+    def test_loads_by_id_and_preserves_key_order(self):
+        results = batch_load_uploads_sync([99999, self.upload.id])
+        self.assertEqual(len(results), 2)
         self.assertIsNone(results[0])
-
-    def test_empty_keys_returns_empty(self):
-        results = batch_load_uploads_sync([])
-        self.assertEqual(results, [])
+        self.assertEqual(results[1].name, 'test_file.png')
