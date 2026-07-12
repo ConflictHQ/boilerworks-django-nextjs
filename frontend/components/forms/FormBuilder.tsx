@@ -89,6 +89,7 @@ const FIELD_TYPES = [
     hint: "Start a new page in multi-step forms",
   },
   { value: "image", label: "Image", icon: "🖼", hint: "Display an image from URL" },
+  { value: "embed", label: "URL Embed", icon: "🌐", hint: "Embed content from a URL (iframe)" },
   { value: "time", label: "Time Only", icon: "⏰", hint: "Time picker (HH:MM)" },
   {
     value: "repeatable",
@@ -104,7 +105,13 @@ const FIELD_TYPES = [
   },
 ];
 
-type FieldDef = {
+export type InnerFieldDef = {
+  name: string;
+  title: string;
+  type: "text" | "number" | "integer" | "boolean" | "date";
+};
+
+export type FieldDef = {
   id: string;
   name: string;
   type: string;
@@ -130,6 +137,8 @@ type FieldDef = {
   scaleMinLabel: string;
   scaleMaxLabel: string;
   categories: string[];
+  imageSrc: string;
+  innerFields: InnerFieldDef[];
 };
 
 function defaultField(index: number): FieldDef {
@@ -158,6 +167,8 @@ function defaultField(index: number): FieldDef {
     scaleMinLabel: "",
     scaleMaxLabel: "",
     categories: [],
+    imageSrc: "",
+    innerFields: [],
   };
 }
 
@@ -475,6 +486,142 @@ function PercentageSplitConfig({
   );
 }
 
+function TextBlockConfig({
+  field,
+  onUpdate,
+}: {
+  field: FieldDef;
+  onUpdate: (f: FieldDef) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <Label className="text-xs">Content</Label>
+      <Textarea
+        value={field.description}
+        onChange={(e) => onUpdate({ ...field, description: e.target.value })}
+        placeholder="Static text shown to the respondent (line breaks preserved)"
+        rows={4}
+        className="text-xs"
+      />
+    </div>
+  );
+}
+
+function ImageConfig({ field, onUpdate }: { field: FieldDef; onUpdate: (f: FieldDef) => void }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <Label className="text-xs">Image URL</Label>
+      <Input
+        value={field.imageSrc}
+        onChange={(e) => onUpdate({ ...field, imageSrc: e.target.value })}
+        placeholder="https://example.com/diagram.png"
+        className="text-xs"
+      />
+    </div>
+  );
+}
+
+function EmbedConfig({ field, onUpdate }: { field: FieldDef; onUpdate: (f: FieldDef) => void }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <Label className="text-xs">Embed URL</Label>
+      <Input
+        value={field.imageSrc}
+        onChange={(e) => onUpdate({ ...field, imageSrc: e.target.value })}
+        placeholder="https://example.com/page-to-embed"
+        className="text-xs"
+      />
+    </div>
+  );
+}
+
+const INNER_FIELD_TYPES: { value: InnerFieldDef["type"]; label: string }[] = [
+  { value: "text", label: "Text" },
+  { value: "number", label: "Number" },
+  { value: "integer", label: "Integer" },
+  { value: "boolean", label: "Checkbox" },
+  { value: "date", label: "Date" },
+];
+
+function RepeatableConfig({
+  field,
+  onUpdate,
+}: {
+  field: FieldDef;
+  onUpdate: (f: FieldDef) => void;
+}) {
+  const addInner = () =>
+    onUpdate({
+      ...field,
+      innerFields: [
+        ...field.innerFields,
+        {
+          name: `column_${field.innerFields.length + 1}`,
+          title: `Column ${field.innerFields.length + 1}`,
+          type: "text",
+        },
+      ],
+    });
+  const removeInner = (i: number) =>
+    onUpdate({ ...field, innerFields: field.innerFields.filter((_, j) => j !== i) });
+  const updateInner = (i: number, updates: Partial<InnerFieldDef>) => {
+    const inner = [...field.innerFields];
+    inner[i] = { ...inner[i], ...updates };
+    onUpdate({ ...field, innerFields: inner });
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Label className="text-xs">Row fields (each repeated row has these)</Label>
+      {field.innerFields.map((inner, i) => (
+        <div key={i} className="flex gap-1">
+          <Input
+            value={inner.title}
+            onChange={(e) => {
+              const title = e.target.value;
+              updateInner(i, {
+                name: title.trim().toLowerCase().replace(/\s+/g, "_") || `column_${i + 1}`,
+                title,
+              });
+            }}
+            placeholder="Label"
+            className="flex-1 text-xs"
+          />
+          <Select
+            value={inner.type}
+            onValueChange={(v) => updateInner(i, { type: v as InnerFieldDef["type"] })}
+          >
+            <SelectTrigger className="w-28 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {INNER_FIELD_TYPES.map((t) => (
+                <SelectItem key={t.value} value={t.value}>
+                  {t.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <button
+            type="button"
+            onClick={() => removeInner(i)}
+            className="px-1 text-red-400 hover:text-red-600"
+          >
+            <TrashIcon className="h-3 w-3" />
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={addInner}
+        className="self-start text-xs text-blue-500 hover:text-blue-700"
+      >
+        + Add row field
+      </button>
+    </div>
+  );
+}
+
 function TypeConfig({ field, onUpdate }: { field: FieldDef; onUpdate: (f: FieldDef) => void }) {
   switch (field.type) {
     case "text":
@@ -487,6 +634,7 @@ function TypeConfig({ field, onUpdate }: { field: FieldDef; onUpdate: (f: FieldD
       return <NumberConfig field={field} onUpdate={onUpdate} />;
     case "select":
     case "multi_select":
+    case "radio":
       return <SelectConfig field={field} onUpdate={onUpdate} />;
     case "rating":
       return <RatingConfig field={field} onUpdate={onUpdate} />;
@@ -496,6 +644,14 @@ function TypeConfig({ field, onUpdate }: { field: FieldDef; onUpdate: (f: FieldD
       return <FileConfig field={field} onUpdate={onUpdate} />;
     case "percentage_split":
       return <PercentageSplitConfig field={field} onUpdate={onUpdate} />;
+    case "text_block":
+      return <TextBlockConfig field={field} onUpdate={onUpdate} />;
+    case "image":
+      return <ImageConfig field={field} onUpdate={onUpdate} />;
+    case "embed":
+      return <EmbedConfig field={field} onUpdate={onUpdate} />;
+    case "repeatable":
+      return <RepeatableConfig field={field} onUpdate={onUpdate} />;
     default:
       return null;
   }
@@ -507,16 +663,19 @@ function TypeConfig({ field, onUpdate }: { field: FieldDef; onUpdate: (f: FieldD
 
 function SortableField({
   field,
+  expanded,
+  onToggleExpanded,
   onUpdate,
   onRemove,
   onDuplicate,
 }: {
   field: FieldDef;
+  expanded: boolean;
+  onToggleExpanded: () => void;
   onUpdate: (field: FieldDef) => void;
   onRemove: () => void;
   onDuplicate: () => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: field.id,
   });
@@ -586,7 +745,7 @@ function SortableField({
         </label>
         <button
           type="button"
-          onClick={() => setExpanded(!expanded)}
+          onClick={onToggleExpanded}
           className="text-gray-400 hover:text-gray-600"
         >
           {expanded ? <ChevronUpIcon className="h-4 w-4" /> : <SettingsIcon className="h-4 w-4" />}
@@ -644,7 +803,7 @@ function SortableField({
 // Schema conversion
 // ---------------------------------------------------------------------------
 
-function schemaToFields(schema: Record<string, unknown>): FieldDef[] {
+export function schemaToFields(schema: Record<string, unknown>): FieldDef[] {
   const properties = (schema.properties || {}) as Record<string, Record<string, unknown>>;
   const required = new Set((schema.required || []) as string[]);
   return Object.entries(properties).map(([name, def], i) => ({
@@ -657,10 +816,41 @@ function schemaToFields(schema: Record<string, unknown>): FieldDef[] {
     required: required.has(name),
     description: (def.description as string) || "",
     placeholder: (def.placeholder as string) || "",
+    defaultValue: def.default != null ? String(def.default) : "",
+    width: (def["x-width"] as FieldDef["width"]) || "full",
     options:
       (def.enum as string[]) || ((def.items as Record<string, unknown>)?.enum as string[]) || [],
     min: def.minimum != null ? String(def.minimum) : "",
     max: def.maximum != null ? String(def.maximum) : "",
+    step: def["x-step"] != null ? String(def["x-step"]) : "",
+    prefix: (def["x-prefix"] as string) || "",
+    suffix: (def["x-suffix"] as string) || "",
+    minLength: def.minLength != null ? String(def.minLength) : "",
+    maxLength: def.maxLength != null ? String(def.maxLength) : "",
+    pattern: (def.pattern as string) || "",
+    acceptedFileTypes: (def["x-accept"] as string) || "",
+    maxFileSize: def["x-max-size-mb"] != null ? String(def["x-max-size-mb"]) : "",
+    allowMultiple: Boolean(def["x-multiple"]),
+    scaleMinLabel: (def["x-min-label"] as string) || "",
+    scaleMaxLabel: (def["x-max-label"] as string) || "",
+    categories: (def["x-categories"] as string[]) || [],
+    imageSrc: (def["x-src"] as string) || "",
+    innerFields: itemsToInnerFields(def.items as Record<string, unknown> | undefined),
+  }));
+}
+
+function itemsToInnerFields(items: Record<string, unknown> | undefined): InnerFieldDef[] {
+  const props = (items?.properties ?? {}) as Record<string, Record<string, unknown>>;
+  return Object.entries(props).map(([name, def]) => ({
+    name,
+    title:
+      (def.title as string) || name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+    type:
+      def.format === "date"
+        ? "date"
+        : def.type === "number" || def.type === "integer" || def.type === "boolean"
+          ? (def.type as InnerFieldDef["type"])
+          : "text",
   }));
 }
 
@@ -672,6 +862,7 @@ function resolveType(def: Record<string, unknown>): string {
   if (format === "uri") return "url";
   if (format === "date") return "date";
   if (format === "date-time") return "datetime";
+  if (format === "time") return "time";
   const type = def.type as string;
   if (type === "integer") return "integer";
   if (type === "number") return "number";
@@ -681,7 +872,26 @@ function resolveType(def: Record<string, unknown>): string {
   return "text";
 }
 
-function fieldsToSchema(fields: FieldDef[]): Record<string, unknown> {
+const NUMERIC_TYPES = new Set(["number", "integer", "rating", "scale"]);
+
+function innerFieldsToItems(innerFields: InnerFieldDef[]): Record<string, unknown> {
+  const properties: Record<string, Record<string, unknown>> = {};
+  for (const inner of innerFields) {
+    const prop: Record<string, unknown> = { title: inner.title };
+    if (inner.type === "date") {
+      prop.type = "string";
+      prop.format = "date";
+    } else if (inner.type === "text") {
+      prop.type = "string";
+    } else {
+      prop.type = inner.type;
+    }
+    properties[inner.name] = prop;
+  }
+  return { type: "object", properties };
+}
+
+export function fieldsToSchema(fields: FieldDef[]): Record<string, unknown> {
   const properties: Record<string, Record<string, unknown>> = {};
   const required: string[] = [];
 
@@ -689,15 +899,6 @@ function fieldsToSchema(fields: FieldDef[]): Record<string, unknown> {
     const prop: Record<string, unknown> = {};
 
     switch (field.type) {
-      case "text":
-      case "textarea":
-      case "email":
-      case "url":
-      case "date":
-      case "datetime":
-      case "signature":
-        prop.type = "string";
-        break;
       case "number":
         prop.type = "number";
         break;
@@ -709,18 +910,12 @@ function fieldsToSchema(fields: FieldDef[]): Record<string, unknown> {
       case "boolean":
         prop.type = "boolean";
         break;
-      case "select":
-        prop.type = "string";
-        break;
       case "multi_select":
       case "repeatable":
         prop.type = "array";
         break;
       case "percentage_split":
         prop.type = "object";
-        break;
-      case "file":
-        prop.type = "string";
         break;
       default:
         prop.type = "string";
@@ -730,7 +925,13 @@ function fieldsToSchema(fields: FieldDef[]): Record<string, unknown> {
     if (field.type === "url") prop.format = "uri";
     if (field.type === "date") prop.format = "date";
     if (field.type === "datetime") prop.format = "date-time";
+    if (field.type === "time") {
+      prop.format = "time";
+      prop["x-widget"] = "time";
+    }
     if (field.type === "textarea") prop["x-widget"] = "textarea";
+    if (field.type === "radio") prop["x-widget"] = "radio";
+    if (field.type === "pin") prop["x-widget"] = "pin";
     if (field.type === "rating") {
       prop["x-widget"] = "rating";
       prop.minimum = 1;
@@ -740,31 +941,59 @@ function fieldsToSchema(fields: FieldDef[]): Record<string, unknown> {
       prop["x-widget"] = "scale";
       prop.minimum = parseInt(field.min) || 0;
       prop.maximum = parseInt(field.max) || 10;
+      if (field.scaleMinLabel) prop["x-min-label"] = field.scaleMinLabel;
+      if (field.scaleMaxLabel) prop["x-max-label"] = field.scaleMaxLabel;
     }
     if (field.type === "signature") prop["x-widget"] = "signature";
     if (field.type === "file") {
       prop.format = "uri";
       prop["x-widget"] = "file";
+      if (field.acceptedFileTypes) prop["x-accept"] = field.acceptedFileTypes;
+      if (field.maxFileSize) prop["x-max-size-mb"] = parseFloat(field.maxFileSize);
+      if (field.allowMultiple) prop["x-multiple"] = true;
     }
-    if (field.type === "percentage_split") prop["x-widget"] = "percentage_split";
+    if (field.type === "percentage_split") {
+      prop["x-widget"] = "percentage_split";
+      if (field.categories.length > 0) prop["x-categories"] = field.categories;
+    }
+    if (field.type === "repeatable") {
+      prop["x-widget"] = "repeatable";
+      prop.items = innerFieldsToItems(field.innerFields);
+    }
+    if (["text_block", "section_header", "page_break"].includes(field.type)) {
+      prop["x-widget"] = field.type;
+    }
+    if (field.type === "image" || field.type === "embed") {
+      prop["x-widget"] = field.type;
+      if (field.imageSrc) prop["x-src"] = field.imageSrc;
+    }
 
     if (field.min && !["rating", "scale"].includes(field.type))
       prop.minimum = parseFloat(field.min);
     if (field.max && !["rating", "scale"].includes(field.type))
       prop.maximum = parseFloat(field.max);
+    if (field.step && ["number", "integer"].includes(field.type))
+      prop["x-step"] = parseFloat(field.step);
+    if (field.prefix && ["number", "integer"].includes(field.type)) prop["x-prefix"] = field.prefix;
+    if (field.suffix && ["number", "integer"].includes(field.type)) prop["x-suffix"] = field.suffix;
     if (field.minLength) prop.minLength = parseInt(field.minLength);
     if (field.maxLength) prop.maxLength = parseInt(field.maxLength);
     if (field.pattern) prop.pattern = field.pattern;
     if (field.placeholder) prop.placeholder = field.placeholder;
+    if (field.width !== "full") prop["x-width"] = field.width;
 
     if (field.options.length > 0) {
-      if (field.type === "select") prop.enum = field.options;
+      if (field.type === "select" || field.type === "radio") prop.enum = field.options;
       else if (field.type === "multi_select") prop.items = { type: "string", enum: field.options };
     }
 
     if (field.title) prop.title = field.title;
     if (field.description) prop.description = field.description;
-    if (field.defaultValue) prop.default = field.defaultValue;
+    if (field.defaultValue) {
+      prop.default = NUMERIC_TYPES.has(field.type)
+        ? parseFloat(field.defaultValue)
+        : field.defaultValue;
+    }
 
     properties[field.name] = prop;
     if (field.required) required.push(field.name);
@@ -779,7 +1008,20 @@ function fieldsToSchema(fields: FieldDef[]): Record<string, unknown> {
 
 export function FormBuilder({ schema, onSave, onChange }: FormBuilderProps) {
   const [fields, setFields] = useState<FieldDef[]>(() => schemaToFields(schema));
-  const [allExpanded, setAllExpanded] = useState(false);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  const allExpanded = fields.length > 0 && fields.every((f) => expandedIds.has(f.id));
+  const toggleExpanded = (id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+  const toggleAllExpanded = () => {
+    setExpandedIds(allExpanded ? new Set() : new Set(fields.map((f) => f.id)));
+  };
 
   // Live preview: notify parent on every field change
   const fieldsJson = JSON.stringify(fields);
@@ -840,12 +1082,7 @@ export function FormBuilder({ schema, onSave, onChange }: FormBuilderProps) {
           <Button type="button" variant="outline" size="sm" onClick={addField}>
             <PlusIcon className="mr-1 h-3 w-3" /> Add Field
           </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setAllExpanded(!allExpanded)}
-          >
+          <Button type="button" variant="ghost" size="sm" onClick={toggleAllExpanded}>
             {allExpanded ? (
               <ChevronUpIcon className="mr-1 h-3 w-3" />
             ) : (
@@ -866,6 +1103,8 @@ export function FormBuilder({ schema, onSave, onChange }: FormBuilderProps) {
               <SortableField
                 key={field.id}
                 field={field}
+                expanded={expandedIds.has(field.id)}
+                onToggleExpanded={() => toggleExpanded(field.id)}
                 onUpdate={(updated) => updateField(field.id, updated)}
                 onRemove={() => removeField(field.id)}
                 onDuplicate={() => duplicateField(field.id)}
