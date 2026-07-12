@@ -279,7 +279,9 @@ type Mutation {
   """Logout the current user."""
   logout: Boolean!
 
-  """Switch the active user (impersonation)."""
+  """
+  Switch the active user (impersonation). Requires PROFILE_CHANGE_SWITCH_USER permission; non-superusers may only switch to users in their own UserSwitchGroup.
+  """
   switchUser(id: ID!): SwitchUserResult!
 
   """Upsert user profile via UtilityForm.apply_forms."""

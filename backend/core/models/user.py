@@ -711,6 +711,7 @@ class Profile(RequiresApproveMixin, Tracking):
             ('change_reset_password_users', 'Can reset password of other users'),
             ('delete_users', 'Can delete users'),
             ('approve_profile_changes', 'Can approve profile changes'),
+            ('change_switch_user', 'Can switch to another user in the same switch group'),
         )
 
         constraints = [

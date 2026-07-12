@@ -172,6 +172,123 @@ class SwitchUserMutationTest(UserMutationTestBase):
         self.assertIsNotNone(result.errors)
         self.assertIn('not found', str(result.errors[0]))
 
+    # -- permission gate (issue #109) -------------------------------------
+
+    def _grant_switch_permission(self, user):
+        """Grant PROFILE_CHANGE_SWITCH_USER via an org-scoped group (house pattern)."""
+        permission = Permission.objects.get(
+            codename='change_switch_user',
+            content_type=ContentType.objects.get_for_model(Profile),
+        )
+        group = Group.objects.create(name=f'switchers_{user.pk}')
+        group.permissions.add(permission)
+        self.org.groups.add(group)
+        membership = user.memberships.get(organization=self.org)
+        membership.groups.add(group)
+
+    def _put_in_switch_group(self, switch_group, *users):
+        for user in users:
+            user.profile.switch_group = switch_group
+            user.profile.save()
+
+    def test_switch_user_anonymous_denied(self):
+        """An unauthenticated request is rejected before anything else happens."""
+        from django.contrib.auth.models import AnonymousUser
+        context = self._make_context(AnonymousUser())
+        result = self._execute(
+            self.MUTATION,
+            {'id': GlobalIDUtils.to_global_id('UserType', self.plain_user.pk)},
+            context,
+        )
+        self.assertIsNotNone(result.errors)
+        self.assertIn('not authenticated', str(result.errors[0]))
+        self.assertNotIn(AUTH_SESSION_KEY, context.request.session)
+
+    def test_switch_user_without_permission_denied(self):
+        """An authenticated user without PROFILE_CHANGE_SWITCH_USER is rejected."""
+        context = self._make_context(self.plain_user)
+        result = self._execute(
+            self.MUTATION,
+            {'id': GlobalIDUtils.to_global_id('UserType', self.user.pk)},
+            context,
+        )
+        self.assertIsNotNone(result.errors)
+        self.assertNotIn(AUTH_SESSION_KEY, context.request.session)
+        self.assertNotIn('MAIN_USER_PK', context.request.session)
+
+    def test_switch_user_permitted_and_in_group_succeeds(self):
+        """A permitted user switches to a target inside their UserSwitchGroup."""
+        from core.models import UserSwitchGroup
+        target = User.objects.create_user(
+            username='user_mut_target', email='target@test.com', password='x',
+        )
+        self._grant_switch_permission(self.plain_user)
+        self._put_in_switch_group(
+            UserSwitchGroup.objects.create(), self.plain_user, target,
+        )
+
+        context = self._make_context(self.plain_user)
+        result = self._execute(
+            self.MUTATION,
+            {'id': GlobalIDUtils.to_global_id('UserType', target.pk)},
+            context,
+        )
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            result.data['switchUser']['user']['username'], target.username,
+        )
+        session = context.request.session
+        self.assertEqual(session[AUTH_SESSION_KEY], target.pk)
+        self.assertEqual(session['MAIN_USER_PK'], self.plain_user.pk)
+
+    def test_switch_user_permitted_but_out_of_group_denied(self):
+        """A permitted user cannot switch to a target outside their UserSwitchGroup."""
+        from core.models import UserSwitchGroup
+        target = User.objects.create_user(
+            username='user_mut_outsider', email='outsider@test.com', password='x',
+        )
+        self._grant_switch_permission(self.plain_user)
+        self._put_in_switch_group(UserSwitchGroup.objects.create(), self.plain_user)
+        self._put_in_switch_group(UserSwitchGroup.objects.create(), target)
+
+        context = self._make_context(self.plain_user)
+        result = self._execute(
+            self.MUTATION,
+            {'id': GlobalIDUtils.to_global_id('UserType', target.pk)},
+            context,
+        )
+        self.assertIsNotNone(result.errors)
+        self.assertIn('switch group', str(result.errors[0]))
+        self.assertNotIn(AUTH_SESSION_KEY, context.request.session)
+
+    def test_switch_user_permitted_without_any_group_denied(self):
+        """Fail closed: permission alone is not enough when no switch group is set."""
+        self._grant_switch_permission(self.plain_user)
+        context = self._make_context(self.plain_user)
+        result = self._execute(
+            self.MUTATION,
+            {'id': GlobalIDUtils.to_global_id('UserType', self.user.pk)},
+            context,
+        )
+        self.assertIsNotNone(result.errors)
+        self.assertNotIn(AUTH_SESSION_KEY, context.request.session)
+
+    def test_switch_user_runs_without_legacy_module_injection(self):
+        """switchUser no longer depends on the legacy core.schema.user module."""
+        self.assertNotIn('core.schema.user', sys.modules)
+        context = self._make_context()
+        result = schema.execute_sync(
+            self.MUTATION,
+            variable_values={
+                'id': GlobalIDUtils.to_global_id('UserType', self.plain_user.pk),
+            },
+            context_value=context,
+        )
+        self.assertIsNone(result.errors)
+        self.assertEqual(
+            result.data['switchUser']['user']['username'], self.plain_user.username,
+        )
+
 
 # ---------------------------------------------------------------------------
 # upsertUser

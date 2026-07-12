@@ -5,19 +5,17 @@ import logging
 from typing import Optional
 
 import strawberry
-from django.conf import settings
-from django.contrib.auth import SESSION_KEY as AUTH_SESSION_KEY
-from django.contrib.auth import authenticate, get_user_model, login, logout
-from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied, ValidationError
-from graphql import GraphQLError
-from strawberry.types import Info
-
 from core.models import Profile, SignRequest
-from core.schema.mutations.common import UtilityForm
 from core.schema.common import GlobalIDUtils, MutationResult
 from core.schema.mutations.base import resolve_instance_from_id
-from core.schema.types.user import SignRequestType as StrawberrySignRequestType, UserType as StrawberryUserType
+from core.schema.mutations.common import UtilityForm
+from core.schema.types.user import UserType as StrawberryUserType
+from django.contrib.auth import SESSION_KEY as AUTH_SESSION_KEY
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
+from graphql import GraphQLError
+from strawberry.types import Info
 
 try:
     from django.contrib.auth import HASH_SESSION_KEY as AUTH_HASH_SESSION_KEY
@@ -116,17 +114,39 @@ class UserMutations:
         logout(info.context.request)
         return True
 
-    @strawberry.mutation(description="Switch the active user (impersonation).")
+    @strawberry.mutation(
+        description="Switch the active user (impersonation). "
+                    "Requires PROFILE_CHANGE_SWITCH_USER permission; non-superusers "
+                    "may only switch to users in their own UserSwitchGroup."
+    )
     def switch_user(self, info: Info, id: strawberry.ID) -> SwitchUserResult:
         user: User = info.context.user
+        if not user or not user.is_authenticated:
+            raise PermissionDenied('User is not authenticated')
+
         request = info.context.request
 
         if id == '':
+            # Switch back: only restores the original user recorded by a
+            # previously gated switch — no extra permission required.
             if 'MAIN_USER_PK' not in request.session:
                 return SwitchUserResult(user=info.context.user)
             other_user = User.objects.get(pk=request.session['MAIN_USER_PK'])
         else:
-            other_user = _get_user_object(info, id, raise_not_found=True)
+            from config.roles_gen import P
+            P.PROFILE_CHANGE_SWITCH_USER.check(user, True)
+
+            other_user = resolve_instance_from_id(User, id, 'UserType')
+
+            if not user.is_superuser:
+                caller_profile = getattr(user, 'profile', None)
+                target_profile = getattr(other_user, 'profile', None)
+                if (
+                    caller_profile is None or target_profile is None or
+                    caller_profile.switch_group_id is None or
+                    caller_profile.switch_group_id != target_profile.switch_group_id
+                ):
+                    raise PermissionDenied('Target user is not in your switch group')
 
         # Clear cached user so context sees the switched user
         try:
