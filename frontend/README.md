@@ -1,6 +1,7 @@
 # Frontend App
 
-Next.js 16 (App Router) + TypeScript, Apollo Client, Auth0, Tailwind CSS + shadcn/ui.
+Next.js 16 (App Router) + TypeScript, Apollo Client, Tailwind CSS + shadcn/ui.
+Authentication is handled by the backend `auth1` app — the frontend has no auth SDK dependency.
 
 ## Prerequisites
 
@@ -23,21 +24,16 @@ cp .env.example .env
 
 Then fill in the values in `.env`:
 
-| Variable                 | Description                                                                          |
-| ------------------------ | ------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_API_ROOT`   | Backend API base URL                                                                 |
-| `NEXT_PUBLIC_API_TOKEN`  | Static bearer token for API requests                                                 |
-| `NEXT_PUBLIC_MAIN_PAGE`  | Default redirect after login (e.g. `/dashboard`)                                     |
-| `APP_BASE_URL`           | Public URL of this app (used by Auth0 callbacks)                                     |
-| `AUTH_REDIRECT_URL`      | Auth0 redirect URL after login                                                       |
-| `AUTH0_SECRET`           | Random secret for Auth0 session encryption — generate with `openssl rand -base64 32` |
-| `AUTH0_DOMAIN`           | Auth0 tenant domain (e.g. `your-tenant.us.auth0.com`)                                |
-| `AUTH0_CLIENT_ID`        | Auth0 application client ID                                                          |
-| `AUTH0_CLIENT_SECRET`    | Auth0 application client secret                                                      |
-| `METABASE_SITE_URL`      | _(optional)_ Metabase instance URL                                                   |
-| `METABASE_SECRET_KEY`    | _(optional)_ Metabase embedding secret key                                           |
-| `SENTRY_AUTH_TOKEN`      | _(optional)_ Sentry auth token for source map uploads                                |
-| `NEXT_PUBLIC_SENTRY_DSN` | _(optional)_ Sentry DSN                                                              |
+| Variable                 | Description                                           |
+| ------------------------ | ----------------------------------------------------- |
+| `NEXT_PUBLIC_API_ROOT`   | Backend API base URL                                  |
+| `NEXT_PUBLIC_API_TOKEN`  | Static bearer token for API requests                  |
+| `NEXT_PUBLIC_MAIN_PAGE`  | Default redirect after login (e.g. `/dashboard`)      |
+| `APP_BASE_URL`           | Public URL of this app                                |
+| `METABASE_SITE_URL`      | _(optional)_ Metabase instance URL                    |
+| `METABASE_SECRET_KEY`    | _(optional)_ Metabase embedding secret key            |
+| `SENTRY_AUTH_TOKEN`      | _(optional)_ Sentry auth token for source map uploads |
+| `NEXT_PUBLIC_SENTRY_DSN` | _(optional)_ Sentry DSN                               |
 
 ## Running
 
