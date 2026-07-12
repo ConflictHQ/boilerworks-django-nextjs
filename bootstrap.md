@@ -1,6 +1,6 @@
 # Boilerworks Bootstrap
 
-This is the primary conventions document for the Boilerworks Django platform. Both agent shims (`CLAUDE.md`, `AGENTS.md`) point here.
+This is the primary conventions document for the Boilerworks Django platform. All agent shims (`CLAUDE.md`, `AGENTS.md`, `CALLIOPE.md`) point here.
 
 An agent given this document and a business requirement should be able to generate correct, idiomatic code without exploring the codebase.
 
