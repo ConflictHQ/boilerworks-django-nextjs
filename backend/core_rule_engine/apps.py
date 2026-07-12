@@ -1,4 +1,8 @@
+import logging
+
 from django.apps import AppConfig
+
+logger = logging.getLogger(__name__)
 
 
 class CoreRuleEngineConfig(AppConfig):
@@ -13,4 +17,5 @@ class CoreRuleEngineConfig(AppConfig):
             register_rule_providers()
             RuleModelSignal.register_signals()
         except Exception as e:
-            print(f'Error registering signals: {e}')
+            # Expected before migrations have run (e.g. first boot, test DB creation)
+            logger.warning(f'Error registering signals: {e}')

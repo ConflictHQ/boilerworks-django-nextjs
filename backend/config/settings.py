@@ -269,6 +269,7 @@ INSTALLED_APPS = [
     'simple_history',
     'forms',
     'workflows',
+    'core_rule_engine',
     # End of Django Standard
 
     # Start of Celery
@@ -313,6 +314,7 @@ INSTALLED_APPS = [
 
 # Feature toggles — remove disabled feature apps
 from config.features import filter_installed_apps  # noqa: E402
+
 INSTALLED_APPS = filter_installed_apps(INSTALLED_APPS)
 
 # Discover and merge domain app configurations

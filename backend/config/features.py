@@ -69,7 +69,6 @@ FEATURE_APPS = {
     Feature.METABASE: [],
     Feature.ROCKETCHAT: [],
     Feature.FILE_UPLOADS: [],
-    Feature.WORKFLOWS: [],
     Feature.TEMPORAL: [],
 }
 
