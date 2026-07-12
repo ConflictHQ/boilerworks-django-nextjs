@@ -245,9 +245,10 @@ class FileUpload(Tracking):
         related_name='file_uploads',
     )
 
-    @property
-    def id(self):
-        return self.global_id
+    # NOTE: do not define an `id` property here. Django installs the auto pk
+    # descriptor on the class *after* the class body executes (Field.contribute_to_class),
+    # so a class-body `id` property is silently overwritten and never called.
+    # Use `global_id` (from Tracking) for the relay id.
 
     @property
     def path(self):
