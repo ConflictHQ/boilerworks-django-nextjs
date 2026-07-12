@@ -41,6 +41,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import type { LogicRule } from "./logic-engine";
 
 const FIELD_TYPES = [
   { value: "text", label: "Text", icon: "Aa", hint: "Single-line text input" },
@@ -1003,11 +1004,164 @@ export function fieldsToSchema(fields: FieldDef[]): Record<string, unknown> {
 }
 
 // ---------------------------------------------------------------------------
+// Conditional logic editor
+// ---------------------------------------------------------------------------
+
+const LOGIC_OPS: { value: LogicRule["condition"]["op"]; label: string; needsValue: boolean }[] = [
+  { value: "eq", label: "equals", needsValue: true },
+  { value: "neq", label: "does not equal", needsValue: true },
+  { value: "gt", label: "is greater than", needsValue: true },
+  { value: "lt", label: "is less than", needsValue: true },
+  { value: "contains", label: "contains", needsValue: true },
+  { value: "is_empty", label: "is empty", needsValue: false },
+  { value: "is_not_empty", label: "is not empty", needsValue: false },
+];
+
+const LOGIC_ACTIONS: { value: LogicRule["action"]; label: string }[] = [
+  { value: "show", label: "show" },
+  { value: "hide", label: "hide" },
+  { value: "require", label: "require" },
+];
+
+function opNeedsValue(op: LogicRule["condition"]["op"]): boolean {
+  return LOGIC_OPS.find((o) => o.value === op)?.needsValue ?? true;
+}
+
+function LogicRulesEditor({
+  fields,
+  rules,
+  onChange,
+}: {
+  fields: FieldDef[];
+  rules: LogicRule[];
+  onChange: (rules: LogicRule[]) => void;
+}) {
+  const inputFields = fields.filter(
+    (f) => !["text_block", "section_header", "page_break", "image", "embed"].includes(f.type)
+  );
+
+  const addRule = () => {
+    const first = inputFields[0]?.name ?? "";
+    onChange([
+      ...rules,
+      { condition: { field: first, op: "eq", value: "" }, action: "show", target: first },
+    ]);
+  };
+  const removeRule = (i: number) => onChange(rules.filter((_, j) => j !== i));
+  const updateRule = (i: number, updates: Partial<LogicRule>) => {
+    onChange(rules.map((r, j) => (j === i ? { ...r, ...updates } : r)));
+  };
+
+  const fieldSelect = (value: string, onValue: (v: string) => void) => (
+    <Select value={value} onValueChange={onValue}>
+      <SelectTrigger className="w-40">
+        <SelectValue placeholder="Field" />
+      </SelectTrigger>
+      <SelectContent>
+        {inputFields.map((f) => (
+          <SelectItem key={f.name} value={f.name}>
+            {f.title || f.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold">Conditional Logic</h3>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={addRule}
+          disabled={inputFields.length === 0}
+        >
+          <PlusIcon className="mr-1 h-3 w-3" /> Add Rule
+        </Button>
+      </div>
+      {rules.length === 0 && (
+        <p className="text-muted-foreground text-xs">
+          No rules. Rules run while the form is filled in, e.g. &quot;when expense_type equals
+          travel, show destination&quot;.
+        </p>
+      )}
+      {rules.map((rule, i) => (
+        <div key={i} className="flex flex-wrap items-center gap-2 rounded-md border p-2 text-sm">
+          <span className="text-muted-foreground text-xs">When</span>
+          {fieldSelect(rule.condition.field, (v) =>
+            updateRule(i, { condition: { ...rule.condition, field: v } })
+          )}
+          <Select
+            value={rule.condition.op}
+            onValueChange={(v) =>
+              updateRule(i, {
+                condition: { ...rule.condition, op: v as LogicRule["condition"]["op"] },
+              })
+            }
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {LOGIC_OPS.map((op) => (
+                <SelectItem key={op.value} value={op.value}>
+                  {op.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {opNeedsValue(rule.condition.op) && (
+            <Input
+              value={String(rule.condition.value ?? "")}
+              onChange={(e) =>
+                updateRule(i, { condition: { ...rule.condition, value: e.target.value } })
+              }
+              placeholder="value"
+              className="w-28 text-xs"
+            />
+          )}
+          <span className="text-muted-foreground text-xs">then</span>
+          <Select
+            value={rule.action}
+            onValueChange={(v) => updateRule(i, { action: v as LogicRule["action"] })}
+          >
+            <SelectTrigger className="w-28">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {LOGIC_ACTIONS.map((a) => (
+                <SelectItem key={a.value} value={a.value}>
+                  {a.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {fieldSelect(rule.target, (v) => updateRule(i, { target: v }))}
+          <button
+            type="button"
+            onClick={() => removeRule(i)}
+            className="ml-auto text-red-400 hover:text-red-600"
+            aria-label={`Remove rule ${i + 1}`}
+          >
+            <TrashIcon className="h-4 w-4" />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
 
 export function FormBuilder({ schema, onSave, onChange }: FormBuilderProps) {
   const [fields, setFields] = useState<FieldDef[]>(() => schemaToFields(schema));
+  const [logicRules, setLogicRules] = useState<LogicRule[]>(
+    () => (schema["x-logic-rules"] as LogicRule[]) ?? []
+  );
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const allExpanded = fields.length > 0 && fields.every((f) => expandedIds.has(f.id));
@@ -1023,13 +1177,20 @@ export function FormBuilder({ schema, onSave, onChange }: FormBuilderProps) {
     setExpandedIds(allExpanded ? new Set() : new Set(fields.map((f) => f.id)));
   };
 
-  // Live preview: notify parent on every field change
+  const buildSchema = () => {
+    const built = fieldsToSchema(fields);
+    if (logicRules.length > 0) built["x-logic-rules"] = logicRules;
+    return built;
+  };
+
+  // Live preview: notify parent on every field/rule change
   const fieldsJson = JSON.stringify(fields);
+  const rulesJson = JSON.stringify(logicRules);
   React.useEffect(() => {
     if (onChange) {
-      onChange(fieldsToSchema(fields));
+      onChange(buildSchema());
     }
-  }, [fieldsJson]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fieldsJson, rulesJson]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -1072,7 +1233,7 @@ export function FormBuilder({ schema, onSave, onChange }: FormBuilderProps) {
   };
 
   const handleSave = () => {
-    onSave(fieldsToSchema(fields));
+    onSave(buildSchema());
   };
 
   return (
@@ -1120,6 +1281,10 @@ export function FormBuilder({ schema, onSave, onChange }: FormBuilderProps) {
         </div>
       )}
 
+      <Separator />
+
+      <LogicRulesEditor fields={fields} rules={logicRules} onChange={setLogicRules} />
+
       <div className="text-muted-foreground text-xs">
         Drag to reorder. Click ⚙ to configure type-specific settings.
         {fields.length > 0 && (
@@ -1127,6 +1292,12 @@ export function FormBuilder({ schema, onSave, onChange }: FormBuilderProps) {
             {" "}
             {fields.length} field{fields.length !== 1 ? "s" : ""},{" "}
             {fields.filter((f) => f.required).length} required.
+          </span>
+        )}
+        {logicRules.length > 0 && (
+          <span>
+            {" "}
+            {logicRules.length} logic rule{logicRules.length !== 1 ? "s" : ""}.
           </span>
         )}
       </div>

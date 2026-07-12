@@ -81,7 +81,13 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
   const schemaRequired = new Set(schema.required || []);
   const fieldNames = Object.keys(properties);
 
-  const logicRules = ((formDef as Record<string, unknown> | null)?.logicRules ?? []) as LogicRule[];
+  // Rules come from the backend logicRules field, plus any embedded in the
+  // schema by the builder's logic editor (x-logic-rules — the create/update
+  // mutation only accepts `schema`, so the builder persists rules inside it).
+  const backendRules = ((formDef as Record<string, unknown> | null)?.logicRules ??
+    []) as LogicRule[];
+  const schemaRules = ((schema as Record<string, unknown>)["x-logic-rules"] ?? []) as LogicRule[];
+  const logicRules = [...backendRules, ...schemaRules];
   const fieldConfig = ((formDef as Record<string, unknown> | null)?.fieldConfig ?? {}) as Record<
     string,
     Record<string, unknown>

@@ -57,6 +57,44 @@ describe("FormBuilder (#71 critical bugs)", () => {
   });
 });
 
+describe("FormBuilder conditional logic editor (#71 UX)", () => {
+  it("adds a rule and embeds it in the saved schema as x-logic-rules", () => {
+    const onSave = vi.fn();
+    const { container } = render(<FormBuilder schema={SCHEMA} onSave={onSave} />);
+    const scope = within(container as HTMLElement);
+
+    fireEvent.click(scope.getByRole("button", { name: /add rule/i }));
+    fireEvent.click(scope.getByRole("button", { name: /save schema/i }));
+
+    const saved = onSave.mock.calls[0][0] as Record<string, unknown>;
+    const rules = saved["x-logic-rules"] as Array<Record<string, unknown>>;
+    expect(rules).toHaveLength(1);
+    expect(rules[0]).toMatchObject({
+      condition: { field: "name", op: "eq" },
+      action: "show",
+      target: "name",
+    });
+  });
+
+  it("restores existing x-logic-rules from the schema and can remove them", () => {
+    const onSave = vi.fn();
+    const schemaWithRules = {
+      ...SCHEMA,
+      "x-logic-rules": [
+        { condition: { field: "name", op: "is_empty" }, action: "require", target: "name" },
+      ],
+    };
+    const { container } = render(<FormBuilder schema={schemaWithRules} onSave={onSave} />);
+    const scope = within(container as HTMLElement);
+
+    fireEvent.click(scope.getByLabelText(/remove rule 1/i));
+    fireEvent.click(scope.getByRole("button", { name: /save schema/i }));
+
+    const saved = onSave.mock.calls[0][0] as Record<string, unknown>;
+    expect(saved["x-logic-rules"]).toBeUndefined();
+  });
+});
+
 describe("FormBuilder Expand All / Collapse All (#71 UX)", () => {
   it("Expand All opens every field's config panel; Collapse All closes them", () => {
     const { container } = render(<FormBuilder schema={SCHEMA} onSave={() => {}} />);
