@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch, type FieldValues } from "react-hook-form";
-import { Loader2Icon, SendIcon, CheckCircle2Icon } from "lucide-react";
+import {
+  Loader2Icon,
+  SendIcon,
+  CheckCircle2Icon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +23,34 @@ type DynamicFormProps = {
   onSuccess?: (submissionId: string) => void;
 };
 
+export type FormPage = {
+  /** Title of the page_break field that started this page ("" for the first page). */
+  title: string;
+  fieldNames: string[];
+};
+
+/**
+ * Split a form's fields into pages at page_break markers.
+ * The page_break field itself is consumed as the separator; its title
+ * becomes the next page's heading. Exported for tests.
+ */
+export function splitIntoPages(
+  fieldNames: string[],
+  properties: Record<string, Record<string, unknown>>
+): FormPage[] {
+  const pages: FormPage[] = [{ title: "", fieldNames: [] }];
+  for (const name of fieldNames) {
+    if (properties[name]?.["x-widget"] === "page_break") {
+      pages.push({ title: (properties[name].title as string) || "", fieldNames: [] });
+    } else {
+      pages[pages.length - 1].fieldNames.push(name);
+    }
+  }
+  // Drop empty pages (e.g. a trailing page break with nothing after it)
+  const nonEmpty = pages.filter((p) => p.fieldNames.length > 0);
+  return nonEmpty.length > 0 ? nonEmpty : [{ title: "", fieldNames: [] }];
+}
+
 export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
   const { form: formDef, loading, error } = useFormDefinition(slug);
   const [submitForm] = useSubmitForm();
@@ -29,8 +63,11 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
     setError,
     setValue,
     reset,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm<FieldValues>();
+
+  const [pageIndex, setPageIndex] = useState(0);
 
   // ALL HOOKS MUST BE ABOVE ANY EARLY RETURNS
   const watchedValues = useWatch({ control });
@@ -60,6 +97,16 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [watchedValuesKey, logicRulesKey, fieldConfigKey, fieldNamesKey]
   );
+
+  const pages = useMemo(
+    () => splitIntoPages(fieldNames, properties),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [fieldNamesKey]
+  );
+  const multiPage = pages.length > 1;
+  const safePageIndex = Math.min(pageIndex, pages.length - 1);
+  const currentPage = pages[safePageIndex];
+  const isLastPage = safePageIndex === pages.length - 1;
 
   useEffect(() => {
     for (const [field, value] of Object.entries(logicState.calculated)) {
@@ -115,7 +162,7 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
   }
 
   // Display-only widget types that should not be included in payload
-  const DISPLAY_WIDGETS = new Set(["text_block", "section_header", "page_break", "image"]);
+  const DISPLAY_WIDGETS = new Set(["text_block", "section_header", "page_break", "image", "embed"]);
 
   const onSubmit = async (data: FieldValues) => {
     const payload: Record<string, unknown> = {};
@@ -166,8 +213,19 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
       </div>
       <Separator />
 
+      {multiPage && (
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">
+            {currentPage.title || `Page ${safePageIndex + 1}`}
+          </span>
+          <span className="text-muted-foreground text-xs">
+            Page {safePageIndex + 1} of {pages.length}
+          </span>
+        </div>
+      )}
+
       <div className="grid grid-cols-6 gap-4">
-        {fieldNames.map((fieldName) => {
+        {currentPage.fieldNames.map((fieldName) => {
           const isHidden = logicState.visibility[fieldName] === false;
           const fieldSchema = { ...properties[fieldName] };
           const widthClass = fieldWidthClass(fieldSchema);
@@ -219,14 +277,38 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
         </div>
       )}
 
-      <Button type="submit" disabled={isSubmitting} className="self-start">
-        {isSubmitting ? (
-          <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <SendIcon className="mr-2 h-4 w-4" />
+      <div className="flex items-center gap-2">
+        {multiPage && safePageIndex > 0 && (
+          <Button type="button" variant="outline" onClick={() => setPageIndex(safePageIndex - 1)}>
+            <ChevronLeftIcon className="mr-1 h-4 w-4" /> Previous
+          </Button>
         )}
-        Submit
-      </Button>
+        {multiPage && !isLastPage && (
+          <Button
+            type="button"
+            onClick={async () => {
+              // Validate only the visible fields on this page before advancing.
+              const visibleFields = currentPage.fieldNames.filter(
+                (f) => logicState.visibility[f] !== false
+              );
+              const ok = await trigger(visibleFields);
+              if (ok) setPageIndex(safePageIndex + 1);
+            }}
+          >
+            Next <ChevronRightIcon className="ml-1 h-4 w-4" />
+          </Button>
+        )}
+        {(!multiPage || isLastPage) && (
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <SendIcon className="mr-2 h-4 w-4" />
+            )}
+            Submit
+          </Button>
+        )}
+      </div>
     </form>
   );
 }
