@@ -10,7 +10,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.core import management
-from django.core.management.base import ALL_CHECKS, BaseCommand
+from django.core.management.base import BaseCommand
 from django.db.migrations import Migration, questioner
 from django.db.migrations.autodetector import MigrationAutodetector
 from django.db.migrations.loader import MigrationLoader
@@ -174,11 +174,13 @@ class Command(BaseCommand):
 
     def generate_permissions_enum(self):
         permissions: [Permission] = AllPermissions.load_permissions().permissions.values()
+        # Header emitted in isort/flake8-clean form: stdlib import first,
+        # no trailing whitespace, single newline at EOF.
         out = [
-            '# file generated using: python manage.py dev_utils --gen_perms ',
+            '# file generated using: python manage.py dev_utils --gen_perms',
             '# do not modify\n',
-            'from .permissions import AbstractPermissions\n',
-            'from enum import Enum\n\n',
+            'from enum import Enum\n',
+            'from .permissions import AbstractPermissions\n\n',
             'class P(AbstractPermissions, Enum):'
         ]
         enums = []
@@ -195,7 +197,7 @@ class Command(BaseCommand):
                 logger.error(f'Permission: {p}')
 
         out.extend(sorted(enums))
-        out.append('\n')
+        out.append('')
 
         with open('config/roles_gen.py', 'w') as handle:
             handle.write('\n'.join(out))

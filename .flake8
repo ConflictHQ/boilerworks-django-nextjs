@@ -7,6 +7,7 @@ per-file-ignores =
     test_*.py:E501
     */migrations/*:E501
     */snapshots/*:E501
+    *config/roles_gen.py:E501
 
 extend-ignore = F403, F405
 
