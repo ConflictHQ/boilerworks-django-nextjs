@@ -4,13 +4,14 @@
 // --- Schema shapes ---
 
 export type UserProfile = {
-  id: string;
-  username: string | null;
+  guid: string;
+  displayName: string | null;
 };
 
 export type CurrentUser = {
   id: string;
-  email?: string | null;
+  email: string;
+  username: string;
   profile: UserProfile | null;
 };
 

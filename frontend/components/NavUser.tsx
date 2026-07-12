@@ -46,7 +46,7 @@ export const NavUser = ({ ssrUser }: { ssrUser: CurrentUser | null }) => {
     setSentryUser(user ?? null);
   }, [user]);
 
-  const name = user?.profile?.username ?? "User";
+  const name = user?.username ?? "User";
   const email = user?.email ?? "";
   const avatar = "";
   const initials = name.slice(0, 2).toUpperCase();
@@ -156,8 +156,8 @@ export const NavUser = ({ ssrUser }: { ssrUser: CurrentUser | null }) => {
                 SSR · getClient
               </p>
               <Row label="me.id" value={ssrUser?.id ?? "—"} />
-              <Row label="me.profile.id" value={ssrUser?.profile?.id ?? "—"} />
-              <Row label="me.profile.username" value={ssrUser?.profile?.username ?? "—"} />
+              <Row label="me.profile.guid" value={ssrUser?.profile?.guid ?? "—"} />
+              <Row label="me.profile.displayName" value={ssrUser?.profile?.displayName ?? "—"} />
             </section>
 
             <Separator />
@@ -168,8 +168,8 @@ export const NavUser = ({ ssrUser }: { ssrUser: CurrentUser | null }) => {
                 {meLoading && <span className="font-normal normal-case">loading…</span>}
               </p>
               <Row label="me.id" value={meData?.me?.id ?? "—"} />
-              <Row label="me.profile.id" value={meData?.me?.profile?.id ?? "—"} />
-              <Row label="me.profile.username" value={meData?.me?.profile?.username ?? "—"} />
+              <Row label="me.profile.guid" value={meData?.me?.profile?.guid ?? "—"} />
+              <Row label="me.profile.displayName" value={meData?.me?.profile?.displayName ?? "—"} />
             </section>
           </div>
         </SheetContent>

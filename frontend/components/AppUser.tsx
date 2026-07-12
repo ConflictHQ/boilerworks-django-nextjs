@@ -9,5 +9,5 @@ export default function AppUser() {
   if (loading) return null;
   if (!user) return null;
 
-  return <Badge variant="secondary">{user.profile?.username ?? user.id}</Badge>;
+  return <Badge variant="secondary">{user.username ?? user.id}</Badge>;
 }

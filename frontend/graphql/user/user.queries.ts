@@ -4,9 +4,11 @@ export const GET_ME = gql`
   query Me {
     me {
       id
+      email
+      username
       profile {
-        id
-        username
+        guid
+        displayName
       }
     }
   }

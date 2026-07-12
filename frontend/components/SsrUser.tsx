@@ -8,7 +8,7 @@ export default async function SsrUser() {
   try {
     const client = await getClient();
     const { data } = await client.query<MeQueryData>({ query: GET_ME });
-    label = data?.me?.profile?.username ?? data?.me?.id;
+    label = data?.me?.username ?? data?.me?.id;
   } catch (e) {
     label = e instanceof Error ? e.message : String(e);
   }

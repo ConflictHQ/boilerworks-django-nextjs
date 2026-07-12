@@ -10,7 +10,7 @@ export default function Profile() {
 
   return (
     <div>
-      <p>{user.profile?.username}</p>
+      <p>{user.username}</p>
       <p>{user.email}</p>
     </div>
   );

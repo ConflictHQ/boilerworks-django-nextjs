@@ -14,7 +14,7 @@ export function setSentryUser(user: CurrentUser | null) {
   if (user) {
     Sentry.setUser({
       id: user.id,
-      username: user.profile?.username ?? undefined,
+      username: user.username ?? undefined,
     });
   } else {
     Sentry.setUser(null);

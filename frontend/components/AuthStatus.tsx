@@ -16,7 +16,7 @@ export default function AuthStatus() {
     <div className="flex items-center gap-3">
       {user ? (
         <>
-          <Badge variant="default">{user.profile?.username ?? user.email}</Badge>
+          <Badge variant="default">{user.username ?? user.email}</Badge>
           <LogoutButton />
         </>
       ) : (
