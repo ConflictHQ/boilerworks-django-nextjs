@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm, type FieldValues } from "react-hook-form";
-import { DynamicField } from "./field-registry";
+import { DynamicField, fieldWidthClass } from "./field-registry";
 
 type FormPreviewProps = {
   schema: Record<string, unknown>;
@@ -33,25 +33,28 @@ export function FormPreview({ schema, formName }: FormPreviewProps) {
   return (
     <div className="flex flex-col gap-4">
       {formName && <h3 className="text-lg font-semibold">{formName}</h3>}
-      {fieldNames.map((fieldName) => {
-        const fieldSchema = { ...properties[fieldName] };
-        if (required.has(fieldName)) {
-          const title =
-            (fieldSchema.title as string) ||
-            fieldName.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-          fieldSchema.title = title + " *";
-        }
-        return (
-          <DynamicField
-            key={fieldName}
-            name={fieldName}
-            schema={fieldSchema}
-            register={register}
-            control={control}
-            errors={errors}
-          />
-        );
-      })}
+      <div className="grid grid-cols-6 gap-4">
+        {fieldNames.map((fieldName) => {
+          const fieldSchema = { ...properties[fieldName] };
+          if (required.has(fieldName)) {
+            const title =
+              (fieldSchema.title as string) ||
+              fieldName.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+            fieldSchema.title = title + " *";
+          }
+          return (
+            <div key={fieldName} className={fieldWidthClass(fieldSchema)}>
+              <DynamicField
+                name={fieldName}
+                schema={fieldSchema}
+                register={register}
+                control={control}
+                errors={errors}
+              />
+            </div>
+          );
+        })}
+      </div>
       <div className="bg-primary text-primary-foreground cursor-not-allowed rounded-md px-4 py-2 text-center text-sm opacity-50">
         Submit (preview only)
       </div>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useFormDefinition, useSubmitForm } from "@/graphql/forms/forms.hooks";
-import { DynamicField } from "./field-registry";
+import { DynamicField, fieldWidthClass } from "./field-registry";
 import { evaluateLogicRules, type LogicRule, type LogicState } from "./logic-engine";
 
 type DynamicFormProps = {
@@ -28,6 +28,7 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
     handleSubmit,
     setError,
     setValue,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<FieldValues>();
 
@@ -67,6 +68,20 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
       }
     }
   }, [logicState.calculated, setValue]);
+
+  // Pre-fill schema `default` values once the definition loads.
+  useEffect(() => {
+    if (!formDef) return;
+    const props = ((formDef.schema as Record<string, unknown>)?.properties ?? {}) as Record<
+      string,
+      Record<string, unknown>
+    >;
+    const defaults: FieldValues = {};
+    for (const [fieldName, def] of Object.entries(props)) {
+      if (def.default !== undefined) defaults[fieldName] = def.default;
+    }
+    if (Object.keys(defaults).length > 0) reset(defaults);
+  }, [formDef, reset]);
 
   // NOW safe to do early returns
   if (loading) {
@@ -151,10 +166,11 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
       </div>
       <Separator />
 
-      <div className="grid gap-4">
+      <div className="grid grid-cols-6 gap-4">
         {fieldNames.map((fieldName) => {
           const isHidden = logicState.visibility[fieldName] === false;
           const fieldSchema = { ...properties[fieldName] };
+          const widthClass = fieldWidthClass(fieldSchema);
           const isRequired = schemaRequired.has(fieldName) || logicState.required[fieldName];
           if (isRequired) {
             fieldSchema._required = true;
@@ -169,7 +185,10 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
             logicState.calculated[fieldName] !== undefined
           ) {
             return (
-              <div key={fieldName} className={`flex flex-col gap-1.5 ${isHidden ? "hidden" : ""}`}>
+              <div
+                key={fieldName}
+                className={`flex flex-col gap-1.5 ${widthClass} ${isHidden ? "hidden" : ""}`}
+              >
                 <label className="text-sm font-medium">
                   {(fieldSchema.title as string) || fieldName}
                 </label>
@@ -181,7 +200,7 @@ export function DynamicForm({ slug, onSuccess }: DynamicFormProps) {
           }
 
           return (
-            <div key={fieldName} className={isHidden ? "hidden" : ""}>
+            <div key={fieldName} className={`${widthClass} ${isHidden ? "hidden" : ""}`}>
               <DynamicField
                 name={fieldName}
                 schema={fieldSchema}
