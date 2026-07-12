@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "8646fae57637c5f4d21e40e5daddb7e7cca82a03a4e0f9835c285ca561a8e220"
+            "sha256": "baac3b87d24b7bf517dc71c3b659ed29c64a6c978b4f58fc356e8e8ddf1cb26e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -233,20 +233,20 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:139dd2d94eaa0e3213ff37ba7cf4cb2e3823269178fe8f3e33c965f680a9ddde",
-                "sha256:265b0b4865e8c07e27abb32a31d2bd9129bb009b1d89ca0783776ec084886123"
+                "sha256:66c0d943b049a46a492ec4ec2ebe73c930b1842c7137bee83aad6d93e95d4d96",
+                "sha256:69453e2c1bcb9fd9806527ab99950cacfc2826cb0dce9a3a0414d19270c06c3c"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.8'",
-            "version": "==1.34.79"
+            "markers": "python_version >= '3.10'",
+            "version": "==1.43.46"
         },
         "botocore": {
             "hashes": [
-                "sha256:2d918b02db88d27a75b48275e6fb2506e9adaaddbec1ffa6a8a0898b34e769be",
-                "sha256:adc23be4fb99ad31961236342b7cbf3c0bfc62532cd02852196032e8c0d682f3"
+                "sha256:59f2e1ac3cdc66d191cae91c0804bc41847ce817dc8147cf43eaada8f76a5533",
+                "sha256:cb673891e623ae6e6a1bf24d94ef169504f3eb02584adb5d5bee2f6aae819b60"
             ],
-            "markers": "python_version >= '3.8'",
-            "version": "==1.34.162"
+            "markers": "python_version >= '3.10'",
+            "version": "==1.43.46"
         },
         "cachecontrol": {
             "hashes": [
@@ -2195,11 +2195,11 @@
         },
         "s3transfer": {
             "hashes": [
-                "sha256:244a76a24355363a68164241438de1b72f8781664920260c48465896b712a41e",
-                "sha256:29edc09801743c21eb5ecbc617a152df41d3c287f67b615f73e5f750583666a7"
+                "sha256:d3d6371dc3f1e5c5427b2b457bcf13bcf87bec334c95aed18642eae61f6926f3",
+                "sha256:d5fd7005ee39307455ad5f310b5ea67f4b1960d7fed5b3671ee50c249de675de"
             ],
-            "markers": "python_version >= '3.8'",
-            "version": "==0.10.4"
+            "markers": "python_version >= '3.10'",
+            "version": "==0.19.1"
         },
         "sentry-sdk": {
             "extras": [
