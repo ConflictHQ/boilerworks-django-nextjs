@@ -22,7 +22,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.2.2",
-    "@sentry/nextjs": "^10.42.0",
+    "@sentry/nextjs": "^10.65.0",
     "@tanstack/react-table": "^8.21.3",
     "@xyflow/react": "^12.10.1",
     "class-variance-authority": "^0.7.1",
