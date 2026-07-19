@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "8646fae57637c5f4d21e40e5daddb7e7cca82a03a4e0f9835c285ca561a8e220"
+            "sha256": "ef92eba960959c468e8832b51dffa15523a097d5b9790b61a68dd786c1a04e8e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -1478,12 +1478,12 @@
         },
         "opentelemetry-api": {
             "hashes": [
-                "sha256:107d0d03857ea8fc7c5fcbbbd83f800c281f0d560553d61c1d675fccfd1761c1",
-                "sha256:20acf45e9b21851926835292e4045d290acade1edd2ff3de86d2f069687ba1fd"
+                "sha256:67647e5e9566edcf421166fdf022b3537f818635daa852b289e34604dc6fb33a",
+                "sha256:94b98c893a91b88657eaac1e3ba89618cdb85be6918196705354f34728b2cdef"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==1.43.0"
+            "version": "==1.44.0"
         },
         "opentelemetry-exporter-otlp-proto-common": {
             "hashes": [
@@ -1546,20 +1546,20 @@
         },
         "opentelemetry-sdk": {
             "hashes": [
-                "sha256:d1323a547c1ce69d6a069a17a44b7da82bb8b332051ecb074041f87642c86823",
-                "sha256:d8187c81c162df9913e4003dd6485f7390d9a24fc17026ec7387b8b8218b08e9"
+                "sha256:cebe7f65dc12f26ead75c6064de12fd2a9052e5060c0272d402cfa203aae123b",
+                "sha256:df081c4c6bcfdb1211e3e86140376792643128a25f8d72d1d27675936e7e96ad"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==1.43.0"
+            "version": "==1.44.0"
         },
         "opentelemetry-semantic-conventions": {
             "hashes": [
-                "sha256:72f76fb2d1582d9d033dd1fcd84532e961e6ff3d90d24ba6fabc72975a83864c",
-                "sha256:ea77e85e354b8f604ddbe5f3d9135216f982fa4d77e5859ac30f6d8a50505aa6"
+                "sha256:1cacde7b0ad306f84c5ef08c3dbe1bbaf20165bba6f8bff43b670e555a086bcb",
+                "sha256:f9b2b81e9d5b64f11bc952075e7e9c7fb0aab075c7fd1c46d597f1b919852d60"
             ],
             "markers": "python_version >= '3.10'",
-            "version": "==0.64b0"
+            "version": "==0.65b0"
         },
         "opentelemetry-util-http": {
             "hashes": [
