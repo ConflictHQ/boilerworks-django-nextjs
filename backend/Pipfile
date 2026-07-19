@@ -54,7 +54,7 @@ opentelemetry-sdk = "*"
 pillow = "*"
 django-simple-history = "*"
 django-ratelimit = "*"
-strawberry-graphql = {extras = ["django"], version = ">=0.235.0"}
+strawberry-graphql = {extras = ["django"], version = ">=0.322.0"}
 strawberry-graphql-django = ">=0.47.0"
 jsonschema = "*"
 
