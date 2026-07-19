@@ -55,7 +55,7 @@ pillow = "*"
 django-simple-history = "*"
 django-ratelimit = "*"
 strawberry-graphql = {extras = ["django"], version = ">=0.235.0"}
-strawberry-graphql-django = ">=0.47.0"
+strawberry-graphql-django = ">=0.86.5"
 jsonschema = "*"
 
 [dev-packages]
