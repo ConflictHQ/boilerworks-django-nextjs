@@ -144,7 +144,7 @@ jobs:
         run: python manage.py shell -c "from config.schema import schema; print(schema.as_str())" > schema.graphql
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: backend/coverage.xml
@@ -168,7 +168,7 @@ jobs:
           cp schema.graphql ../schema.graphql
       - name: Upload schema SDL
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: schema-sdl
           path: backend/schema.graphql
