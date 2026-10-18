@@ -23,7 +23,7 @@ django-constance = {extras = ["database"], version = "*"}
 django-celery-results = "*"
 django-celery-beat = "*"
 django-ses = "*"
-django-health-check = "<4"
+django-health-check = "<5"
 django-sslserver = "*"
 django-crontab = "*"
 opentelemetry-api = "*"
