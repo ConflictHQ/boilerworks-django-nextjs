@@ -14,7 +14,7 @@ requests = "*"
 setuptools = "*" # config/settings.py imports distutils; Python 3.12 venvs no longer bundle it
 authlib = "==1.8.0" # Required for Auth0
 boto3 = "==1.43.51"
-cachetools = "==5.3.1"
+cachetools = "==7.2.4"
 python-dotenv = "*"
 sentry-sdk = {extras = ["django"], version = "*"}
 ecs-logging = "*"
