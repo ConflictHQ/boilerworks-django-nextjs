@@ -1,6 +1,6 @@
+import { Button } from "@calliopelabs/ui";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Separator } from "@/ui-app/primitives/separator";
 
 export default function NotFound() {
   return (

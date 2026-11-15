@@ -1,11 +1,10 @@
 "use client";
 
+import { Input, Button, PageHeader } from "@calliopelabs/ui";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Separator } from "@/ui-app/primitives/separator";
+import { Label } from "@/ui-app/primitives/label";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
@@ -41,10 +40,7 @@ export default function HooksPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-xl font-semibold">{t("title")}</h1>
-        <p className="text-muted-foreground mt-1 text-sm">{t("description")}</p>
-      </div>
+      <PageHeader title={t("title")} description={t("description")} />
       <Separator />
 
       {/* useDebounce */}

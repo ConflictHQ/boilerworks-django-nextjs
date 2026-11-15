@@ -2,7 +2,13 @@ import { getTranslations } from "next-intl/server";
 import { RevenueChart } from "./revenue-chart";
 import { SalesChart } from "./sales-chart";
 import { ChannelChart } from "./channel-chart";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/ui-app/primitives/card";
 import { TrendingUpIcon, ShoppingCartIcon, UsersIcon, PackageIcon } from "lucide-react";
 
 export default async function DashboardPage() {

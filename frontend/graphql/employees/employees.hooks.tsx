@@ -1,8 +1,6 @@
 "use client";
 
-import { type ColumnDef } from "@tanstack/react-table";
-import { DataTableColumnHeader } from "@/components/data-table";
-import type { FilterConfig } from "@/components/data-table/types";
+import { StatusBadge, type Column } from "@calliopelabs/ui";
 import { usePaginatedQuery } from "@/hooks/use-paginated-query";
 import { getEmployees } from "./employees.queries";
 import type {
@@ -14,41 +12,25 @@ import type {
 
 // ─── columns ──────────────────────────────────────────────────────────────────
 
-export const employeeColumns: ColumnDef<Employee, unknown>[] = [
+export const employeeColumns: Column<Employee>[] = [
   {
     id: "name",
-    accessorFn: (row) =>
-      row.user.profile?.displayName ?? `${row.user.firstName} ${row.user.lastName}`,
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
-    cell: ({ getValue }) => <div className="font-medium">{getValue() as string}</div>,
-    enableSorting: true,
+    header: "Name",
+    cell: (row) => (
+      <span className="font-medium">
+        {row.user.profile?.displayName ?? `${row.user.firstName} ${row.user.lastName}`}
+      </span>
+    ),
   },
-  {
-    id: "email",
-    accessorFn: (row) => row.user.email,
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
-    enableSorting: true,
-  },
+  { id: "email", header: "Email", cell: (row) => row.user.email },
   {
     id: "status",
-    accessorFn: (row) => row.user.isActive,
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
-    cell: ({ getValue }) => ((getValue() as boolean) ? "Active" : "Inactive"),
-    enableSorting: false,
-  },
-];
-
-// ─── filter config ────────────────────────────────────────────────────────────
-
-export const employeeFilters: FilterConfig[] = [
-  {
-    id: "status",
-    label: "Status",
-    type: "select",
-    options: [
-      { value: "active", label: "Active" },
-      { value: "deactivated", label: "Deactivated" },
-    ],
+    header: "Status",
+    cell: (row) => (
+      <StatusBadge tone={row.user.isActive ? "ok" : "muted"}>
+        {row.user.isActive ? "Active" : "Inactive"}
+      </StatusBadge>
+    ),
   },
 ];
 

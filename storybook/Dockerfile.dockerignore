@@ -1,0 +1,12 @@
+# The build context is the repository root; the image needs frontend/ and
+# the nginx config only. Never the host's node_modules or build output.
+**
+!frontend/
+!storybook/nginx.conf
+frontend/node_modules
+frontend/.next
+frontend/storybook-static
+frontend/coverage
+frontend/.env
+frontend/.env.*
+frontend/local.env

@@ -7,7 +7,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/components/ui/chart";
+} from "@/ui-app/primitives/chart";
 
 const data = [
   { month: "Jan", revenue: 18400 },

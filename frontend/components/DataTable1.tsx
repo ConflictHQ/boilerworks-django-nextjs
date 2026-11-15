@@ -1,9 +1,9 @@
 "use client";
 
-import { type ColumnDef } from "@tanstack/react-table";
+import { DataTable, StatusBadge, type Column } from "@calliopelabs/ui";
 import { z } from "zod";
-import { Badge } from "@/components/ui/badge";
-import { DataTable, DataTableColumnHeader, type FilterConfig } from "@/components/data-table";
+import { Badge } from "@/ui-app/primitives/badge";
+import { useLocalTable } from "@/ui-app/table/use-local-table";
 
 // ─── schema ───────────────────────────────────────────────────────────────────
 
@@ -206,119 +206,71 @@ const data: Product[] = schema.array().parse([
 
 // ─── columns ──────────────────────────────────────────────────────────────────
 
-const columns: ColumnDef<Product, unknown>[] = [
-  {
-    accessorKey: "sku",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="SKU" />,
-    filterFn: (row, _id, value) => {
-      if (!value) return true;
-      return (row.getValue("sku") as string).toLowerCase().includes(value.toLowerCase());
-    },
-    enableSorting: true,
-  },
-  {
-    accessorKey: "item",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Item" />,
-    cell: ({ row }) => <div className="font-medium">{row.getValue("item")}</div>,
-    enableSorting: true,
-  },
-  {
-    accessorKey: "type",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Type" />,
-    enableSorting: true,
-  },
-  {
-    accessorKey: "stock",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="In Stock" />,
-    cell: ({ row }) => (row.getValue("stock") ? "Yes" : "No"),
-    filterFn: (row, _id, value) => {
-      if (!value || value === "all") return true;
-      return value === "true" ? row.getValue("stock") === true : row.getValue("stock") === false;
-    },
-    enableSorting: false,
-  },
-  {
-    accessorKey: "price",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Price" />,
-    cell: ({ row }) => (
-      <div className="font-medium">
-        {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
-          parseFloat(row.getValue("price"))
-        )}
-      </div>
-    ),
-    enableSorting: true,
-  },
-  {
-    accessorKey: "availability",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Available In" />,
-    cell: ({ row }) => {
-      const availability: ("In store" | "Online")[] = row.getValue("availability");
-      return (
-        <div className="flex gap-2">
-          {availability.map((loc) => (
-            <Badge key={loc} variant="secondary">
-              {loc}
-            </Badge>
-          ))}
-        </div>
-      );
-    },
-    filterFn: (row, _id, value) => {
-      if (!value) return true;
-      const availability = row.getValue("availability") as string[];
-      return availability.includes(value);
-    },
-    enableSorting: false,
-  },
-];
+const price = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
-// ─── filter config ────────────────────────────────────────────────────────────
-
-const TYPES = [...new Set(data.map((d) => d.type))].sort();
-
-const filters: FilterConfig[] = [
+const columns: Column<Product>[] = [
   {
-    id: "type",
-    label: "Type",
-    type: "select",
-    options: TYPES.map((t) => ({ value: t, label: t })),
+    id: "sku",
+    header: "SKU",
+    sortKey: "sku",
+    cell: (p) => <span className="font-mono">{p.sku}</span>,
   },
+  { id: "item", header: "Item", sortKey: "item", cell: (p) => p.item },
+  { id: "type", header: "Type", sortKey: "type", cell: (p) => p.type },
   {
     id: "stock",
-    label: "Stock",
-    type: "select",
-    options: [
-      { value: "true", label: "In stock" },
-      { value: "false", label: "Out of stock" },
-    ],
+    header: "Stock",
+    cell: (p) => (
+      <StatusBadge tone={p.stock ? "ok" : "warn"}>
+        {p.stock ? "In stock" : "Out of stock"}
+      </StatusBadge>
+    ),
+  },
+  {
+    id: "price",
+    header: "Price",
+    sortKey: "price",
+    align: "right",
+    cell: (p) => <span className="font-medium">{price.format(p.price)}</span>,
   },
   {
     id: "availability",
-    label: "Available in",
-    type: "select",
-    options: [
-      { value: "In store", label: "In store" },
-      { value: "Online", label: "Online" },
-    ],
-  },
-  {
-    id: "sku",
-    label: "SKU",
-    type: "text",
-    placeholder: "e.g. TC-001",
+    header: "Availability",
+    cell: (p) => (
+      <div className="flex gap-2">
+        {p.availability.map((loc) => (
+          <Badge key={loc} variant="secondary">
+            {loc}
+          </Badge>
+        ))}
+      </div>
+    ),
   },
 ];
 
+const comparators: Record<string, (a: Product, b: Product) => number> = {
+  sku: (a, b) => a.sku.localeCompare(b.sku),
+  item: (a, b) => a.item.localeCompare(b.item),
+  type: (a, b) => a.type.localeCompare(b.type),
+  price: (a, b) => a.price - b.price,
+};
+
+const matches = (p: Product, query: string) =>
+  [p.item, p.sku, p.type].some((v) => v.toLowerCase().includes(query));
+
 // ─── component ────────────────────────────────────────────────────────────────
 
-export const DataTable1 = () => (
-  <DataTable
-    data={data}
-    columns={columns}
-    getRowId={(row) => row.id}
-    pageSize={5}
-    filters={filters}
-    searchPlaceholder="Search items or SKU…"
-  />
-);
+/** A client-side table: the rows are all here, so search, sort and paging run locally. */
+export const DataTable1 = () => {
+  const table = useLocalTable(data, { matches, comparators, pageSize: 5, pageSizes: [5, 10, 20] });
+  return (
+    <DataTable
+      label="Products"
+      controller={table}
+      columns={columns}
+      getRowId={(p) => p.id}
+      searchPlaceholder="Search items, SKU or type…"
+      empty={{ title: "No products yet" }}
+    />
+  );
+};

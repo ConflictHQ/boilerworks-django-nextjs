@@ -1,4 +1,4 @@
-import { Separator } from "@/components/ui/separator";
+import { Separator } from "@/ui-app/primitives/separator";
 import { SecuredClientSection } from "./secured-client-section";
 
 export default async function SecuredPage() {

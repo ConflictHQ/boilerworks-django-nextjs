@@ -1,16 +1,16 @@
 "use client";
 
+import { Button } from "@calliopelabs/ui";
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/ui-app/primitives/card";
+import { Textarea } from "@/ui-app/primitives/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/ui-app/primitives/select";
 import { SendIcon, BotIcon, UserIcon } from "lucide-react";
 
 const MODELS = ["Genesis", "Explorer", "Quantum"];

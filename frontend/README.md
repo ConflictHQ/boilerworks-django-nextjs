@@ -1,6 +1,6 @@
 # Frontend App
 
-Next.js 16 (App Router) + TypeScript, Apollo Client, Tailwind CSS + shadcn/ui.
+Next.js 16 (App Router) + TypeScript, Apollo Client, Tailwind CSS, [`@calliopelabs/ui`](https://www.npmjs.com/package/@calliopelabs/ui) (the Calliope AI design system) and shadcn/ui for what it lacks.
 Authentication is handled by the backend `auth1` app — the frontend has no auth SDK dependency.
 
 ## Prerequisites

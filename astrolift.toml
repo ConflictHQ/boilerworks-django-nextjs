@@ -1,0 +1,128 @@
+# The app on Astrolift: `astro app register` reads this file, and the managed
+# workflow builds and deploys on every push to main.
+#
+# Rename before the first deploy: `name`, `[app].slug`, `display_name`,
+# `repo` and the managed service names (a generated app replaces
+# "boilerworks-app" everywhere). Astrolift builds one image per app, so the
+# Next.js web app is its own app (frontend/astrolift.toml), as is the
+# Storybook (storybook/astrolift.toml).
+#
+# Three workloads off the backend image (backend/Dockerfile):
+#   api     Django (Strawberry GraphQL, auth1, admin); its startup runs the
+#           migrations, then serves on 8000
+#   worker  Celery worker
+#   beat    Celery beat (django_celery_beat's database scheduler), one replica
+# All three bind to Postgres and Redis. The postgres binding injects
+# POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB, POSTGRES_USER and
+# POSTGRES_PASSWORD, which Django reads as they are. The redis binding
+# injects REDIS_URL; Django reads the cache and Celery URLs from their own
+# names, so create them as app secrets from that URL (cache on /1, broker on
+# /0, results on /2), with the secret key:
+#   astro app secrets create DJANGO_SECRET_KEY --stdin
+#   astro app secrets create DJANGO_CACHE_URL --stdin
+#   astro app secrets create CELERY_BROKER --stdin
+#   astro app secrets create CELERY_BACKEND --stdin
+#
+# Uploads go to the local filesystem (USE_S3 = "false"); for S3, set
+# USE_S3 = "true" and the AWS_* secrets (see backend/config/example.env).
+
+astrolift_version = 1
+name = "boilerworks-app"
+
+[app]
+slug = "boilerworks-app"
+display_name = "Boilerworks"
+runtime = "python"
+repo = "ConflictHQ/boilerworks-django-nextjs"
+
+[environments.production]
+
+[[workloads]]
+name = "api"
+kind = "deployment"
+is_public = true
+replicas = 1
+cpu_request = "250m"
+cpu_limit = "1"
+memory_request = "512Mi"
+memory_limit = "1Gi"
+
+  [[workloads.containers]]
+  name = "api"
+  is_primary = true
+  dockerfile_path = "backend/Dockerfile"
+  build_context = "backend"
+  port = 8000
+
+    [workloads.containers.env]
+    DJANGO_CONFIGURATION = "Prd"
+    POSTGRES_ENGINE = "django.db.backends.postgresql"
+    USE_S3 = "false"
+
+    # "/" answers 200 from the process alone; /health/ also pings a Celery
+    # worker, so it fails while the worker restarts.
+    [workloads.containers.healthcheck]
+    kind = "http"
+    value = "/"
+    port = 8000
+
+[[workloads]]
+name = "worker"
+kind = "deployment"
+replicas = 1
+cpu_request = "250m"
+cpu_limit = "1"
+memory_request = "512Mi"
+memory_limit = "1Gi"
+
+  [[workloads.containers]]
+  name = "worker"
+  is_primary = true
+  dockerfile_path = "backend/Dockerfile"
+  build_context = "backend"
+  command = ["celery", "-A", "config.celery", "worker", "-l", "info", "-Q", "celery"]
+
+    [workloads.containers.env]
+    DJANGO_CONFIGURATION = "Prd"
+    POSTGRES_ENGINE = "django.db.backends.postgresql"
+    USE_S3 = "false"
+
+[[workloads]]
+name = "beat"
+kind = "deployment"
+replicas = 1
+cpu_request = "50m"
+cpu_limit = "250m"
+memory_request = "256Mi"
+memory_limit = "512Mi"
+
+  [[workloads.containers]]
+  name = "beat"
+  is_primary = true
+  dockerfile_path = "backend/Dockerfile"
+  build_context = "backend"
+  command = ["celery", "-A", "config.celery", "beat", "-l", "info", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler"]
+
+    [workloads.containers.env]
+    DJANGO_CONFIGURATION = "Prd"
+    POSTGRES_ENGINE = "django.db.backends.postgresql"
+    USE_S3 = "false"
+
+[[managed_services]]
+kind = "postgres"
+name = "boilerworks-app-db"
+owner_scope = "app"
+environment = "production"
+bind_workloads = ["api", "worker", "beat"]
+size = "small"
+deletion_policy = "retain"
+
+  [managed_services.config]
+  engine_version = "17"
+  backup_retention_days = 7
+
+[[managed_services]]
+kind = "redis"
+name = "boilerworks-app-redis"
+bind_workloads = ["api", "worker", "beat"]
+size = "small"

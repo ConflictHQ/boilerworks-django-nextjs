@@ -1,15 +1,14 @@
 "use client";
 
+import { Button, Input, PageHeader } from "@calliopelabs/ui";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Loader2Icon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/ui-app/primitives/textarea";
+import { Label } from "@/ui-app/primitives/label";
+import { Separator } from "@/ui-app/primitives/separator";
 import { useCreateWorkflow } from "@/graphql/workflows/workflows.hooks";
 
 type FormValues = {
@@ -66,12 +65,10 @@ export default function NewWorkflowPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-xl font-semibold">Create New Workflow</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Define a new workflow definition, then configure states and transitions in the builder.
-        </p>
-      </div>
+      <PageHeader
+        title="Create New Workflow"
+        description="Define a new workflow definition, then configure states and transitions in the builder."
+      />
       <Separator />
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-2xl flex-col gap-6">

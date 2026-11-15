@@ -21,7 +21,13 @@
     "billing": "Billing",
     "limits": "Limits",
     "hooks": "Hooks",
-    "secured": "Secured page"
+    "secured": "Secured page",
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "build": "Build",
+    "forms": "Forms",
+    "workflows": "Workflows",
+    "admin": "Admin"
   },
   "user": {
     "account": "Account",
@@ -98,10 +104,7 @@
     },
     "theme": {
       "title": "Appearance",
-      "description": "Choose your preferred color scheme.",
-      "light": "Light",
-      "dark": "Dark",
-      "system": "System"
+      "description": "Choose your preferred color scheme."
     }
   },
   "hooks": {
@@ -139,6 +142,100 @@
       "cancelLabel": "Cancel",
       "resultConfirmed": "Confirmed — item deleted.",
       "resultCancelled": "Cancelled."
+    }
+  },
+  "ui": {
+    "shell": {
+      "skipToContent": "Skip to content",
+      "navigation": "Navigation",
+      "close": "Close"
+    },
+    "nav": {
+      "label": "Main",
+      "collapse": "Collapse sidebar",
+      "expand": "Expand sidebar",
+      "collapseTitle": "Collapse sidebar ([)",
+      "expandTitle": "Expand sidebar ([)"
+    },
+    "breadcrumb": {
+      "label": "Breadcrumb",
+      "switchFrom": "Switch from {label}"
+    },
+    "table": {
+      "search": "Search",
+      "clearSearch": "Clear search",
+      "results": "{count, plural, one {# result} other {# results}}",
+      "filteredResults": "Filtered results shown.",
+      "loading": "Loading",
+      "loadFailed": "Could not load {label}",
+      "requestFailed": "The request failed.",
+      "retry": "Retry",
+      "noMatches": "No matches",
+      "noMatchesDescription": "No {label} match the search.",
+      "selected": "{count} selected",
+      "clearSelection": "Clear",
+      "selectRow": "Select {id}",
+      "selectPage": "Select all {label} on this page",
+      "actions": "Actions",
+      "rowActions": "Actions for {label}",
+      "rowsPerPage": "Rows per page",
+      "page": "Page {page}",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "sortKey": "sort key {index}"
+    },
+    "states": {
+      "errorTitle": "Something went wrong",
+      "unexpected": "An unexpected error occurred.",
+      "retry": "Try again",
+      "errorId": "Error ID {digest}",
+      "loading": "Loading",
+      "learnMore": "Learn more"
+    },
+    "dialog": {
+      "close": "Close"
+    },
+    "confirm": {
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "working": "Working",
+      "failed": "That did not work. Try again.",
+      "reasonRequired": "A reason is required."
+    },
+    "user": {
+      "accountMenu": "{initials}, account menu for {name}",
+      "signOut": "Sign out"
+    },
+    "appearance": {
+      "locked": "Your organization has locked the theme. These settings are read-only.",
+      "themes": "Theme",
+      "accent": "Accent",
+      "ground": "Ground",
+      "density": "Density",
+      "corners": "Corners",
+      "reset": "Use the default",
+      "modes": {
+        "dark": "dark",
+        "light": "light"
+      },
+      "densities": {
+        "compact": "Compact",
+        "cards": "Cards"
+      },
+      "densityHints": {
+        "compact": "Dense rows with hairline dividers",
+        "cards": "Boxed items that flow into columns"
+      },
+      "cornerSquare": "Square",
+      "cornerRounded": "Rounded",
+      "customAccent": "Custom accent",
+      "customAccentPick": "Pick a colour",
+      "customAccentHelp": "Any colour that stands 3:1 off the ground. Status colours never change.",
+      "customAccentInvalid": "Use a hex colour such as #2f9e52.",
+      "customAccentInUse": "In use",
+      "customAccentOk": "{ratio}:1 against this ground.",
+      "customAccentFaintLighter": "{ratio}:1 against this ground; it needs {min}:1. Try a lighter colour.",
+      "customAccentFaintDarker": "{ratio}:1 against this ground; it needs {min}:1. Try a darker colour."
     }
   }
 }

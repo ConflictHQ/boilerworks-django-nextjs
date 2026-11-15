@@ -1,5 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@calliopelabs/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui-app/primitives/card";
+import { Badge } from "@/ui-app/primitives/badge";
 import { StarIcon } from "lucide-react";
 
 const starred = [
@@ -50,10 +51,7 @@ const starred = [
 export default function PlaygroundStarredPage() {
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-xl font-semibold">Starred prompts</h1>
-        <p className="text-muted-foreground mt-1 text-sm">Your saved prompt templates.</p>
-      </div>
+      <PageHeader title="Starred prompts" description="Your saved prompt templates." />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {starred.map((item) => (

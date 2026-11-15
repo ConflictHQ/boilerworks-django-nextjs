@@ -1,5 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@calliopelabs/ui";
+import { Card, CardContent } from "@/ui-app/primitives/card";
+import { Badge } from "@/ui-app/primitives/badge";
 
 const sessions = [
   {
@@ -79,10 +80,7 @@ const statusVariant = (status: string) => (status === "completed" ? "default" : 
 export default function PlaygroundHistoryPage() {
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-xl font-semibold">History</h1>
-        <p className="text-muted-foreground mt-1 text-sm">Past playground sessions.</p>
-      </div>
+      <PageHeader title="History" description="Past playground sessions." />
 
       <Card>
         <CardContent className="p-0">

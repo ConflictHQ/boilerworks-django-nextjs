@@ -1,60 +1,43 @@
 "use client";
 
-import { DataTableServer } from "@/components/data-table";
+import { DataTable } from "@calliopelabs/ui";
 import {
-  employeeColumns,
-  employeeFilters,
-  useEmployees,
-} from "@/graphql/employees/employees.hooks";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/ui-app/primitives/select";
+import { employeeColumns, useEmployees } from "@/graphql/employees/employees.hooks";
+import { paginatedController } from "@/ui-app/table/paginated-controller";
 
-// ─── component ────────────────────────────────────────────────────────────────
-
+/** A server-paged table: GraphQL pages and searches, the library DataTable draws. */
 export function DataTableEmployees() {
-  const {
-    nodes,
-    loading,
-    error,
-    totalCount,
-    page,
-    totalPageCount,
-    perPage,
-    setPerPage,
-    nextPage,
-    prevPage,
-    goToPage,
-    setSearch,
-    offset,
-    tailOffset,
-    onFiltersChange,
-    columnFiltersState,
-    sorting,
-    setSorting,
-  } = useEmployees();
+  const employees = useEmployees();
 
   return (
-    <DataTableServer
-      data={nodes}
+    <DataTable
+      label="Employees"
+      controller={paginatedController(employees)}
       columns={employeeColumns}
       getRowId={(row) => row.id}
-      loading={loading}
-      error={error}
-      totalCount={totalCount}
-      page={page}
-      totalPageCount={totalPageCount}
-      perPage={perPage}
-      onPerPageChange={setPerPage}
-      onNextPage={nextPage}
-      onPrevPage={prevPage}
-      onGoToPage={goToPage}
-      onSearchChange={setSearch}
-      onFiltersChange={onFiltersChange}
-      onSortingChange={setSorting}
-      filters={employeeFilters}
-      initialColumnFilters={columnFiltersState}
-      initialSorting={sorting}
       searchPlaceholder="Search employees…"
-      offset={offset}
-      tailOffset={tailOffset}
+      empty={{ title: "No employees yet", description: "Invite someone to see them here." }}
+      toolbar={
+        <Select
+          value={employees.status ?? "all"}
+          onValueChange={(v) => employees.setStatus(v === "all" ? undefined : v)}
+        >
+          <SelectTrigger className="w-40" aria-label="Status">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="deactivated">Deactivated</SelectItem>
+          </SelectContent>
+        </Select>
+      }
     />
   );
 }

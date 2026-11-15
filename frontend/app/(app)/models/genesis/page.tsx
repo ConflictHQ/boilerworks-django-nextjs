@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui-app/primitives/card";
 import { ZapIcon, CheckIcon } from "lucide-react";
 
 const specs = [

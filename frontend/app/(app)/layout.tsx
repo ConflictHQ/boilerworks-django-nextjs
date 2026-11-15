@@ -1,11 +1,9 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSidebar";
+import { AppChrome } from "@/components/AppChrome";
 import { PreloadQuery, getClient } from "@/lib/apollo";
 import { GET_ME } from "@/graphql/user/user.queries";
 import type { CurrentUser, MeQueryData, MeQueryVariables } from "@/graphql/user/user.types";
-import { PageHeader } from "@/components/PageHeader";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   // Check for auth token in cookies — if no token at all, redirect to login
@@ -29,13 +27,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <PreloadQuery query={GET_ME}>
-      <SidebarProvider>
-        <AppSidebar ssrUser={ssrUser} />
-        <SidebarInset>
-          <PageHeader />
-          {children}
-        </SidebarInset>
-      </SidebarProvider>
+      <AppChrome ssrUser={ssrUser}>{children}</AppChrome>
     </PreloadQuery>
   );
 }

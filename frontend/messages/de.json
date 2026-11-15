@@ -21,7 +21,13 @@
     "billing": "Abrechnung",
     "limits": "Grenzen",
     "hooks": "Hooks",
-    "secured": "Gesicherte Seite"
+    "secured": "Gesicherte Seite",
+    "home": "Start",
+    "dashboard": "Dashboard",
+    "build": "Erstellen",
+    "forms": "Formulare",
+    "workflows": "Workflows",
+    "admin": "Verwaltung"
   },
   "user": {
     "account": "Konto",
@@ -98,10 +104,7 @@
     },
     "theme": {
       "title": "Erscheinungsbild",
-      "description": "Wählen Sie Ihr bevorzugtes Farbschema.",
-      "light": "Hell",
-      "dark": "Dunkel",
-      "system": "System"
+      "description": "Wählen Sie Ihr bevorzugtes Farbschema."
     }
   },
   "hooks": {
@@ -139,6 +142,100 @@
       "cancelLabel": "Abbrechen",
       "resultConfirmed": "Bestätigt — Element gelöscht.",
       "resultCancelled": "Abgebrochen."
+    }
+  },
+  "ui": {
+    "shell": {
+      "skipToContent": "Zum Inhalt springen",
+      "navigation": "Navigation",
+      "close": "Schließen"
+    },
+    "nav": {
+      "label": "Hauptmenü",
+      "collapse": "Seitenleiste einklappen",
+      "expand": "Seitenleiste ausklappen",
+      "collapseTitle": "Seitenleiste einklappen ([)",
+      "expandTitle": "Seitenleiste ausklappen ([)"
+    },
+    "breadcrumb": {
+      "label": "Brotkrümelnavigation",
+      "switchFrom": "Wechseln von {label}"
+    },
+    "table": {
+      "search": "Suchen",
+      "clearSearch": "Suche löschen",
+      "results": "{count, plural, one {# Ergebnis} other {# Ergebnisse}}",
+      "filteredResults": "Gefilterte Ergebnisse werden angezeigt.",
+      "loading": "Wird geladen",
+      "loadFailed": "{label} konnten nicht geladen werden",
+      "requestFailed": "Die Anfrage ist fehlgeschlagen.",
+      "retry": "Erneut versuchen",
+      "noMatches": "Keine Treffer",
+      "noMatchesDescription": "Keine {label} entsprechen der Suche.",
+      "selected": "{count} ausgewählt",
+      "clearSelection": "Zurücksetzen",
+      "selectRow": "{id} auswählen",
+      "selectPage": "Alle {label} auf dieser Seite auswählen",
+      "actions": "Aktionen",
+      "rowActions": "Aktionen für {label}",
+      "rowsPerPage": "Zeilen pro Seite",
+      "page": "Seite {page}",
+      "previousPage": "Vorherige Seite",
+      "nextPage": "Nächste Seite",
+      "sortKey": "Sortierschlüssel {index}"
+    },
+    "states": {
+      "errorTitle": "Etwas ist schiefgelaufen",
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
+      "retry": "Erneut versuchen",
+      "errorId": "Fehler-ID {digest}",
+      "loading": "Wird geladen",
+      "learnMore": "Mehr erfahren"
+    },
+    "dialog": {
+      "close": "Schließen"
+    },
+    "confirm": {
+      "confirm": "Bestätigen",
+      "cancel": "Abbrechen",
+      "working": "Wird ausgeführt",
+      "failed": "Das hat nicht funktioniert. Bitte versuchen Sie es erneut.",
+      "reasonRequired": "Eine Begründung ist erforderlich."
+    },
+    "user": {
+      "accountMenu": "{initials}, Kontomenü für {name}",
+      "signOut": "Abmelden"
+    },
+    "appearance": {
+      "locked": "Ihre Organisation hat das Design gesperrt. Diese Einstellungen sind schreibgeschützt.",
+      "themes": "Design",
+      "accent": "Akzent",
+      "ground": "Hintergrund",
+      "density": "Dichte",
+      "corners": "Ecken",
+      "reset": "Standard verwenden",
+      "modes": {
+        "dark": "dunkel",
+        "light": "hell"
+      },
+      "densities": {
+        "compact": "Kompakt",
+        "cards": "Karten"
+      },
+      "densityHints": {
+        "compact": "Dichte Zeilen mit feinen Trennlinien",
+        "cards": "Gerahmte Elemente in Spalten"
+      },
+      "cornerSquare": "Eckig",
+      "cornerRounded": "Abgerundet",
+      "customAccent": "Eigener Akzent",
+      "customAccentPick": "Farbe wählen",
+      "customAccentHelp": "Jede Farbe mit 3:1 Kontrast zum Hintergrund. Statusfarben ändern sich nie.",
+      "customAccentInvalid": "Verwenden Sie eine Hex-Farbe wie #2f9e52.",
+      "customAccentInUse": "In Verwendung",
+      "customAccentOk": "{ratio}:1 auf diesem Hintergrund.",
+      "customAccentFaintLighter": "{ratio}:1 auf diesem Hintergrund; nötig sind {min}:1. Versuchen Sie eine hellere Farbe.",
+      "customAccentFaintDarker": "{ratio}:1 auf diesem Hintergrund; nötig sind {min}:1. Versuchen Sie eine dunklere Farbe."
     }
   }
 }

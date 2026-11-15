@@ -1,6 +1,5 @@
 "use client";
 
-import { createContext, useCallback, useContext, useRef, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,7 +9,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@calliopelabs/ui";
+import { createContext, useCallback, useContext, useRef, useState } from "react";
 
 type ConfirmOptions = {
   title: string;

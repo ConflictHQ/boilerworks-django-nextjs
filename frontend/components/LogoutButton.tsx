@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@calliopelabs/ui";
 import { clearToken } from "@/lib/auth/token-store";
 
 export default function LogoutButton() {

@@ -1,11 +1,11 @@
 "use client";
 
+import { Button } from "@calliopelabs/ui";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Loader2Icon, SendIcon, PenLineIcon } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Separator } from "@/ui-app/primitives/separator";
+import { Badge } from "@/ui-app/primitives/badge";
 import {
   useFormDefinition,
   useFormSubmissions,

@@ -1,0 +1,9 @@
+# Never the host's dependencies, build output or local env files.
+node_modules
+.next
+storybook-static
+coverage
+.env
+.env.*
+!.env.example
+local.env

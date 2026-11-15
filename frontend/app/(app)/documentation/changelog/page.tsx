@@ -1,5 +1,6 @@
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { PageHeader } from "@calliopelabs/ui";
+import { Badge } from "@/ui-app/primitives/badge";
+import { Separator } from "@/ui-app/primitives/separator";
 
 const entries = [
   {
@@ -155,12 +156,7 @@ const typeVariant = (type: string): "default" | "secondary" | "destructive" =>
 export default function ChangelogPage() {
   return (
     <article className="flex max-w-2xl flex-1 flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Changelog</h1>
-        <p className="text-muted-foreground mt-2 text-sm">
-          New features and fixes, most recent first.
-        </p>
-      </div>
+      <PageHeader title="Changelog" description="New features and fixes, most recent first." />
 
       <div className="flex flex-col gap-8">
         {entries.map((entry, i) => (

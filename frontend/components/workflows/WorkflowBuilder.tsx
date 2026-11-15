@@ -1,5 +1,6 @@
 "use client";
 
+import { Button, Input } from "@calliopelabs/ui";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ReactFlow,
@@ -19,20 +20,18 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Label } from "@/ui-app/primitives/label";
+import { Badge } from "@/ui-app/primitives/badge";
+import { Separator } from "@/ui-app/primitives/separator";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/ui-app/primitives/select";
 import { PlusIcon, SaveIcon, TrashIcon, XIcon } from "lucide-react";
-import { TagInput } from "@/components/ui/tag-input";
+import { TagInput } from "@/ui-app/primitives/tag-input";
 
 // ---------------------------------------------------------------------------
 // Types
