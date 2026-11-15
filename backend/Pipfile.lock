@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "c516acae6238c0ab892b500f70722f0f801d97aeac379bae34df916dd6abfed7"
+            "sha256": "4a6f2da970647de0d19441ab417aa43825e543dd0d1170e4ac67b4a1ca391e6d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -208,12 +208,12 @@
         },
         "authlib": {
             "hashes": [
-                "sha256:88aebbd9af6757e14e912d5dc007ae1dc1f3e27e3b2152ce7c552ee2c3b3c121",
-                "sha256:f3ecd5f1da737262fb53bf1a4d95c4ea1ad9dd509316587a255c99ab1838a4f0"
+                "sha256:3f031d5e9b6486089e91e8f7f1b68f36275f3151c66460d650fc90d420545fd7",
+                "sha256:e32a63e3d869196b61816b2602231862179a2ffc29358c009d1f022c8b86a8b2"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==1.8.0"
+            "version": "==1.9.5"
         },
         "babel": {
             "hashes": [
@@ -1208,11 +1208,11 @@
         },
         "joserfc": {
             "hashes": [
-                "sha256:add2c2c84e8373b084d526a8b53daba5d7a513a118cd2dcd9fc9f979d0922159",
-                "sha256:d5ff536e658e17664f8c1b1ab60dc4aa62aa973fcef1edd33cc44bda45d6f5ea"
+                "sha256:176b836ac7ed9a46a88629e24076314b475f33a75d0bad7f26146e572eed7c79",
+                "sha256:cbf03cb2c6db8cc5289f1ef8718842e53dba244b4c0de5fefa0c0eaee4bde8db"
             ],
-            "markers": "python_version >= '3.10'",
-            "version": "==1.7.5"
+            "markers": "python_version >= '3.11'",
+            "version": "==1.8.0"
         },
         "jsonschema": {
             "hashes": [
@@ -1991,11 +1991,11 @@
         },
         "pycparser": {
             "hashes": [
-                "sha256:51d5a8ba2be0bbe440b99d2112604c95bbbc3c2748a64260186c541e1729cd80",
-                "sha256:d875f09c3507d00e1aba0eecc6dcadc1352f30fff09dc6bff2f1c2935e97c2bc"
+                "sha256:a076f3f489b39b43ed13563a1dafe42447445bec2e294154ec5c57fcdda4c85e",
+                "sha256:f03387877eab82ce01bbdfd0ba7252ee55a90b1c708d5129e2ce915475cf1db6"
             ],
-            "markers": "python_version >= '3.10'",
-            "version": "==3.11"
+            "markers": "python_version >= '3.11'",
+            "version": "==3.12"
         },
         "pydash": {
             "hashes": [
