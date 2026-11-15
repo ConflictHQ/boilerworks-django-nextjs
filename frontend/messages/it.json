@@ -21,7 +21,13 @@
     "billing": "Fatturazione",
     "limits": "Limiti",
     "hooks": "Hook",
-    "secured": "Pagina protetta"
+    "secured": "Pagina protetta",
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "build": "Crea",
+    "forms": "Moduli",
+    "workflows": "Flussi di lavoro",
+    "admin": "Amministrazione"
   },
   "user": {
     "account": "Account",
@@ -98,10 +104,7 @@
     },
     "theme": {
       "title": "Aspetto",
-      "description": "Scegli la combinazione di colori preferita.",
-      "light": "Chiaro",
-      "dark": "Scuro",
-      "system": "Sistema"
+      "description": "Scegli la combinazione di colori preferita."
     }
   },
   "hooks": {
@@ -139,6 +142,100 @@
       "cancelLabel": "Annulla",
       "resultConfirmed": "Confermato — elemento eliminato.",
       "resultCancelled": "Annullato."
+    }
+  },
+  "ui": {
+    "shell": {
+      "skipToContent": "Vai al contenuto",
+      "navigation": "Navigazione",
+      "close": "Chiudi"
+    },
+    "nav": {
+      "label": "Principale",
+      "collapse": "Comprimi barra laterale",
+      "expand": "Espandi barra laterale",
+      "collapseTitle": "Comprimi barra laterale ([)",
+      "expandTitle": "Espandi barra laterale ([)"
+    },
+    "breadcrumb": {
+      "label": "Percorso",
+      "switchFrom": "Cambia da {label}"
+    },
+    "table": {
+      "search": "Cerca",
+      "clearSearch": "Cancella ricerca",
+      "results": "{count, plural, one {# risultato} other {# risultati}}",
+      "filteredResults": "Risultati filtrati.",
+      "loading": "Caricamento",
+      "loadFailed": "Impossibile caricare {label}",
+      "requestFailed": "La richiesta non è riuscita.",
+      "retry": "Riprova",
+      "noMatches": "Nessun risultato",
+      "noMatchesDescription": "Nessun elemento di {label} corrisponde alla ricerca.",
+      "selected": "{count} selezionati",
+      "clearSelection": "Cancella",
+      "selectRow": "Seleziona {id}",
+      "selectPage": "Seleziona tutto {label} in questa pagina",
+      "actions": "Azioni",
+      "rowActions": "Azioni per {label}",
+      "rowsPerPage": "Righe per pagina",
+      "page": "Pagina {page}",
+      "previousPage": "Pagina precedente",
+      "nextPage": "Pagina successiva",
+      "sortKey": "chiave di ordinamento {index}"
+    },
+    "states": {
+      "errorTitle": "Qualcosa è andato storto",
+      "unexpected": "Si è verificato un errore imprevisto.",
+      "retry": "Riprova",
+      "errorId": "ID errore {digest}",
+      "loading": "Caricamento",
+      "learnMore": "Scopri di più"
+    },
+    "dialog": {
+      "close": "Chiudi"
+    },
+    "confirm": {
+      "confirm": "Conferma",
+      "cancel": "Annulla",
+      "working": "In corso",
+      "failed": "Non ha funzionato. Riprova.",
+      "reasonRequired": "È richiesto un motivo."
+    },
+    "user": {
+      "accountMenu": "{initials}, menu account di {name}",
+      "signOut": "Esci"
+    },
+    "appearance": {
+      "locked": "La tua organizzazione ha bloccato il tema. Queste impostazioni sono di sola lettura.",
+      "themes": "Tema",
+      "accent": "Accento",
+      "ground": "Sfondo",
+      "density": "Densità",
+      "corners": "Angoli",
+      "reset": "Usa il predefinito",
+      "modes": {
+        "dark": "scuro",
+        "light": "chiaro"
+      },
+      "densities": {
+        "compact": "Compatta",
+        "cards": "Schede"
+      },
+      "densityHints": {
+        "compact": "Righe dense con divisori sottili",
+        "cards": "Elementi riquadrati disposti in colonne"
+      },
+      "cornerSquare": "Squadrati",
+      "cornerRounded": "Arrotondati",
+      "customAccent": "Accento personalizzato",
+      "customAccentPick": "Scegli un colore",
+      "customAccentHelp": "Qualsiasi colore con contrasto 3:1 sullo sfondo. I colori di stato non cambiano mai.",
+      "customAccentInvalid": "Usa un colore esadecimale come #2f9e52.",
+      "customAccentInUse": "In uso",
+      "customAccentOk": "{ratio}:1 su questo sfondo.",
+      "customAccentFaintLighter": "{ratio}:1 su questo sfondo; serve {min}:1. Prova un colore più chiaro.",
+      "customAccentFaintDarker": "{ratio}:1 su questo sfondo; serve {min}:1. Prova un colore più scuro."
     }
   }
 }

@@ -1,7 +1,13 @@
+import { Button, PageHeader } from "@calliopelabs/ui";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/ui-app/primitives/card";
+import { Badge } from "@/ui-app/primitives/badge";
 import { ZapIcon, CompassIcon, AtomIcon } from "lucide-react";
 
 const models = [
@@ -31,12 +37,7 @@ const models = [
 export default function ModelsPage() {
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-xl font-semibold">Models</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Choose the right model for your use case.
-        </p>
-      </div>
+      <PageHeader title="Models" description="Choose the right model for your use case." />
 
       <div className="grid gap-4 md:grid-cols-3">
         {models.map(({ slug, name, icon: Icon, description, tags }) => (

@@ -4,7 +4,8 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
-const nextConfig: NextConfig = {};
+// standalone: frontend/Dockerfile (the Astrolift web workload) runs .next/standalone.
+const nextConfig: NextConfig = { output: "standalone" };
 
 export default withSentryConfig(withNextIntl(nextConfig), {
   org: process.env.SENTRY_ORG,

@@ -1,0 +1,45 @@
+# The web app's Storybook on Astrolift: a static catalog behind central auth,
+# shown as a section of the Calliope AI UX front door (calliopeai/calliope-ux,
+# catalogs.json). Rename `name`, `[app].slug` and `display_name` with the app
+# ("storybook-boilerworks-app" becomes "storybook-<your app>").
+
+astrolift_version = 1
+name = "storybook-boilerworks-app"
+
+[app]
+slug = "storybook-boilerworks-app"
+display_name = "Boilerworks Storybook"
+
+[environments.production]
+
+[[workloads]]
+name = "web"
+kind = "deployment"
+is_public = true
+replicas = 1
+cpu_request = "25m"
+cpu_limit = "100m"
+memory_request = "16Mi"
+memory_limit = "48Mi"
+
+[[workloads.containers]]
+name = "web"
+is_primary = true
+dockerfile_path = "storybook/Dockerfile"
+build_context = "."
+port = 8080
+
+[workloads.containers.healthcheck]
+kind = "http"
+value = "/healthz"
+port = 8080
+
+[ingress]
+class = "alb"
+
+# The CONFLICT cluster's central auth, the same login as the front door.
+[ingress.auth]
+kind = "oidc"
+auth_proxy_host = "auth.astro.conflict.cloud"
+discovery_url = "https://cognito-idp.us-west-2.amazonaws.com/us-west-2_xU96Y7DAg/.well-known/openid-configuration"
+client_id = "1unkru25uqbon23mnhj2cpv3hd"

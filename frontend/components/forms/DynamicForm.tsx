@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@calliopelabs/ui";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch, type FieldValues } from "react-hook-form";
 import {
@@ -11,9 +12,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Card } from "@/ui-app/primitives/card";
+import { Separator } from "@/ui-app/primitives/separator";
 import { useFormDefinition, useSubmitForm } from "@/graphql/forms/forms.hooks";
 import { DynamicField, fieldWidthClass } from "./field-registry";
 import { evaluateLogicRules, type LogicRule, type LogicState } from "./logic-engine";

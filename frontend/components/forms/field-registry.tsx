@@ -1,19 +1,19 @@
 "use client";
 
+import { Input } from "@calliopelabs/ui";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FieldValues, UseFormRegister, FieldErrors, Control } from "react-hook-form";
 import { Controller } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/ui-app/primitives/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+} from "@/ui-app/primitives/select";
+import { Label } from "@/ui-app/primitives/label";
+import { Separator } from "@/ui-app/primitives/separator";
 import { UploadIcon, XIcon } from "lucide-react";
 
 type FieldWidgetProps = {

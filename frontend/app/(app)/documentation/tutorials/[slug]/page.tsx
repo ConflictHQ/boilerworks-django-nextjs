@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/ui-app/primitives/badge";
+import { Separator } from "@/ui-app/primitives/separator";
 import { ArrowLeftIcon, ClockIcon } from "lucide-react";
 import { tutorials } from "../data";
 

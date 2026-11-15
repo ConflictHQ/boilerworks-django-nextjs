@@ -1,5 +1,6 @@
 "use client";
 
+import { Button, Input } from "@calliopelabs/ui";
 import React, { useState } from "react";
 import {
   DndContext,
@@ -29,18 +30,16 @@ import {
   ChevronUpIcon,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/ui-app/primitives/label";
+import { Textarea } from "@/ui-app/primitives/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+} from "@/ui-app/primitives/select";
+import { Separator } from "@/ui-app/primitives/separator";
 import type { LogicRule } from "./logic-engine";
 
 const FIELD_TYPES = [

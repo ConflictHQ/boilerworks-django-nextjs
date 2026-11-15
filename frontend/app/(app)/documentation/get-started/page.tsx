@@ -1,10 +1,8 @@
+import { PageHeader } from "@calliopelabs/ui";
 export default function GetStartedPage() {
   return (
     <article className="flex max-w-2xl flex-1 flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Get Started</h1>
-        <p className="text-muted-foreground mt-2 text-sm">Up and running in five minutes.</p>
-      </div>
+      <PageHeader title="Get Started" description="Up and running in five minutes." />
 
       <section className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">

@@ -1,10 +1,11 @@
 "use client";
 
+import { PageHeader } from "@calliopelabs/ui";
 import { useParams } from "next/navigation";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
-import { Separator } from "@/components/ui/separator";
+import { Separator } from "@/ui-app/primitives/separator";
 import { WorkflowBuilder } from "@/components/workflows/WorkflowBuilder";
 import type { ComponentProps } from "react";
 import { useWorkflow, useUpdateWorkflow } from "@/graphql/workflows/workflows.hooks";
@@ -59,12 +60,10 @@ export default function WorkflowBuilderPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-xl font-semibold">{workflow.name} — Builder</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Drag states, draw transitions. Click Save to update the workflow.
-        </p>
-      </div>
+      <PageHeader
+        title={`${workflow.name}: Builder`}
+        description="Drag states, draw transitions. Click Save to update the workflow."
+      />
       <Separator />
       <WorkflowBuilder
         states={workflow.states || []}

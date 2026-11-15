@@ -1,20 +1,25 @@
 "use client";
 
+import { Button, Input } from "@calliopelabs/ui";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userFormSchema, type UserFormValues } from "./schema";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/ui-app/primitives/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Field, FieldLabel, FieldDescription, FieldError, FieldGroup } from "@/components/ui/field";
-import { Separator } from "@/components/ui/separator";
+} from "@/ui-app/primitives/select";
+import {
+  Field,
+  FieldLabel,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+} from "@/ui-app/primitives/field";
+import { Separator } from "@/ui-app/primitives/separator";
 import { toast } from "sonner";
 
 const SectionHeader = ({ title, description }: { title: string; description: string }) => (

@@ -9,7 +9,7 @@ import {
   ChartLegend,
   ChartLegendContent,
   type ChartConfig,
-} from "@/components/ui/chart";
+} from "@/ui-app/primitives/chart";
 
 const data = [
   { channel: "organic", visitors: 4231 },

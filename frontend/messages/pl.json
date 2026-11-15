@@ -21,7 +21,13 @@
     "billing": "Rozliczenia",
     "limits": "Limity",
     "hooks": "Hooki",
-    "secured": "Zabezpieczona strona"
+    "secured": "Zabezpieczona strona",
+    "home": "Start",
+    "dashboard": "Pulpit",
+    "build": "Tworzenie",
+    "forms": "Formularze",
+    "workflows": "Przepływy pracy",
+    "admin": "Administracja"
   },
   "user": {
     "account": "Konto",
@@ -98,10 +104,7 @@
     },
     "theme": {
       "title": "Wygląd",
-      "description": "Wybierz preferowany schemat kolorów.",
-      "light": "Jasny",
-      "dark": "Ciemny",
-      "system": "Systemowy"
+      "description": "Wybierz preferowany schemat kolorów."
     }
   },
   "hooks": {
@@ -139,6 +142,100 @@
       "cancelLabel": "Anuluj",
       "resultConfirmed": "Potwierdzono — element usunięty.",
       "resultCancelled": "Anulowano."
+    }
+  },
+  "ui": {
+    "shell": {
+      "skipToContent": "Przejdź do treści",
+      "navigation": "Nawigacja",
+      "close": "Zamknij"
+    },
+    "nav": {
+      "label": "Główna",
+      "collapse": "Zwiń pasek boczny",
+      "expand": "Rozwiń pasek boczny",
+      "collapseTitle": "Zwiń pasek boczny ([)",
+      "expandTitle": "Rozwiń pasek boczny ([)"
+    },
+    "breadcrumb": {
+      "label": "Ścieżka nawigacji",
+      "switchFrom": "Przełącz z {label}"
+    },
+    "table": {
+      "search": "Szukaj",
+      "clearSearch": "Wyczyść wyszukiwanie",
+      "results": "{count, plural, one {# wynik} few {# wyniki} many {# wyników} other {# wyniku}}",
+      "filteredResults": "Wyświetlono przefiltrowane wyniki.",
+      "loading": "Ładowanie",
+      "loadFailed": "Nie udało się wczytać: {label}",
+      "requestFailed": "Żądanie nie powiodło się.",
+      "retry": "Ponów",
+      "noMatches": "Brak wyników",
+      "noMatchesDescription": "Brak pozycji ({label}) pasujących do wyszukiwania.",
+      "selected": "Zaznaczono: {count}",
+      "clearSelection": "Wyczyść",
+      "selectRow": "Zaznacz {id}",
+      "selectPage": "Zaznacz wszystkie ({label}) na tej stronie",
+      "actions": "Akcje",
+      "rowActions": "Akcje dla {label}",
+      "rowsPerPage": "Wierszy na stronę",
+      "page": "Strona {page}",
+      "previousPage": "Poprzednia strona",
+      "nextPage": "Następna strona",
+      "sortKey": "klucz sortowania {index}"
+    },
+    "states": {
+      "errorTitle": "Coś poszło nie tak",
+      "unexpected": "Wystąpił nieoczekiwany błąd.",
+      "retry": "Spróbuj ponownie",
+      "errorId": "ID błędu {digest}",
+      "loading": "Ładowanie",
+      "learnMore": "Dowiedz się więcej"
+    },
+    "dialog": {
+      "close": "Zamknij"
+    },
+    "confirm": {
+      "confirm": "Potwierdź",
+      "cancel": "Anuluj",
+      "working": "Przetwarzanie",
+      "failed": "Nie udało się. Spróbuj ponownie.",
+      "reasonRequired": "Wymagane jest uzasadnienie."
+    },
+    "user": {
+      "accountMenu": "{initials}, menu konta użytkownika {name}",
+      "signOut": "Wyloguj"
+    },
+    "appearance": {
+      "locked": "Twoja organizacja zablokowała motyw. Te ustawienia są tylko do odczytu.",
+      "themes": "Motyw",
+      "accent": "Akcent",
+      "ground": "Tło",
+      "density": "Gęstość",
+      "corners": "Narożniki",
+      "reset": "Użyj domyślnych",
+      "modes": {
+        "dark": "ciemny",
+        "light": "jasny"
+      },
+      "densities": {
+        "compact": "Kompaktowa",
+        "cards": "Karty"
+      },
+      "densityHints": {
+        "compact": "Gęste wiersze z cienkimi separatorami",
+        "cards": "Elementy w ramkach układane w kolumny"
+      },
+      "cornerSquare": "Kwadratowe",
+      "cornerRounded": "Zaokrąglone",
+      "customAccent": "Własny akcent",
+      "customAccentPick": "Wybierz kolor",
+      "customAccentHelp": "Dowolny kolor o kontraście 3:1 względem tła. Kolory statusów nigdy się nie zmieniają.",
+      "customAccentInvalid": "Użyj koloru szesnastkowego, np. #2f9e52.",
+      "customAccentInUse": "W użyciu",
+      "customAccentOk": "{ratio}:1 względem tego tła.",
+      "customAccentFaintLighter": "{ratio}:1 względem tego tła; wymagane {min}:1. Wybierz jaśniejszy kolor.",
+      "customAccentFaintDarker": "{ratio}:1 względem tego tła; wymagane {min}:1. Wybierz ciemniejszy kolor."
     }
   }
 }

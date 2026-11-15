@@ -1,10 +1,8 @@
+import { PageHeader } from "@calliopelabs/ui";
 export default function IntroductionPage() {
   return (
     <article className="flex max-w-2xl flex-1 flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Introduction</h1>
-        <p className="text-muted-foreground mt-2 text-sm">Welcome to the platform documentation.</p>
-      </div>
+      <PageHeader title="Introduction" description="Welcome to the platform documentation." />
 
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-medium">What is this platform?</h2>

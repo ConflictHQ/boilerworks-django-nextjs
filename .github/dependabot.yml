@@ -12,6 +12,16 @@ updates:
     open-pull-requests-limit: 10
   - package-ecosystem: "npm"
     directory: "/frontend"
+    # Daily, so a new @calliopelabs/ui release arrives as its own pull request
+    # within a day. The rest stays one grouped pull request, refreshed in place.
     schedule:
-      interval: "weekly"
+      interval: "daily"
     open-pull-requests-limit: 10
+    groups:
+      # First match wins: the Calliope AI design system gets its own pull request.
+      calliopelabs:
+        patterns:
+          - "@calliopelabs/*"
+      all-dependencies:
+        patterns:
+          - "*"

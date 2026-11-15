@@ -1,5 +1,6 @@
 "use client";
 
+import { Button, Input, PageHeader } from "@calliopelabs/ui";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -15,11 +16,9 @@ import {
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/ui-app/primitives/textarea";
+import { Label } from "@/ui-app/primitives/label";
+import { Separator } from "@/ui-app/primitives/separator";
 import { useCreateFormDefinition } from "@/graphql/forms/forms.hooks";
 import { FormBuilder } from "@/components/forms/FormBuilder";
 import { FormPreview } from "@/components/forms/FormPreview";
@@ -111,12 +110,10 @@ export default function NewFormPage() {
           >
             {/* Header */}
             <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-xl font-semibold">Create New Form</h1>
-                <p className="text-muted-foreground mt-1 text-sm">
-                  Define fields, configure validation, see a live preview.
-                </p>
-              </div>
+              <PageHeader
+                title="Create New Form"
+                description="Define fields, configure validation, see a live preview."
+              />
               <button
                 type="button"
                 onClick={() => setShowPreview(!showPreview)}

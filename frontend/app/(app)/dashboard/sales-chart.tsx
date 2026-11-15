@@ -7,7 +7,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/components/ui/chart";
+} from "@/ui-app/primitives/chart";
 
 export const SalesChart = () => {
   const t = useTranslations("dashboard.sales");

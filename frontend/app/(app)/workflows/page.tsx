@@ -1,12 +1,18 @@
 "use client";
 
+import {
+  Button,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  PageHeader,
+  StatusBadge,
+} from "@calliopelabs/ui";
 import Link from "next/link";
-import { Loader2Icon, PlusIcon, TrashIcon, WrenchIcon } from "lucide-react";
+import { PlusIcon, TrashIcon, WrenchIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Separator } from "@/ui-app/primitives/separator";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useWorkflows, useDeleteWorkflow } from "@/graphql/workflows/workflows.hooks";
 import type { WorkflowDefinition } from "@/graphql/workflows/workflows.types";
@@ -37,38 +43,30 @@ export default function WorkflowsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold">Workflows</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Manage workflow definitions and track active instances.
-          </p>
-        </div>
-        <Button asChild>
-          <Link href="/workflows/new">
-            <PlusIcon className="mr-1 h-4 w-4" /> New Workflow
-          </Link>
-        </Button>
-      </div>
-      <Separator />
-
-      {loading && (
-        <div className="flex items-center justify-center p-12">
-          <Loader2Icon className="text-muted-foreground h-6 w-6 animate-spin" />
-        </div>
-      )}
-
-      {error && <div className="rounded-md bg-red-50 p-4 text-red-800">Error: {error.message}</div>}
-
-      {!loading && workflows.length === 0 && (
-        <div className="text-muted-foreground flex flex-col items-center gap-3 py-12 text-center">
-          <p>No workflows defined yet.</p>
-          <Button variant="outline" asChild>
+      <PageHeader
+        title="Workflows"
+        description="Manage workflow definitions and track active instances."
+        primaryAction={
+          <Button asChild size="sm">
             <Link href="/workflows/new">
-              <PlusIcon className="mr-1 h-4 w-4" /> Create your first workflow
+              <PlusIcon /> New Workflow
             </Link>
           </Button>
-        </div>
+        }
+      />
+      <Separator />
+
+      {loading && workflows.length === 0 && <LoadingState label="Loading workflows" />}
+
+      {error && <ErrorState title="Could not load workflows" error={error} />}
+
+      {!loading && !error && workflows.length === 0 && (
+        <EmptyState
+          title="No workflows defined yet"
+          description="A workflow is a state machine you attach to a model."
+          actionHref="/workflows/new"
+          actionLabel="Create your first workflow"
+        />
       )}
 
       <div className="grid gap-4">
@@ -77,9 +75,9 @@ export default function WorkflowsPage() {
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <span className="font-medium">{wf.name}</span>
-                <Badge variant={wf.isEnabled ? "default" : "secondary"}>
+                <StatusBadge tone={wf.isEnabled ? "ok" : "muted"}>
                   {wf.isEnabled ? "Active" : "Disabled"}
-                </Badge>
+                </StatusBadge>
                 <span className="text-muted-foreground text-xs">{wf.modelLabel}</span>
               </div>
               <span className="text-muted-foreground text-sm">
@@ -95,12 +93,7 @@ export default function WorkflowsPage() {
                   <WrenchIcon className="mr-1 h-3 w-3" /> Builder
                 </Link>
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleDelete(wf)}
-                className="text-red-600 hover:text-red-700"
-              >
+              <Button variant="outline" size="sm" onClick={() => handleDelete(wf)}>
                 <TrashIcon className="mr-1 h-3 w-3" /> Delete
               </Button>
             </div>

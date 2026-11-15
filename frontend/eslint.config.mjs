@@ -3,12 +3,14 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import prettierConfig from "eslint-config-prettier";
+import storybook from "eslint-plugin-storybook";
 
 const require = createRequire(import.meta.url);
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  ...storybook.configs["flat/recommended"],
   prettierConfig,
   {
     // eslint-plugin-react's automatic React version detection relies on
@@ -32,6 +34,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "storybook-static/**",
   ]),
 ]);
 

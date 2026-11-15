@@ -1,6 +1,6 @@
 import { getClient } from "@/lib/apollo";
 import { GET_ME } from "@/graphql/user/user.queries";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/ui-app/primitives/badge";
 import type { MeQueryData } from "@/graphql/user/user.types";
 
 export default async function SsrUser() {

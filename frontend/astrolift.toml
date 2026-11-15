@@ -1,0 +1,46 @@
+# The Next.js web app on Astrolift, its own app because Astrolift builds one
+# image per app (the backend is the root astrolift.toml). Registered from
+# this directory, it builds frontend/ with frontend/Dockerfile:
+#
+#   astro app register -f frontend/astrolift.toml --manifest-path frontend/astrolift.toml \
+#     --project-id <uuid> --source-repo <org>/<repo>
+#
+# Rename `name`, `[app].slug`, `display_name` and `repo` with the app
+# ("boilerworks-app-web" becomes "<your app>-web").
+#
+# The browser calls the backend directly (Apollo, auth1 login), so
+# NEXT_PUBLIC_API_ROOT is the backend api's public URL, without a trailing
+# slash. It is compiled into the browser bundle: set it as a build argument
+# of this app's build (the Dockerfile's default is http://localhost:8000).
+
+astrolift_version = 1
+name = "boilerworks-app-web"
+
+[app]
+slug = "boilerworks-app-web"
+display_name = "Boilerworks Web"
+runtime = "node"
+repo = "ConflictHQ/boilerworks-django-nextjs"
+
+[environments.production]
+
+[[workloads]]
+name = "web"
+kind = "deployment"
+is_public = true
+replicas = 1
+cpu_request = "250m"
+cpu_limit = "1"
+memory_request = "256Mi"
+memory_limit = "512Mi"
+
+  [[workloads.containers]]
+  name = "web"
+  is_primary = true
+  port = 3000
+
+    # The login page answers 200 without a session; "/" redirects.
+    [workloads.containers.healthcheck]
+    kind = "http"
+    value = "/auth/login"
+    port = 3000

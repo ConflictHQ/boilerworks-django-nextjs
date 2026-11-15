@@ -86,7 +86,7 @@ export type PaginatedQueryResult<TExtractedData> = {
   sorting: SortingState;
   /** Update sort state (synced to URL if urlSync is enabled). */
   setSorting: (sorting: SortingState) => void;
-  /** Drop-in handler for DataTableServer's onFiltersChange prop.
+  /** Handler for a TanStack table's onFiltersChange.
    *  Syncs all filterKeys to URL and query variables automatically. */
   onFiltersChange: (filters: ColumnFiltersState) => void;
 };
