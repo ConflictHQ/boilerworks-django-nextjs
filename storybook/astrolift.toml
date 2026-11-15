@@ -25,8 +25,11 @@ memory_limit = "48Mi"
 [[workloads.containers]]
 name = "web"
 is_primary = true
-dockerfile_path = "storybook/Dockerfile"
-build_context = "."
+# Container paths resolve from this file's directory. The context is the
+# repository root (".."); the Dockerfile is named through it, because a
+# bare "Dockerfile" would mean the root's own.
+build_context = ".."
+dockerfile_path = "../storybook/Dockerfile"
 port = 8080
 
 [workloads.containers.healthcheck]
