@@ -27,7 +27,8 @@
     "build": "Construire",
     "forms": "Formulaires",
     "workflows": "Flux de travail",
-    "admin": "Administration"
+    "admin": "Administration",
+    "analytics": "Analytique"
   },
   "user": {
     "account": "Compte",
@@ -75,6 +76,19 @@
       "footwear": "Chaussures",
       "sports": "Sports"
     }
+  },
+  "analytics": {
+    "title": "Analytique",
+    "description": "Tableaux de bord intégrés depuis Apache Superset.",
+    "loading": "Chargement de {title}",
+    "loadingList": "Chargement des tableaux de bord",
+    "loadFailed": "Impossible de charger {title}",
+    "listFailed": "Impossible de charger les tableaux de bord",
+    "retry": "Réessayer",
+    "emptyTitle": "Aucun tableau de bord",
+    "emptyDescription": "Intégrez un tableau de bord Superset avec make superset-embed dashboard=SLUG ou ajoutez-le dans l'admin.",
+    "notConfiguredTitle": "L'analytique n'est pas configurée",
+    "notConfiguredDescription": "Ce tableau de bord n'a pas encore d'identifiant d'intégration ni de domaine Superset."
   },
   "dataTable": {
     "search": "Rechercher…",

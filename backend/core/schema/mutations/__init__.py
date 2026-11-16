@@ -4,17 +4,15 @@ from __future__ import annotations
 from typing import Optional
 
 import strawberry
-from strawberry.types import Info
-
 from core.schema.common import MutationResult
 from core.schema.mutations.base import activate_mutation, delete_mutation
 from core.schema.mutations.library import LibraryMutations
-from core.schema.mutations.metabase import MetabaseMutations
 from core.schema.mutations.notification import NotificationMutations
 from core.schema.mutations.permissions import PermissionMutations
 from core.schema.mutations.rocketchat import RocketchatMutations
 from core.schema.mutations.upload import UploadMutations
 from core.schema.mutations.user import UserMutations
+from strawberry.types import Info
 
 
 @strawberry.type
@@ -24,7 +22,6 @@ class Mutation(
     PermissionMutations,
     LibraryMutations,
     RocketchatMutations,
-    MetabaseMutations,
     UploadMutations,
 ):
     """Root mutation type for the core Strawberry schema.

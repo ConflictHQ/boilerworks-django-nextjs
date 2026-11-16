@@ -37,7 +37,7 @@ class Feature(str, Enum):
     CELERY = 'celery'
     TEMPORAL = 'temporal'
     OPENSEARCH = 'opensearch'
-    METABASE = 'metabase'
+    SUPERSET = 'superset'
     ROCKETCHAT = 'rocketchat'
     PUSH_NOTIFICATIONS = 'push_notifications'
     FILE_UPLOADS = 'file_uploads'
@@ -51,7 +51,7 @@ FEATURE_DEFAULTS = {
     Feature.CELERY: ('FEATURE_CELERY', True),
     Feature.TEMPORAL: ('FEATURE_TEMPORAL', False),
     Feature.OPENSEARCH: ('FEATURE_OPENSEARCH', True),
-    Feature.METABASE: ('FEATURE_METABASE', True),
+    Feature.SUPERSET: ('FEATURE_SUPERSET', True),
     Feature.ROCKETCHAT: ('FEATURE_ROCKETCHAT', True),
     Feature.PUSH_NOTIFICATIONS: ('FEATURE_PUSH_NOTIFICATIONS', True),
     Feature.FILE_UPLOADS: ('FEATURE_FILE_UPLOADS', True),
@@ -66,7 +66,7 @@ FEATURE_APPS = {
     Feature.PUSH_NOTIFICATIONS: ['pushnotif'],
     Feature.RULE_ENGINE: ['core_rule_engine'],
     Feature.OPENSEARCH: [],  # opensearch is a service, not a Django app
-    Feature.METABASE: [],
+    Feature.SUPERSET: [],
     Feature.ROCKETCHAT: [],
     Feature.FILE_UPLOADS: [],
     Feature.TEMPORAL: [],

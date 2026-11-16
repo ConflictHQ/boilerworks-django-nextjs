@@ -1,7 +1,7 @@
 COMPOSE = docker compose -f docker/docker-compose.yaml
 CONTAINER = boilerworks-local
 
-.PHONY: help up down build restart logs logs-worker logs-beat shell manage migrate migrations seed reindex test lint schema collectstatic superuser ps navegador-ingest brain check-brain
+.PHONY: help up down build restart logs logs-worker logs-beat shell manage migrate migrations seed reindex test lint schema collectstatic superuser ps superset-embed navegador-ingest brain check-brain
 
 help:
 	@echo "Available commands:"
@@ -24,6 +24,7 @@ help:
 	@echo "  collectstatic Collect static files"
 	@echo "  superuser     Create a Django superuser"
 	@echo "  ps            Show running containers"
+	@echo "  superset-embed  Embed a Superset dashboard: make superset-embed dashboard=<id or slug>"
 	@echo "  navegador-ingest  Build the code KG (.navegador/graph.db) and export app/code-kg.json"
 	@echo "  brain         Compile the brain node envelope app/brain.json (committed)"
 	@echo "  check-brain   Validate app/brain.json against schemas/ (jsonschema) + freshness"
@@ -85,6 +86,9 @@ superuser:
 
 ps:
 	$(COMPOSE) ps
+
+superset-embed:
+	docker exec $(CONTAINER) python manage.py superset_embed $(dashboard)
 
 # --- Navegador + brain node (see bootstrap.md "Process & brain") -------------
 

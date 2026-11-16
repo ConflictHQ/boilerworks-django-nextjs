@@ -58,6 +58,7 @@ See [`bootstrap.md`](bootstrap.md) for conventions, patterns, and how to add new
 - Apollo Client with SSR hydration (`@apollo/client-integration-nextjs`)
 - [`@calliopelabs/ui`](https://www.npmjs.com/package/@calliopelabs/ui) (the Calliope AI design system) + Tailwind CSS, shadcn/ui for what the library lacks
 - Dashboard with chart components (Recharts — area, bar, donut)
+- Embedded Apache Superset dashboards (`/analytics`) through backend-issued guest tokens
 - Data tables with server-side pagination, filtering, sorting
 - 7-language i18n (next-intl)
 - Appearance (ground, accent, light or dark), breadcrumbs and sidebar navigation from the library
@@ -65,7 +66,7 @@ See [`bootstrap.md`](bootstrap.md) for conventions, patterns, and how to add new
 - Sentry error tracking, global error boundary
 
 ### Infrastructure
-- Docker Compose with all services (Django, Postgres, Redis, Next.js, Celery, Flower, OpenSearch, MinIO, Mailpit)
+- Docker Compose with all services (Django, Postgres, Redis, Next.js, Celery, Flower, OpenSearch, MinIO, Mailpit, Superset)
 - Feature toggle system (`config/features.py`) with Docker Compose profiles
 - Health check endpoint (`/health/`)
 - Prometheus metrics endpoint (`/metrics`)
@@ -165,6 +166,7 @@ cd boilerworks-django-nextjs
 | Flower (Celery) | http://localhost:5555 |
 | Mailpit | http://localhost:8025 |
 | MinIO Console | http://localhost:9001 |
+| Superset (`analytics` profile) | http://localhost:8088 (admin/admin, local only) |
 | Metrics | http://localhost:8000/app/metrics/ |
 
 ---
@@ -188,6 +190,90 @@ make seed       # load dev fixtures
 make lint       # flake8 + isort
 make reindex    # rebuild OpenSearch indices
 ```
+
+---
+
+## Analytics (Superset)
+
+Embedded analytics use [Apache Superset](https://superset.apache.org/) and its
+[Embedded SDK](https://www.npmjs.com/package/@superset-ui/embedded-sdk). The
+browser never holds a Superset credential:
+
+1. The frontend lists dashboards with the `supersetDashboards` query (title,
+   order, the embedded dashboard UUID and the Superset domain).
+2. `SupersetDashboard` in `frontend/ui-app/analytics/` mounts the dashboard
+   with `embedDashboard()`. Its `fetchGuestToken` calls the
+   `supersetGuestToken` mutation, on mount and before each token expires.
+3. The backend (`core/utils/api/superset_rest_client.py`) signs in to Superset
+   as a service account (`/api/v1/security/login`), takes a CSRF token and
+   asks `/api/v1/security/guest_token/` for a token scoped to that one
+   dashboard, with the dashboard's row-level security clause, if it has one.
+
+Access is the `view_supersetdashboard` permission (assign it to groups);
+`FEATURE_SUPERSET=false` removes the query and mutations from the schema.
+
+### Row-level security
+
+A dashboard's `rls_clause` (admin, or `superset_embed --rls-clause`) is added
+to every guest token issued for it. `{organization_guid}` becomes the user's
+active organization guid, quoted, so a dataset with an `organization_guid`
+column can be scoped with:
+
+```
+organization_guid = {organization_guid}
+```
+
+A user with no active organization gets `1 = 0` and sees no rows. Leave the
+clause empty for dashboards that are not tenant scoped.
+
+### Local Superset
+
+Superset runs in the opt-in `analytics` compose profile (the official
+`apache/superset` image plus the Postgres driver, `docker/superset/`):
+
+```shell
+docker compose -f docker/docker-compose.yaml --profile analytics up -d
+make superset-embed dashboard=boilerworks-sample   # enable embedding, register it
+```
+
+On first start it creates a local admin (admin/admin), the service account
+from `SUPERSET_USERNAME` / `SUPERSET_PASSWORD` in `backend/config/local.env`
+(`bootstrap.sh` generates the password) and a sample dashboard,
+`boilerworks-sample`, over the local `auth_user` table. Open
+http://localhost:3000/analytics to see it embedded. For your own dashboards,
+build them at http://localhost:8088 and run `make superset-embed
+dashboard=<id or slug>`.
+
+### Hosted Superset
+
+Point the backend at a self-hosted or managed Superset (the local profile
+pins 6.1.0) through `backend/config/local.env` or the
+deployment's secrets:
+
+| Variable | Purpose |
+|---|---|
+| `SUPERSET_URL` | Superset as the backend reaches it (API calls) |
+| `SUPERSET_PUBLIC_URL` | Superset as the browser reaches it (the iframe); defaults to `SUPERSET_URL` |
+| `SUPERSET_USERNAME` / `SUPERSET_PASSWORD` | Service account for guest tokens; env or secrets only |
+| `SUPERSET_EMBED_ALLOWED_DOMAINS` | Comma-separated origins allowed to frame dashboards (set by `superset_embed`) |
+
+On the Superset side: turn on the `EMBEDDED_SUPERSET` feature flag, give the
+service account a role with only "can grant guest token" and dashboard
+embedding, set `GUEST_ROLE_NAME` to a role that can read the embedded
+dashboards, and allow the app's origin in Talisman's `frame-ancestors`. The
+local `docker/superset/superset_config.py` shows the flags; it turns Talisman
+off, which is for local use only.
+
+### Migrating from Metabase
+
+Earlier versions embedded Metabase. Migration `core.0010` is a clean break:
+Metabase card and dashboard ids have no Superset equivalent, so it drops the
+Metabase tables, their history and permissions, and creates
+`SupersetDashboard`. Export any Metabase chart rows you need first, rebuild
+the dashboards in Superset, register each with `make superset-embed`, and
+remove `METABASE_*` from your environment. Rotate any `METABASE_SECRET_KEY`
+that ran on an earlier version of this template: settings logged it at
+startup.
 
 ---
 

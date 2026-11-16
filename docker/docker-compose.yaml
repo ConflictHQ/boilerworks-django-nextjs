@@ -223,6 +223,32 @@ services:
       echo 'MinIO bucket ready';
       "
 
+  superset-local:
+    # Embedded analytics (opt-in): docker compose --profile analytics up -d
+    profiles: ["analytics"]
+    build: ./superset
+    image: boilerworks-superset
+    container_name: superset-local
+    command: ["sh", "/app/docker/boilerworks/start.sh"]
+    ports:
+      - '8088:8088'
+    env_file:
+      - ../backend/config/local.env
+    environment:
+      - SUPERSET_CONFIG_PATH=/app/docker/boilerworks/superset_config.py
+      - BOILERWORKS_DB_URI=postgresql://dbadmin:Password123@postgres-local:5432/boilerworks
+    volumes:
+      - ./superset:/app/docker/boilerworks:ro
+      - superset-home:/app/superset_home
+    depends_on:
+      postgres-local:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8088/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
   mailpit-local:
     image: axllent/mailpit:latest
     container_name: mailpit-local
@@ -285,3 +311,4 @@ volumes:
   media_volume:
   opensearch-data:
   minio-data:
+  superset-home:

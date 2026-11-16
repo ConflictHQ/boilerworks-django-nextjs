@@ -27,7 +27,8 @@
     "build": "Construir",
     "forms": "Formulários",
     "workflows": "Fluxos de trabalho",
-    "admin": "Administração"
+    "admin": "Administração",
+    "analytics": "Análises"
   },
   "user": {
     "account": "Conta",
@@ -75,6 +76,19 @@
       "footwear": "Calçados",
       "sports": "Esportes"
     }
+  },
+  "analytics": {
+    "title": "Análises",
+    "description": "Painéis incorporados do Apache Superset.",
+    "loading": "Carregando {title}",
+    "loadingList": "Carregando painéis",
+    "loadFailed": "Não foi possível carregar {title}",
+    "listFailed": "Não foi possível carregar os painéis",
+    "retry": "Tentar novamente",
+    "emptyTitle": "Ainda não há painéis",
+    "emptyDescription": "Incorpore um painel do Superset com make superset-embed dashboard=SLUG ou adicione-o no admin.",
+    "notConfiguredTitle": "As análises não estão configuradas",
+    "notConfiguredDescription": "Este painel ainda não tem um id de incorporação nem um domínio do Superset."
   },
   "dataTable": {
     "search": "Pesquisar…",

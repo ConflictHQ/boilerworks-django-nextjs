@@ -753,7 +753,13 @@ TWILIO_SECRET = os.getenv('TWILIO_SECRET', '')
 TWILIO_FROM_NUMBER = os.getenv('TWILIO_FROM_NUMBER', '')
 TWILIO_CALLBACK = os.getenv('TWILIO_CALLBACK', '')
 
-# Start of Metabase Config
-METABASE_SITE_URL = env_str('METABASE_SITE_URL', '')
-METABASE_SECRET_KEY = env_str('METABASE_SECRET_KEY', '')
-METABASE_BACKEND_API_KEY = env_str('METABASE_BACKEND_API_KEY', '')
+# Superset (embedded analytics). The backend signs in with the service account
+# and issues guest tokens. The browser only ever gets SUPERSET_PUBLIC_URL and
+# short-lived guest tokens, never the service account or its access token.
+SUPERSET_URL = env_str('SUPERSET_URL', '')
+SUPERSET_PUBLIC_URL = env_str('SUPERSET_PUBLIC_URL', '') or SUPERSET_URL
+SUPERSET_USERNAME = env_str('SUPERSET_USERNAME', '')
+SUPERSET_PASSWORD = env_str('SUPERSET_PASSWORD', '')
+SUPERSET_EMBED_ALLOWED_DOMAINS = [
+    domain.strip() for domain in env_str('SUPERSET_EMBED_ALLOWED_DOMAINS', '').split(',') if domain.strip()
+]
