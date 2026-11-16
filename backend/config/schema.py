@@ -41,6 +41,12 @@ if is_enabled(Feature.WORKFLOWS):
     _query_bases.append(WorkflowsSchema.Query)
     _mutation_bases.append(WorkflowsSchema.Mutation)
 
+if is_enabled(Feature.SUPERSET):
+    from core.schema.mutations.superset import SupersetMutations
+    from core.schema.types.superset import SupersetQuery
+    _query_bases.append(SupersetQuery)
+    _mutation_bases.append(SupersetMutations)
+
 
 # ---------------------------------------------------------------------------
 # Root Query

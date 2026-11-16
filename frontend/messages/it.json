@@ -27,7 +27,8 @@
     "build": "Crea",
     "forms": "Moduli",
     "workflows": "Flussi di lavoro",
-    "admin": "Amministrazione"
+    "admin": "Amministrazione",
+    "analytics": "Analisi"
   },
   "user": {
     "account": "Account",
@@ -75,6 +76,19 @@
       "footwear": "Calzature",
       "sports": "Sport"
     }
+  },
+  "analytics": {
+    "title": "Analisi",
+    "description": "Dashboard incorporate da Apache Superset.",
+    "loading": "Caricamento di {title}",
+    "loadingList": "Caricamento delle dashboard",
+    "loadFailed": "Impossibile caricare {title}",
+    "listFailed": "Impossibile caricare le dashboard",
+    "retry": "Riprova",
+    "emptyTitle": "Ancora nessuna dashboard",
+    "emptyDescription": "Incorpora una dashboard Superset con make superset-embed dashboard=SLUG o aggiungila nell'admin.",
+    "notConfiguredTitle": "Le analisi non sono configurate",
+    "notConfiguredDescription": "Questa dashboard non ha ancora un id di incorporamento o un dominio Superset."
   },
   "dataTable": {
     "search": "Cerca…",

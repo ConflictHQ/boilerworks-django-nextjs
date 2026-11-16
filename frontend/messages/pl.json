@@ -27,7 +27,8 @@
     "build": "Tworzenie",
     "forms": "Formularze",
     "workflows": "Przepływy pracy",
-    "admin": "Administracja"
+    "admin": "Administracja",
+    "analytics": "Analityka"
   },
   "user": {
     "account": "Konto",
@@ -75,6 +76,19 @@
       "footwear": "Obuwie",
       "sports": "Sport"
     }
+  },
+  "analytics": {
+    "title": "Analityka",
+    "description": "Pulpity osadzone z Apache Superset.",
+    "loading": "Ładowanie: {title}",
+    "loadingList": "Ładowanie pulpitów",
+    "loadFailed": "Nie udało się załadować: {title}",
+    "listFailed": "Nie udało się załadować pulpitów",
+    "retry": "Spróbuj ponownie",
+    "emptyTitle": "Brak pulpitów",
+    "emptyDescription": "Osadź pulpit Superset poleceniem make superset-embed dashboard=SLUG lub dodaj go w panelu admina.",
+    "notConfiguredTitle": "Analityka nie jest skonfigurowana",
+    "notConfiguredDescription": "Ten pulpit nie ma jeszcze identyfikatora osadzenia ani domeny Superset."
   },
   "dataTable": {
     "search": "Szukaj…",

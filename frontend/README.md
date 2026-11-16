@@ -30,8 +30,6 @@ Then fill in the values in `.env`:
 | `NEXT_PUBLIC_API_TOKEN`  | Static bearer token for API requests                  |
 | `NEXT_PUBLIC_MAIN_PAGE`  | Default redirect after login (e.g. `/dashboard`)      |
 | `APP_BASE_URL`           | Public URL of this app                                |
-| `METABASE_SITE_URL`      | _(optional)_ Metabase instance URL                    |
-| `METABASE_SECRET_KEY`    | _(optional)_ Metabase embedding secret key            |
 | `SENTRY_AUTH_TOKEN`      | _(optional)_ Sentry auth token for source map uploads |
 | `NEXT_PUBLIC_SENTRY_DSN` | _(optional)_ Sentry DSN                               |
 

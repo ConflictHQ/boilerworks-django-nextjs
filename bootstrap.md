@@ -311,6 +311,7 @@ make test
 | MinIO S3 API | http://localhost:9000 |
 | MinIO Console | http://localhost:9001 (minioadmin/minioadmin) |
 | Flower (Celery) | http://localhost:5555 |
+| Superset (`analytics` profile) | http://localhost:8088 |
 
 ---
 
@@ -332,6 +333,7 @@ make perms        # Regenerate config/roles_gen.py
 make reindex      # Rebuild OpenSearch indices
 make superuser    # Create Django superuser
 make ps           # Show container status
+make superset-embed dashboard=<id or slug>  # Embed a Superset dashboard (README "Analytics (Superset)")
 ```
 
 ---

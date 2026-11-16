@@ -12,13 +12,13 @@ from core.models import (
     GlobalIDLink,
     Interval,
     Link,
-    MetabaseChart,
     Notification,
     PinTransaction,
     Profile,
     ResourceFile,
     SharedDirectory,
     SignRequest,
+    SupersetDashboard,
     TemplateModel,
     Upload,
     UserSwitchGroup,
@@ -971,8 +971,8 @@ class ApprovalPropertyWhitelistAdmin(admin.ModelAdmin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-@admin.register(MetabaseChart)
-class MetabaseChartAdmin(admin.ModelAdmin):
-    list_display = 'id', 'type', 'metabase_chart_id', 'title', 'created_at'
-    search_fields = 'id', 'type', 'created_by__username'
-    ordering = '-created_at',
+@admin.register(SupersetDashboard)
+class SupersetDashboardAdmin(BaseCoreAdmin):
+    list_display = 'title', 'embedded_id', 'order', 'deleted_at', 'created_at'
+    search_fields = 'title', 'embedded_id'
+    ordering = 'order', 'title'

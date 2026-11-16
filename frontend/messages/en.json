@@ -27,7 +27,8 @@
     "build": "Build",
     "forms": "Forms",
     "workflows": "Workflows",
-    "admin": "Admin"
+    "admin": "Admin",
+    "analytics": "Analytics"
   },
   "user": {
     "account": "Account",
@@ -75,6 +76,19 @@
       "footwear": "Footwear",
       "sports": "Sports"
     }
+  },
+  "analytics": {
+    "title": "Analytics",
+    "description": "Dashboards embedded from Apache Superset.",
+    "loading": "Loading {title}",
+    "loadingList": "Loading dashboards",
+    "loadFailed": "Could not load {title}",
+    "listFailed": "Could not load the dashboards",
+    "retry": "Try again",
+    "emptyTitle": "No dashboards yet",
+    "emptyDescription": "Embed a Superset dashboard with make superset-embed dashboard=SLUG, or add one in the admin.",
+    "notConfiguredTitle": "Analytics are not configured",
+    "notConfiguredDescription": "This dashboard has no Superset embed id or domain yet."
   },
   "dataTable": {
     "search": "Search…",

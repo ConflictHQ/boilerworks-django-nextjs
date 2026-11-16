@@ -27,7 +27,8 @@
     "build": "Erstellen",
     "forms": "Formulare",
     "workflows": "Workflows",
-    "admin": "Verwaltung"
+    "admin": "Verwaltung",
+    "analytics": "Analysen"
   },
   "user": {
     "account": "Konto",
@@ -75,6 +76,19 @@
       "footwear": "Schuhe",
       "sports": "Sport"
     }
+  },
+  "analytics": {
+    "title": "Analysen",
+    "description": "Aus Apache Superset eingebettete Dashboards.",
+    "loading": "{title} wird geladen",
+    "loadingList": "Dashboards werden geladen",
+    "loadFailed": "{title} konnte nicht geladen werden",
+    "listFailed": "Die Dashboards konnten nicht geladen werden",
+    "retry": "Erneut versuchen",
+    "emptyTitle": "Noch keine Dashboards",
+    "emptyDescription": "Bette ein Superset-Dashboard mit make superset-embed dashboard=SLUG ein oder lege es im Admin an.",
+    "notConfiguredTitle": "Analysen sind nicht eingerichtet",
+    "notConfiguredDescription": "Dieses Dashboard hat noch keine Superset-Embed-ID oder -Domain."
   },
   "dataTable": {
     "search": "Suchen…",

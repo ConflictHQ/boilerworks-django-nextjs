@@ -61,6 +61,16 @@ else
     ok "DJANGO_SECRET_KEY already set"
 fi
 
+# Local Superset (analytics profile): service-account password and server key.
+for PLACEHOLDER in changeme-generate-a-superset-service-password changeme-generate-a-superset-secret-key; do
+    if grep -q "$PLACEHOLDER" "$ENV_FILE" 2>/dev/null && command -v python3 &>/dev/null; then
+        VALUE=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
+        sed -i.bak "s|$PLACEHOLDER|$VALUE|" "$ENV_FILE"
+        rm -f "$ENV_FILE.bak"
+        ok "Generated ${PLACEHOLDER#changeme-generate-a-}"
+    fi
+done
+
 # ── 4. Docker image ───────────────────────────────────────────────────────────
 banner "Docker image"
 

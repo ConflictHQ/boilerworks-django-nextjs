@@ -194,7 +194,7 @@ input FormDefinitionInput {
   name: String!
   slug: String!
   description: String! = ""
-  schema: JSON! = {}
+  schema: JSON! = {  }
 }
 
 type FormDefinitionType {
@@ -353,9 +353,6 @@ type Mutation {
   """
   generateRocketChatToken: String!
 
-  """Create or update a Metabase chart via MetabaseChartSerializer."""
-  metabaseChart(input: JSON!): MutationResult!
-
   """
   Get a pre-signed URL for uploading an image or file. Optionally attach it to an entity via owner_container_property.
   """
@@ -433,6 +430,16 @@ type Mutation {
 
   """Delete a workflow definition by slug (staff only)."""
   deleteWorkflowDefinition(slug: String!): MutationResult!
+
+  """
+  Issue a short-lived Superset guest token for one embedded dashboard (by guid), with the dashboard's row-level security applied for the current user.
+  """
+  supersetGuestToken(dashboard: ID!): SupersetGuestTokenResult!
+
+  """
+  Create or update an embedded Superset dashboard via SupersetDashboardSerializer.
+  """
+  supersetDashboard(input: JSON!): MutationResult!
 }
 
 """Standard mutation result with ok flag and validation errors."""
@@ -640,6 +647,9 @@ type Query {
 
   """List workflow instances for a specific object."""
   workflowInstances(objectId: Int!, modelLabel: String = null): [WorkflowInstanceType!]!
+
+  """Embedded Superset dashboards the user can view, in display order."""
+  supersetDashboards: [SupersetDashboardType!]!
 }
 
 type SharedDirectoryType {
@@ -656,6 +666,23 @@ type StartWorkflowResult {
 type Subscription {
   notificationReceived: String!
   formSubmissionReceived(slug: String!): String!
+}
+
+type SupersetDashboardType {
+  guid: UUID!
+  embeddedId: UUID!
+  title: String!
+  description: String
+  order: Int!
+
+  """Superset origin the browser loads the embedded dashboard from."""
+  supersetDomain: String!
+}
+
+type SupersetGuestTokenResult {
+  ok: Boolean!
+  token: String
+  errors: [ValidationError!]!
 }
 
 type SwitchUserResult {
