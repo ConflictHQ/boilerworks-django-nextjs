@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "c516acae6238c0ab892b500f70722f0f801d97aeac379bae34df916dd6abfed7"
+            "sha256": "a2c05e40b6b6be303bf00153db7eeffe84d3dd72b4e45fc52eb840347d0dd5d9"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -679,12 +679,12 @@
         },
         "django-health-check": {
             "hashes": [
-                "sha256:b5e01d2013a254cc5a2c7b19c62f11ea6fd2624c87a9d990e11a1b3874df78b5",
-                "sha256:bd568d7d3813980668dfbe730214aef5da7c8da73bc2aa60ec2eeca8a3788da6"
+                "sha256:3f7e8fd0e85ebb2a62bdaf96bd0e990f93b4c6bbaca68778df79b2cf1810884b",
+                "sha256:d377aba46a029c8eac5ce6170cce5b67a8ecd70180b1212c9eb302f22691da7a"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==3.24.0"
+            "version": "==4.8.0"
         },
         "django-import-export": {
             "hashes": [
@@ -789,6 +789,14 @@
             "index": "pypi",
             "markers": "python_version >= '3.10'",
             "version": "==3.17.1"
+        },
+        "dnspython": {
+            "hashes": [
+                "sha256:9a4aedb833c3c1b49214d04d44d3032ab7a9135f7c1d29a549b4ff78fd82fda9",
+                "sha256:b44dc6b18f07a8b1c56676a19fbfdb5209415b046a9cece286baafa87ff3f7f1"
+            ],
+            "markers": "python_version >= '3.11'",
+            "version": "==2.9.0"
         },
         "ecs-logging": {
             "hashes": [
